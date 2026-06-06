@@ -466,7 +466,8 @@ function generarDistrito(region, provincia, distrito, ubigeo){
   // IFF (Índice de Fortalecimiento Familiar) — promedio ponderado ilustrativo
   if(real){ dim["Economía"].forEach(x=>{
       if(x.m==='Pobreza'&&real.t!=null){x.v=Math.round(real.t);x.real=true;x.pct=true;x.inv=true;}
-      if(x.m==='Pobreza extrema'&&real.e!=null){x.v=Math.round(real.e);x.real=true;x.pct=true;x.inv=true;} }); }
+      if(x.m==='Pobreza extrema'&&real.e!=null){x.v=Math.round(real.e);x.real=true;x.pct=true;x.inv=true;} }); 
+    if(real.va!=null){ dim["Salud"].push({m:'Vulnerabilidad alimentaria',v:real.va,real:true,inv:true}); } }
   const iff = Math.round((idx.bien*0.3+idx.seg*0.2+idx.edu*0.2+idx.sal*0.15+idx.gob*0.15));
   return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño,real};
 }
@@ -808,7 +809,7 @@ function valorIndice(ubigeo, dep, key){
 let MAPA=null, GEO=null, capaGeo=null, mapIniciado=false;
 function initMapaIdxSelect(){
   const sel=document.getElementById('mapIdx'); if(!sel) return;
-  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}${k==='idh'?' (real 2019)':''}</option>`).join('')+'<option value="pobreza_real">Pobreza (real 2019, invertido)</option>';
+  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}${k==='idh'?' (real 2019)':''}</option>`).join('')+'<option value="pobreza_real">Pobreza (real 2019, invertido)</option><option value="va_real">Vulnerabilidad alimentaria (real, invertido)</option>';
   sel.onchange=()=>recolorMapa();
 }
 function colorIdx(v){ return `hsl(${Math.round(v*1.2)},66%,46%)`; }
@@ -817,6 +818,7 @@ function estiloFeat(f){
   const ub=f.properties.IDDIST, rec=(window.IND||{})[ub];
   let v;
   if(key==='pobreza_real'){ v = (rec&&rec.t!=null)?Math.max(0,Math.min(100,100-rec.t)):valorIndice(ub,f.properties.NOMBDEP,'prosp'); }
+  else if(key==='va_real'){ v = (rec&&rec.va!=null)?Math.max(0,Math.min(100,100-rec.va)):valorIndice(ub,f.properties.NOMBDEP,'sal'); }
   else { v=valorIndice(ub,f.properties.NOMBDEP,key); }
   return {fillColor:colorIdx(v),weight:.4,color:'#0a0f1e',fillOpacity:.8};
 }
