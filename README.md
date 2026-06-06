@@ -17,8 +17,13 @@ diagnósticos, índices, proyecciones, recomendaciones y **planes municipales au
 - 🔗 **Interconexión territorial** (corredores), 🤖 **Motor de consultas (IA)**.
 - 📄 **Planes descargables (PDF)**: Plan Municipal 2027–2031 y Plan Maestro 2075.
 
-## ⚠️ Sobre los datos
-Esta es una **demostración con datos ilustrativos** (sintéticos pero consistentes por distrito).
+## 📊 Sobre los datos
+**Datos reales** (1,892 distritos): IDH 2019, % de pobreza y pobreza extrema, y población
+estimada 2020 — fuentes **PNUD/INEI** vía [ubigeo-peru-aumentado](https://github.com/jmcastagnetto/ubigeo-peru-aumentado);
+geometrías de [peru-geojson](https://github.com/juaneladio/peru-geojson). El **motor de IA** usa **OpenRouter**
+(configurable, con proxy Vercel opcional en `proxy-vercel/`).
+
+⚠️ Los **demás índices** (seguridad, educación, salud, etc.) son **ilustrativos** (sintéticos pero consistentes por distrito).
 La arquitectura está lista para integrar **fuentes oficiales**: INEI, MEF, MINSA, MINEDU,
 SENAMHI, IGP, INDECI, CENEPRED.
 

@@ -2,16 +2,18 @@
 //  Proyecto INTI — Configuración del motor de IA (OpenRouter)
 //  https://openrouter.ai/keys
 //
-//  ⚠️ IMPORTANTE: esto es un sitio ESTÁTICO (GitHub Pages). Si pones
-//  aquí tu API key quedará VISIBLE públicamente. Recomendaciones:
-//   • Usa una key con LÍMITE DE GASTO bajo en OpenRouter, o
-//   • Usa un modelo :free, o
-//   • Mejor: pon un proxy (Vercel) y apunta "endpoint" a él.
+//  OPCIÓN A (segura, recomendada): usa un PROXY en Vercel para que la key
+//  NO quede pública. Despliega proxy-vercel/ y pon su URL en "proxy".
+//  Deja "apiKey" vacío.
 //
-//  Si dejas la key vacía, el motor usa respuestas heurísticas locales.
+//  OPCIÓN B (rápida, demo): pon tu "apiKey" aquí. ⚠️ Quedará VISIBLE
+//  públicamente (sitio estático). Usa una key con límite bajo o un modelo :free.
+//
+//  Si dejas "apiKey" y "proxy" vacíos, el motor usa respuestas heurísticas locales.
 // ============================================================
 window.INTI_IA = {
-  apiKey: "",                                   // sk-or-v1-... (OpenRouter)
-  model:  "meta-llama/llama-3.3-70b-instruct:free",  // modelo OpenRouter
+  apiKey: "",                                          // Opción B: sk-or-v1-...
+  proxy:  "",                                          // Opción A: https://tu-proxy.vercel.app/api/inti
+  model:  "meta-llama/llama-3.3-70b-instruct:free",    // modelo OpenRouter
   endpoint: "https://openrouter.ai/api/v1/chat/completions"
 };

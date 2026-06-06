@@ -197,7 +197,7 @@
     <h1>Proyecto INTI</h1>
     <p class="lead">Gemelo Digital del Perú 2075 · Sistema Nacional de Inteligencia Territorial y Desarrollo Distrital</p>
     <p class="sub">Cobertura objetivo: 1,891 distritos · 196 provincias · 25 regiones</p>
-    <div class="disclaimer">⚠️ Demostración con <b>&nbsp;datos ilustrativos</b>&nbsp;— arquitectura lista para fuentes oficiales (INEI · MEF · MINSA · SENAMHI)</div>
+    <div class="disclaimer">✅ <b>&nbsp;Datos reales</b>:&nbsp;IDH 2019, pobreza y población (PNUD/INEI) en 1,892 distritos · otros índices ilustrativos</div>
   </div>
 </header>
 
@@ -384,7 +384,7 @@
 <footer>
   <div class="wrap">
     <p><b>Proyecto INTI</b> — Gemelo Digital del Perú 2075 · "Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos."</p>
-    <p class="fuentes">⚠️ Los valores mostrados son <b>ilustrativos/demostrativos</b> (generados de forma sintética y consistente por distrito). La arquitectura está lista para integrar fuentes oficiales: INEI, MEF, MINSA, MINEDU, SENAMHI, IGP, INDECI, CENEPRED.</p>
+    <p class="fuentes">✅ <b>Datos reales</b> (1,892 distritos): IDH 2019, % de pobreza y pobreza extrema, y población estimada 2020 — fuentes PNUD/INEI vía el dataset abierto <a href="https://github.com/jmcastagnetto/ubigeo-peru-aumentado" target="_blank" rel="noopener">ubigeo-peru-aumentado</a> y geometrías de <a href="https://github.com/juaneladio/peru-geojson" target="_blank" rel="noopener">peru-geojson</a>. ⚠️ Los demás índices (seguridad, educación, salud, etc.) son <b>ilustrativos</b> (sintéticos y consistentes por distrito) hasta integrar sus fuentes oficiales (MINEDU, MINSA, SENAMHI, IGP, INDECI).</p>
     <p style="margin-top:8px">Hecho por <a href="https://unimauro.github.io/">Carlos Mauro Cárdenas</a> · Decisiones basadas en evidencia, sostenibilidad y participación ciudadana.</p>
   </div>
 </footer>
@@ -425,15 +425,20 @@ function generarDistrito(region, provincia, distrito, ubigeo){
   const base = limeño ? 58 : 46; // urbano vs resto (ilustrativo)
   const idx = {};
   INDICES.forEach(([k])=>{ idx[k] = Math.max(18, Math.min(92, Math.round(base + (r()*44-22)))); });
-  const pob = rangoVal(r, limeño?20000:1500, limeño?1100000:90000);
+  let pob = rangoVal(r, limeño?20000:1500, limeño?1100000:90000);
+  const real = (typeof IND!=='undefined'&&IND[ubigeo])||null;
+  if(real){ if(real.p) pob = real.p; if(real.i!=null) idx.idh = Math.max(5,Math.min(100,Math.round(real.i))); }
   const crec = (r()*3.4-0.6); // % anual
   const proy = (anios)=> Math.round(pob*Math.pow(1+crec/100, anios));
   // dimensiones (valores 0-100, donde corresponde "más es mejor" o "%")
   const dim = {};
   Object.entries(DIM).forEach(([d,arr])=>{ dim[d]=arr.map(m=>({m, v: rangoVal(r,8,95)})); });
   // IFF (Índice de Fortalecimiento Familiar) — promedio ponderado ilustrativo
+  if(real){ dim["Economía"].forEach(x=>{
+      if(x.m==='Pobreza'&&real.t!=null){x.v=Math.round(real.t);x.real=true;x.pct=true;x.inv=true;}
+      if(x.m==='Pobreza extrema'&&real.e!=null){x.v=Math.round(real.e);x.real=true;x.pct=true;x.inv=true;} }); }
   const iff = Math.round((idx.bien*0.3+idx.seg*0.2+idx.edu*0.2+idx.sal*0.15+idx.gob*0.15));
-  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño};
+  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño,real};
 }
 
 function semaforo(v){ return v>=66?["verde","Adecuado"]:v>=45?["ambar","Atención"]:["rojo","Crítico"]; }
@@ -482,14 +487,17 @@ function cargar(){
   if(!reg||!prov||!dist) return;
   D = generarDistrito(reg,prov,dist,ubigeo); D.ubigeo=ubigeo;
   document.getElementById('nomDist').textContent = dist;
-  document.getElementById('ubicacion').textContent = `${dist}, provincia de ${prov}, región ${reg} · Perú`;
+  let _ex='';
+  if(D.real){ _ex=` · <span style="color:var(--inti2)">IDH 2019: ${D.real.i??'—'} · Pobreza: ${D.real.t!=null?D.real.t+'%':'—'}${D.real.al!=null?' · '+D.real.al+' msnm':''}</span>`; }
+  document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex}`;
+  if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
   renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderClima();
   renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
 }
 
 function renderResumen(){
   const stats=[
-    ["Población actual",fmt(D.pob),"habitantes (ilustrativo)"],
+    ["Población actual",fmt(D.pob),(D.real&&D.real.p)?"hab. · estimación 2020 (real)":"habitantes (ilustrativo)"],
     ["Proyección 10 años",fmt(D.proy(10)),`crec. ${D.crec.toFixed(1)}%/año`],
     ["Proyección 25 años",fmt(D.proy(25)),"escenario esperado"],
     ["Proyección 50 años (2075)",fmt(D.proy(50)),"horizonte INTI"],
@@ -498,7 +506,8 @@ function renderResumen(){
 
   document.getElementById('indices').innerHTML = INDICES.map(([k,nom])=>{
     const v=D.idx[k], [c,t]=semaforo(v);
-    return `<div class="card idx hover"><div class="top"><span class="nom">${nom}</span><span class="val v-${c}">${v}</span></div>
+    const tag=(k==='idh'&&D.real&&D.real.i!=null)?' <span style="font-size:.58rem;background:rgba(34,197,94,.22);color:#86efac;padding:1px 6px;border-radius:5px">real 2019</span>':'';
+    return `<div class="card idx hover"><div class="top"><span class="nom">${nom}${tag}</span><span class="val v-${c}">${v}</span></div>
       <div class="bar"><i class="bg-${c}" style="width:${v}%"></i></div>
       <span class="sem v-${c}"><span class="dot bg-${c}"></span>${t}</span></div>`;
   }).join('');
@@ -521,7 +530,7 @@ function renderDiag(){
   tabs.innerHTML=Object.keys(DIM).map(d=>`<button class="${d===diagActiva?'act':''}" onclick="setDiag('${d}')">${d}</button>`).join('');
   const data=D.dim[diagActiva];
   document.getElementById('diagMetrics').innerHTML=`<h3 style="font-size:1rem;margin-bottom:10px">${diagActiva}</h3>`+
-    data.map(x=>{const [c]=semaforo(x.v);return `<div class="metric-row"><span>${x.m}</span><span class="mv v-${c}">${x.v}${diagActiva==='Demografía'&&x.m==='Población'?'':''}</span></div>`}).join('');
+    data.map(x=>{const sv=x.inv?100-x.v:x.v;const [c]=semaforo(sv);const rt=x.real?' <span style="font-size:.58rem;color:#86efac">●real</span>':'';return `<div class="metric-row"><span>${x.m}${rt}</span><span class="mv v-${c}">${x.v}${x.pct?'%':''}</span></div>`}).join('');
   mkChart('diagChart','bar',{labels:data.map(x=>x.m),datasets:[{label:diagActiva,data:data.map(x=>x.v),
     backgroundColor:data.map(x=>({verde:'#22c55e',ambar:'#f59e0b',rojo:'#ef4444'}[semaforo(x.v)[0]]))}]},
     {indexAxis:'y',scales:{x:{max:100,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{grid:{display:false},ticks:{color:'#8b9bc4',font:{size:10}}}},plugins:{legend:{display:false}}});
@@ -758,6 +767,7 @@ function generarReporte(tipo){
 
 /* ====================== MAPA (Leaflet) ====================== */
 function valorIndice(ubigeo, dep, key){
+  if(key==='idh'){ const rec=(window.IND||{})[ubigeo]; if(rec&&rec.i!=null) return Math.round(rec.i); }
   const r=rng(hash(String(ubigeo))); const limeño=/Lima|Callao/i.test(dep); const base=limeño?58:46;
   let val=0; for(const [k] of INDICES){ const v=Math.max(18,Math.min(92,Math.round(base+(r()*44-22)))); if(k===key) val=v; }
   return val;
@@ -765,13 +775,16 @@ function valorIndice(ubigeo, dep, key){
 let MAPA=null, GEO=null, capaGeo=null, mapIniciado=false;
 function initMapaIdxSelect(){
   const sel=document.getElementById('mapIdx'); if(!sel) return;
-  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}</option>`).join('');
+  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}${k==='idh'?' (real 2019)':''}</option>`).join('')+'<option value="pobreza_real">Pobreza (real 2019, invertido)</option>';
   sel.onchange=()=>recolorMapa();
 }
 function colorIdx(v){ return `hsl(${Math.round(v*1.2)},66%,46%)`; }
 function estiloFeat(f){
   const key=(document.getElementById('mapIdx')||{}).value||'idh';
-  const v=valorIndice(f.properties.IDDIST,f.properties.NOMBDEP,key);
+  const ub=f.properties.IDDIST, rec=(window.IND||{})[ub];
+  let v;
+  if(key==='pobreza_real'){ v = (rec&&rec.t!=null)?Math.max(0,Math.min(100,100-rec.t)):valorIndice(ub,f.properties.NOMBDEP,'prosp'); }
+  else { v=valorIndice(ub,f.properties.NOMBDEP,key); }
   return {fillColor:colorIdx(v),weight:.4,color:'#0a0f1e',fillOpacity:.8};
 }
 async function initMapa(){
@@ -814,11 +827,14 @@ function mdToHtml(t){
 }
 async function responderIA(){
   const cfg=window.INTI_IA||{}; const q=document.getElementById('iaInput').value||'';
-  if(!cfg.apiKey){ return responderIAHeuristica(); }
+  const usarProxy=!!cfg.proxy;
+  if(!cfg.apiKey && !usarProxy){ return responderIAHeuristica(); }
   const el=document.getElementById('iaResp'); el.classList.add('show'); el.innerHTML='<h4>🤖 Analizando con IA…</h4>';
   try{
     const ctx=`Distrito ${D.distrito}, ${D.provincia}, ${D.region} (datos ILUSTRATIVOS). Índices 0-100 → IDH ${D.idx.idh}, Prosperidad ${D.idx.prosp}, Bienestar ${D.idx.bien}, Seguridad ${D.idx.seg}, Educación ${D.idx.edu}, Salud ${D.idx.sal}, Ambiental ${D.idx.amb}, Resiliencia ${D.idx.resi}, Gobernanza ${D.idx.gob}, Innovación ${D.idx.inno}. Población ~${D.pob}. Índice de Fortalecimiento Familiar ${D.iff}.`;
-    const res=await fetch(cfg.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey},
+    const _url=usarProxy?cfg.proxy:cfg.endpoint;
+    const _headers=usarProxy?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey};
+    const res=await fetch(_url,{method:'POST',headers:_headers,
       body:JSON.stringify({model:cfg.model,messages:[
         {role:'system',content:'Eres analista de planificación territorial y desarrollo distrital del Perú (Proyecto INTI 2075). Responde en español, conciso, técnico y accionable, con viñetas, escenarios y prioridades. Recuerda que los datos son ilustrativos.'},
         {role:'user',content:ctx+'\n\nPregunta: '+q}]})});
@@ -829,8 +845,12 @@ async function responderIA(){
 }
 
 /* ====================== INIT ====================== */
-fetch('data/territorio.json').then(r=>r.json()).then(j=>{
-  TERRITORIO=j;
+window.IND={};
+Promise.all([
+  fetch('data/territorio.json').then(r=>r.json()),
+  fetch('data/indicadores.json').then(r=>r.json()).catch(()=>({}))
+]).then(([j,ind])=>{
+  TERRITORIO=j; window.IND=ind||{};
   for(const dep in j) for(const prov in j[dep]) for(const o of j[dep][prov]) UBIGEO[o.u]={dep,prov,dist:o.d};
   poblarSelectores();
   initMapaIdxSelect();
