@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CQY8SYKRG1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-CQY8SYKRG1');</script>
 <title>Proyecto INTI — Gemelo Digital del Perú 2075 | Inteligencia Territorial Distrital</title>
 <meta name="description" content="Proyecto INTI: gemelo digital y sistema nacional de inteligencia territorial para los 1,891 distritos del Perú. Diagnósticos, índices, prospectiva 2075, proyectos prioritarios y planes municipales automáticos. Demostración con datos ilustrativos.">
 <meta name="keywords" content="Perú 2075, gemelo digital, inteligencia territorial, desarrollo distrital, prospectiva, índice desarrollo humano, plan municipal, INEI, Proyecto INTI">
@@ -14,10 +17,15 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://unimauro.github.io/proyecto-inti/">
+<meta property="og:image" content="https://unimauro.github.io/proyecto-inti/og-image.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:title" content="Proyecto INTI — Gemelo Digital del Perú 2075">
 <meta property="og:description" content="Sistema nacional de inteligencia territorial y desarrollo distrital. Diagnósticos, prospectiva 2075 y planes municipales automáticos para los 1,891 distritos del Perú.">
 <meta property="og:locale" content="es_PE">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Proyecto INTI — Gemelo Digital del Perú 2075">
+<meta name="twitter:description" content="Inteligencia territorial para los 1,891 distritos del Perú. IDH, pobreza y Censo 2017 reales.">
+<meta name="twitter:image" content="https://unimauro.github.io/proyecto-inti/og-image.jpg">
 
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Proyecto INTI — Gemelo Digital del Perú 2075","applicationCategory":"GovernmentApplication","operatingSystem":"Web","url":"https://unimauro.github.io/proyecto-inti/","inLanguage":"es","description":"Gemelo digital y sistema de inteligencia territorial para los 1,891 distritos del Perú: diagnósticos, índices, prospectiva 2075 y planes municipales."}
@@ -187,12 +195,33 @@
     #reporte .cover{text-align:center;padding:60px 0;}
   }
   @media (max-width:600px){ .selector select{min-width:120px;} }
+  /* Temas */
+  body[data-theme="cafe"]{--bg:#1d1410;--bg2:#26190f;--card:#2c1d12;--card2:#372616;--line:#4d3722;--txt:#f4e9dc;--muted:#cbab8d;--muted2:#917055;}
+  body[data-theme="claro"]{--bg:#f4f1ea;--bg2:#ffffff;--card:#ffffff;--card2:#eee9df;--line:#e1d9c9;--txt:#241c14;--muted:#6b5d49;--muted2:#9b8c74;}
+  .util{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
+  .util .themes{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;}
+  .util .themes button{border:0;background:transparent;cursor:pointer;font-size:1rem;width:32px;height:28px;border-radius:999px;line-height:1;}
+  .util .themes button.act{background:rgba(245,166,35,.28);}
+  .util a.bmc{background:#ffdd00;color:#1a1206;font-weight:800;font-size:.82rem;padding:7px 14px;border-radius:999px;text-decoration:none;}
+  .util .util-share{background:var(--card);border:1px solid var(--line);color:var(--txt);cursor:pointer;font-weight:700;font-size:.82rem;padding:7px 12px;border-radius:999px;}
+  .util .util-share:hover{border-color:var(--inti);}
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="wrap">
+    <div class="util">
+      <span class="themes">
+        <button data-theme="dark" onclick="setTema('dark')" title="Oscuro">🌙</button>
+        <button data-theme="cafe" onclick="setTema('cafe')" title="Café">☕</button>
+        <button data-theme="claro" onclick="setTema('claro')" title="Claro">☀️</button>
+      </span>
+      <a class="bmc" href="https://buymeacoffee.com/unimauro" target="_blank" rel="noopener">☕ Invítame un café</a>
+      <button class="util-share" onclick="compartirINTI('wa',this)" title="Compartir por WhatsApp">💬 WhatsApp</button>
+      <button class="util-share" onclick="compartirINTI('tw',this)" title="Compartir en X/Twitter">𝕏 Twitter</button>
+      <button class="util-share" onclick="compartirINTI('copy',this)" title="Copiar enlace">🔗</button>
+    </div>
     <span class="sol">🌞</span>
     <h1>Proyecto INTI</h1>
     <p class="lead">Gemelo Digital del Perú 2075 · Sistema Nacional de Inteligencia Territorial y Desarrollo Distrital</p>
@@ -386,6 +415,7 @@
     <p><b>Proyecto INTI</b> — Gemelo Digital del Perú 2075 · "Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos."</p>
     <p class="fuentes">✅ <b>Datos reales</b> (1,892 distritos): IDH 2019, % de pobreza y pobreza extrema, y población estimada 2020 — fuentes PNUD/INEI vía el dataset abierto <a href="https://github.com/jmcastagnetto/ubigeo-peru-aumentado" target="_blank" rel="noopener">ubigeo-peru-aumentado</a> y geometrías de <a href="https://github.com/juaneladio/peru-geojson" target="_blank" rel="noopener">peru-geojson</a>. ⚠️ Los demás índices (seguridad, educación, salud, etc.) son <b>ilustrativos</b> (sintéticos y consistentes por distrito) hasta integrar sus fuentes oficiales (MINEDU, MINSA, SENAMHI, IGP, INDECI).</p>
     <p style="margin-top:8px">Hecho por <a href="https://unimauro.github.io/">Carlos Mauro Cárdenas</a> · Decisiones basadas en evidencia, sostenibilidad y participación ciudadana.</p>
+    <p style="margin-top:10px">☕ ¿Te sirve este proyecto? <a href="https://buymeacoffee.com/unimauro" target="_blank" rel="noopener">Invítame un café</a> &nbsp;·&nbsp; 📱 <b>Yape: Carlos Cárdenas</b> &nbsp;·&nbsp; ✍️ Autoría: <b>Carlos Mauro Cárdenas Fernández</b></p>
   </div>
 </footer>
 
@@ -497,7 +527,7 @@ function cargar(){
 
 function renderResumen(){
   const stats=[
-    ["Población actual",fmt(D.pob),(D.real&&D.real.p)?"hab. · estimación 2020 (densidad×área)":"habitantes (ilustrativo)"],
+    ["Población actual",fmt(D.pob),(D.real&&D.real.pc)?"habitantes · Censo 2017 (INEI)":(D.real&&D.real.p)?"hab. · estimación 2020":"habitantes (ilustrativo)"],
     ["Proyección 10 años",fmt(D.proy(10)),`crec. ${D.crec.toFixed(1)}%/año`],
     ["Proyección 25 años",fmt(D.proy(25)),"escenario esperado"],
     ["Proyección 50 años (2075)",fmt(D.proy(50)),"horizonte INTI"],
@@ -845,6 +875,18 @@ async function responderIA(){
     const txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||(j.error&&j.error.message)||'No se obtuvo respuesta.';
     el.innerHTML='<h4>🤖 '+(q||'Análisis')+'</h4>'+mdToHtml(txt)+'<div class="nota">Generado vía OpenRouter ('+cfg.model+') sobre datos ilustrativos del distrito.</div>';
   }catch(e){ responderIAHeuristica(); }
+}
+
+/* ====================== TEMAS + COMPARTIR ====================== */
+function setTema(t){ document.body.dataset.theme=t; try{localStorage.setItem('inti_tema',t);}catch(e){} document.querySelectorAll('.util .themes button').forEach(b=>b.classList.toggle('act',b.dataset.theme===t)); }
+(function(){ let t='dark'; try{t=localStorage.getItem('inti_tema')||'dark';}catch(e){} setTema(t); })();
+const INTI_URL='https://unimauro.github.io/proyecto-inti/';
+const INTI_TXT='🌞 Proyecto INTI — Gemelo Digital del Perú 2075: explora los 1,891 distritos del Perú';
+function compartirINTI(m,btn){
+  const u=encodeURIComponent(INTI_URL), t=encodeURIComponent(INTI_TXT);
+  if(m==='wa') window.open(`https://wa.me/?text=${t}%20${u}`,'_blank','noopener');
+  else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
+  else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
 }
 
 /* ====================== INIT ====================== */
