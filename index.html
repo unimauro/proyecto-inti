@@ -497,11 +497,14 @@ function cargar(){
 
 function renderResumen(){
   const stats=[
-    ["Población actual",fmt(D.pob),(D.real&&D.real.p)?"hab. · estimación 2020 (real)":"habitantes (ilustrativo)"],
+    ["Población actual",fmt(D.pob),(D.real&&D.real.p)?"hab. · estimación 2020 (densidad×área)":"habitantes (ilustrativo)"],
     ["Proyección 10 años",fmt(D.proy(10)),`crec. ${D.crec.toFixed(1)}%/año`],
     ["Proyección 25 años",fmt(D.proy(25)),"escenario esperado"],
     ["Proyección 50 años (2075)",fmt(D.proy(50)),"horizonte INTI"],
   ];
+  const ub=D.ubigeo, ri=(window.RANK_IDH||{})[ub], rp=(window.RANK_POB||{})[ub];
+  if(ri) stats.push(["🏆 Ranking IDH nacional",`#${ri}`,`de ${fmt(window.RANK_N_IDH)} distritos · real 2019`]);
+  if(rp) stats.push(["🏆 Ranking menor pobreza",`#${rp}`,`de ${fmt(window.RANK_N_POB)} distritos · real`]);
   document.getElementById('stats').innerHTML = stats.map(s=>`<div class="card stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
 
   document.getElementById('indices').innerHTML = INDICES.map(([k,nom])=>{
@@ -851,6 +854,11 @@ Promise.all([
   fetch('data/indicadores.json').then(r=>r.json()).catch(()=>({}))
 ]).then(([j,ind])=>{
   TERRITORIO=j; window.IND=ind||{};
+  const _arr=Object.entries(window.IND);
+  const _byIdh=_arr.filter(([,v])=>v.i!=null).sort((a,b)=>b[1].i-a[1].i);
+  window.RANK_IDH={}; _byIdh.forEach(([u],i)=>RANK_IDH[u]=i+1); window.RANK_N_IDH=_byIdh.length;
+  const _byPob=_arr.filter(([,v])=>v.t!=null).sort((a,b)=>a[1].t-b[1].t);
+  window.RANK_POB={}; _byPob.forEach(([u],i)=>RANK_POB[u]=i+1); window.RANK_N_POB=_byPob.length;
   for(const dep in j) for(const prov in j[dep]) for(const o of j[dep][prov]) UBIGEO[o.u]={dep,prov,dist:o.d};
   poblarSelectores();
   initMapaIdxSelect();
