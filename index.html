@@ -26,6 +26,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="config.js"></script>
 <style>
   :root{
     --bg:#0a0f1e; --bg2:#0f1730; --card:#131d3a; --card2:#18244a;
@@ -209,6 +212,7 @@
     </div>
     <div class="nav-chips">
       <a href="#resumen">Resumen</a>
+      <a href="#mapa">Mapa</a>
       <a href="#diagnostico">Diagnóstico</a>
       <a href="#familia">Familia</a>
       <a href="#prospectiva">Prospectiva 2075</a>
@@ -235,6 +239,21 @@
     <div class="grid g-2" style="margin-top:14px">
       <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Perfil de índices</h3><div class="chartbox"><canvas id="radar"></canvas></div></div>
       <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Proyección poblacional</h3><div class="chartbox"><canvas id="pobChart"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- MAPA -->
+  <section id="mapa">
+    <div class="sec-h"><span class="ico">🗺️</span><h2>Mapa territorial nacional</h2></div>
+    <p class="sec-desc">1,834 distritos reales (GeoJSON oficial). Colorea por índice y haz clic en un distrito para analizarlo.</p>
+    <div class="card" style="padding:14px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:.78rem;color:var(--muted);font-weight:600">Colorear por índice:</label>
+        <select id="mapIdx" style="background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-family:inherit;font-weight:600;cursor:pointer"></select>
+        <span style="font-size:.74rem;color:var(--muted2)">🔴 bajo → 🟢 alto</span>
+        <span id="mapStatus" style="font-size:.78rem;color:var(--inti2);margin-left:auto"></span>
+      </div>
+      <div id="mapaLeaflet" style="height:540px;border-radius:12px;overflow:hidden;background:#0a0f1e"></div>
     </div>
   </section>
 
@@ -376,33 +395,7 @@
 <script>
 /* ====================== DATOS BASE ====================== */
 // Jerarquía territorial (muestra representativa real; el sistema completo cargaría los 1,891 distritos desde INEI)
-const TERRITORIO = {
-  "Amazonas":{"Chachapoyas":["Chachapoyas","Asunción","Balsas"],"Bagua":["Bagua","Aramango","Imaza"]},
-  "Áncash":{"Huaraz":["Huaraz","Independencia","Tarica"],"Santa":["Chimbote","Nuevo Chimbote","Coishco"]},
-  "Apurímac":{"Abancay":["Abancay","Tamburco","Curahuasi"],"Andahuaylas":["Andahuaylas","Talavera","San Jerónimo"]},
-  "Arequipa":{"Arequipa":["Arequipa","Cayma","Cerro Colorado","Yanahuara","Paucarpata"],"Camaná":["Camaná","Mariano Nicolás Valcárcel"]},
-  "Ayacucho":{"Huamanga":["Ayacucho","Carmen Alto","San Juan Bautista"],"Huanta":["Huanta","Luricocha"]},
-  "Cajamarca":{"Cajamarca":["Cajamarca","Los Baños del Inca","Jesús"],"Jaén":["Jaén","Bellavista"]},
-  "Callao":{"Callao":["Callao","Bellavista","La Perla","Ventanilla","Mi Perú"]},
-  "Cusco":{"Cusco":["Cusco","Wanchaq","Santiago","San Sebastián","San Jerónimo"],"Urubamba":["Urubamba","Machupicchu","Ollantaytambo"]},
-  "Huancavelica":{"Huancavelica":["Huancavelica","Ascensión","Yauli"],"Tayacaja":["Pampas","Daniel Hernández"]},
-  "Huánuco":{"Huánuco":["Huánuco","Amarilis","Pillco Marca"],"Leoncio Prado":["Rupa-Rupa (Tingo María)","Castillo Grande"]},
-  "Ica":{"Ica":["Ica","La Tinguiña","Parcona","Subtanjalla"],"Pisco":["Pisco","San Andrés","Túpac Amaru Inca"]},
-  "Junín":{"Huancayo":["Huancayo","El Tambo","Chilca","Pilcomayo"],"Satipo":["Satipo","Río Negro","Pangoa"]},
-  "La Libertad":{"Trujillo":["Trujillo","Víctor Larco Herrera","La Esperanza","El Porvenir","Huanchaco"],"Pacasmayo":["San Pedro de Lloc","Guadalupe"]},
-  "Lambayeque":{"Chiclayo":["Chiclayo","José Leonardo Ortiz","La Victoria","Pimentel"],"Lambayeque":["Lambayeque","Mórrope","Olmos"]},
-  "Lima":{"Lima":["Lima (Cercado)","San Juan de Lurigancho","San Martín de Porres","Comas","Villa El Salvador","Villa María del Triunfo","Ate","Miraflores","San Isidro","Surco","San Borja","Los Olivos","Independencia","El Agustino","Carabayllo"],"Huaral":["Huaral","Chancay","Aucallama"],"Cañete":["San Vicente de Cañete","Imperial","Mala"]},
-  "Loreto":{"Maynas":["Iquitos","Belén","San Juan Bautista","Punchana"],"Alto Amazonas":["Yurimaguas","Balsapuerto"]},
-  "Madre de Dios":{"Tambopata":["Tambopata (Puerto Maldonado)","Inambari","Las Piedras"],"Manu":["Manu","Madre de Dios (Boca Colorado)"]},
-  "Moquegua":{"Mariscal Nieto":["Moquegua","Samegua","Torata"],"Ilo":["Ilo","Pacocha","El Algarrobal"]},
-  "Pasco":{"Pasco":["Chaupimarca","Yanacancha","Simón Bolívar"],"Oxapampa":["Oxapampa","Villa Rica","Pozuzo"]},
-  "Piura":{"Piura":["Piura","Castilla","Catacaos","Veintiséis de Octubre"],"Sullana":["Sullana","Bellavista","Marcavelica"],"Talara":["Pariñas (Talara)","La Brea (Negritos)"]},
-  "Puno":{"Puno":["Puno","Acora","Paucarcolla"],"San Román":["Juliaca","Cabana","Caracoto"]},
-  "San Martín":{"San Martín":["Tarapoto","Morales","La Banda de Shilcayo"],"Moyobamba":["Moyobamba","Soritor","Jepelacio"]},
-  "Tacna":{"Tacna":["Tacna","Alto de la Alianza","Ciudad Nueva","Pocollay"],"Jorge Basadre":["Locumba","Ite"]},
-  "Tumbes":{"Tumbes":["Tumbes","Corrales","La Cruz"],"Zarumilla":["Zarumilla","Aguas Verdes","Papayal"]},
-  "Ucayali":{"Coronel Portillo":["Callería (Pucallpa)","Yarinacocha","Manantay"],"Padre Abad":["Padre Abad (Aguaytía)","Irazola"]}
-};
+let TERRITORIO = {}, UBIGEO = {};
 
 /* Generador determinístico: misma entrada → mismos valores (consistencia) */
 function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0);}
@@ -425,10 +418,10 @@ const DIM = {
   "Infraestructura":["Vías pavimentadas","Puentes operativos","Conectividad digital","Electrificación rural"]
 };
 
-function generarDistrito(region, provincia, distrito){
-  const seed = hash(region+"|"+provincia+"|"+distrito);
+function generarDistrito(region, provincia, distrito, ubigeo){
+  const seed = hash(String(ubigeo||(region+"|"+provincia+"|"+distrito)));
   const r = rng(seed);
-  const limeño = (region==="Lima"||region==="Callao");
+  const limeño = /Lima|Callao/i.test(region);
   const base = limeño ? 58 : 46; // urbano vs resto (ilustrativo)
   const idx = {};
   INDICES.forEach(([k])=>{ idx[k] = Math.max(18, Math.min(92, Math.round(base + (r()*44-22)))); });
@@ -461,7 +454,7 @@ function poblarSelectores(){
   document.getElementById('selProvincia').onchange=()=>poblarDist();
   document.getElementById('selDistrito').onchange=()=>{poblarCP();cargar();};
   document.getElementById('selCP').onchange=()=>cargar();
-  sr.value="Lima"; poblarProv();
+  sr.value = TERRITORIO["Lima"]?"Lima":Object.keys(TERRITORIO)[0]; poblarProv();
 }
 function poblarProv(){
   const reg=document.getElementById('selRegion').value;
@@ -472,19 +465,22 @@ function poblarProv(){
 function poblarDist(){
   const reg=document.getElementById('selRegion').value, prov=document.getElementById('selProvincia').value;
   const sd=document.getElementById('selDistrito');
-  sd.innerHTML=TERRITORIO[reg][prov].map(d=>`<option>${d}</option>`).join('');
+  sd.innerHTML=TERRITORIO[reg][prov].map(o=>`<option value="${o.u}">${o.d}</option>`).join('');
   poblarCP(); cargar();
 }
 function poblarCP(){
-  const d=document.getElementById('selDistrito').value;
+  const sel=document.getElementById('selDistrito');
+  const d=sel.options.length?sel.options[sel.selectedIndex].text:'';
   const sc=document.getElementById('selCP');
   sc.innerHTML=[`Todo el distrito`,`${d} (urbano)`,`${d} (rural)`].map(c=>`<option>${c}</option>`).join('');
 }
 
 function cargar(){
-  const reg=document.getElementById('selRegion').value, prov=document.getElementById('selProvincia').value, dist=document.getElementById('selDistrito').value;
+  const reg=document.getElementById('selRegion').value, prov=document.getElementById('selProvincia').value;
+  const sd=document.getElementById('selDistrito'); if(!sd.options.length) return;
+  const dist=sd.options[sd.selectedIndex].text, ubigeo=sd.value;
   if(!reg||!prov||!dist) return;
-  D = generarDistrito(reg,prov,dist);
+  D = generarDistrito(reg,prov,dist,ubigeo); D.ubigeo=ubigeo;
   document.getElementById('nomDist').textContent = dist;
   document.getElementById('ubicacion').textContent = `${dist}, provincia de ${prov}, región ${reg} · Perú`;
   renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderClima();
@@ -688,7 +684,7 @@ const PREGUNTAS=["¿Cómo reducir la pobreza en este distrito?","¿Cómo duplica
 function renderIAChips(){
   document.getElementById('iaChips').innerHTML=PREGUNTAS.map(q=>`<button onclick="document.getElementById('iaInput').value=this.textContent;responderIA()">${q}</button>`).join('');
 }
-function responderIA(){
+function responderIAHeuristica(){
   const q=(document.getElementById('iaInput').value||'').toLowerCase();
   const el=document.getElementById('iaResp'); el.classList.add('show');
   let titulo="Análisis técnico", cuerpo="";
@@ -760,8 +756,85 @@ function generarReporte(tipo){
   setTimeout(()=>window.print(),200);
 }
 
+/* ====================== MAPA (Leaflet) ====================== */
+function valorIndice(ubigeo, dep, key){
+  const r=rng(hash(String(ubigeo))); const limeño=/Lima|Callao/i.test(dep); const base=limeño?58:46;
+  let val=0; for(const [k] of INDICES){ const v=Math.max(18,Math.min(92,Math.round(base+(r()*44-22)))); if(k===key) val=v; }
+  return val;
+}
+let MAPA=null, GEO=null, capaGeo=null, mapIniciado=false;
+function initMapaIdxSelect(){
+  const sel=document.getElementById('mapIdx'); if(!sel) return;
+  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}</option>`).join('');
+  sel.onchange=()=>recolorMapa();
+}
+function colorIdx(v){ return `hsl(${Math.round(v*1.2)},66%,46%)`; }
+function estiloFeat(f){
+  const key=(document.getElementById('mapIdx')||{}).value||'idh';
+  const v=valorIndice(f.properties.IDDIST,f.properties.NOMBDEP,key);
+  return {fillColor:colorIdx(v),weight:.4,color:'#0a0f1e',fillOpacity:.8};
+}
+async function initMapa(){
+  if(mapIniciado) return; mapIniciado=true;
+  const st=document.getElementById('mapStatus');
+  if(typeof L==='undefined'){ if(st)st.textContent='Mapa no disponible.'; mapIniciado=false; return; }
+  if(st) st.textContent='Cargando 1,834 distritos…';
+  try{
+    MAPA=L.map('mapaLeaflet',{center:[-9.5,-75],zoom:5,scrollWheelZoom:false});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:12}).addTo(MAPA);
+    const res=await fetch('data/distritos.geojson'); GEO=await res.json();
+    capaGeo=L.geoJSON(GEO,{style:estiloFeat,onEachFeature:(f,layer)=>{
+      const p=f.properties;
+      layer.on('mouseover',()=>{layer.setStyle({weight:1.8,color:'#f5a623'});const k=(document.getElementById('mapIdx')||{}).value||'idh';layer.bindTooltip(`${p.NOMBDIST.toLowerCase()} · ${valorIndice(p.IDDIST,p.NOMBDEP,k)}/100`,{sticky:true}).openTooltip();});
+      layer.on('mouseout',()=>capaGeo.resetStyle(layer));
+      layer.on('click',()=>selDistByUbigeo(p.IDDIST));
+    }}).addTo(MAPA);
+    if(st) st.textContent='✓ Pasa el cursor y haz clic en un distrito.';
+  }catch(e){ if(st)st.textContent='No se pudo cargar el mapa.'; mapIniciado=false; }
+}
+function recolorMapa(){ if(capaGeo) capaGeo.setStyle(estiloFeat); }
+function selDistByUbigeo(u){
+  const info=UBIGEO[u]; if(!info) return;
+  document.getElementById('selRegion').value=info.dep; poblarProv();
+  document.getElementById('selProvincia').value=info.prov; poblarDist();
+  document.getElementById('selDistrito').value=u; poblarCP(); cargar();
+  document.getElementById('resumen').scrollIntoView({behavior:'smooth'});
+}
+const obsMapa=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){initMapa();obsMapa.disconnect();}})},{rootMargin:'250px'});
+window.addEventListener('load',()=>{ const m=document.getElementById('mapa'); if(m) obsMapa.observe(m); });
+
+/* ====================== IA con OpenRouter ====================== */
+function mdToHtml(t){
+  t=String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  const lines=t.split(/\n/); let html='',inUl=false;
+  for(let l of lines){ l=l.trim();
+    if(/^[-*•]\s+/.test(l)){ if(!inUl){html+='<ul>';inUl=true;} html+='<li>'+l.replace(/^[-*•]\s+/,'')+'</li>'; }
+    else { if(inUl){html+='</ul>';inUl=false;} if(l) html+='<p>'+l+'</p>'; } }
+  if(inUl)html+='</ul>'; return html;
+}
+async function responderIA(){
+  const cfg=window.INTI_IA||{}; const q=document.getElementById('iaInput').value||'';
+  if(!cfg.apiKey){ return responderIAHeuristica(); }
+  const el=document.getElementById('iaResp'); el.classList.add('show'); el.innerHTML='<h4>🤖 Analizando con IA…</h4>';
+  try{
+    const ctx=`Distrito ${D.distrito}, ${D.provincia}, ${D.region} (datos ILUSTRATIVOS). Índices 0-100 → IDH ${D.idx.idh}, Prosperidad ${D.idx.prosp}, Bienestar ${D.idx.bien}, Seguridad ${D.idx.seg}, Educación ${D.idx.edu}, Salud ${D.idx.sal}, Ambiental ${D.idx.amb}, Resiliencia ${D.idx.resi}, Gobernanza ${D.idx.gob}, Innovación ${D.idx.inno}. Población ~${D.pob}. Índice de Fortalecimiento Familiar ${D.iff}.`;
+    const res=await fetch(cfg.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey},
+      body:JSON.stringify({model:cfg.model,messages:[
+        {role:'system',content:'Eres analista de planificación territorial y desarrollo distrital del Perú (Proyecto INTI 2075). Responde en español, conciso, técnico y accionable, con viñetas, escenarios y prioridades. Recuerda que los datos son ilustrativos.'},
+        {role:'user',content:ctx+'\n\nPregunta: '+q}]})});
+    const j=await res.json();
+    const txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||(j.error&&j.error.message)||'No se obtuvo respuesta.';
+    el.innerHTML='<h4>🤖 '+(q||'Análisis')+'</h4>'+mdToHtml(txt)+'<div class="nota">Generado vía OpenRouter ('+cfg.model+') sobre datos ilustrativos del distrito.</div>';
+  }catch(e){ responderIAHeuristica(); }
+}
+
 /* ====================== INIT ====================== */
-poblarSelectores();
+fetch('data/territorio.json').then(r=>r.json()).then(j=>{
+  TERRITORIO=j;
+  for(const dep in j) for(const prov in j[dep]) for(const o of j[dep][prov]) UBIGEO[o.u]={dep,prov,dist:o.d};
+  poblarSelectores();
+  initMapaIdxSelect();
+}).catch(e=>{ document.getElementById('ubicacion').textContent='No se pudo cargar la base territorial.'; });
 </script>
 </body>
 </html>
