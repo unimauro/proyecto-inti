@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proyecto INTI — Gemelo Digital del Perú 2075 | Inteligencia Territorial Distrital</title>
+<meta name="description" content="Proyecto INTI: gemelo digital y sistema nacional de inteligencia territorial para los 1,891 distritos del Perú. Diagnósticos, índices, prospectiva 2075, proyectos prioritarios y planes municipales automáticos. Demostración con datos ilustrativos.">
+<meta name="keywords" content="Perú 2075, gemelo digital, inteligencia territorial, desarrollo distrital, prospectiva, índice desarrollo humano, plan municipal, INEI, Proyecto INTI">
+<meta name="author" content="Carlos Mauro Cárdenas">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://unimauro.github.io/proyecto-inti/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌞</text></svg>">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://unimauro.github.io/proyecto-inti/">
+<meta property="og:title" content="Proyecto INTI — Gemelo Digital del Perú 2075">
+<meta property="og:description" content="Sistema nacional de inteligencia territorial y desarrollo distrital. Diagnósticos, prospectiva 2075 y planes municipales automáticos para los 1,891 distritos del Perú.">
+<meta property="og:locale" content="es_PE">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Proyecto INTI — Gemelo Digital del Perú 2075","applicationCategory":"GovernmentApplication","operatingSystem":"Web","url":"https://unimauro.github.io/proyecto-inti/","inLanguage":"es","description":"Gemelo digital y sistema de inteligencia territorial para los 1,891 distritos del Perú: diagnósticos, índices, prospectiva 2075 y planes municipales."}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0f1e; --bg2:#0f1730; --card:#131d3a; --card2:#18244a;
+    --line:#243156; --txt:#e8edf7; --muted:#8b9bc4; --muted2:#5f6f99;
+    --inti:#f5a623; --inti2:#ffcf5c; --sol:#ff7a18;
+    --azul:#3b82f6; --verde:#22c55e; --ambar:#f59e0b; --rojo:#ef4444;
+    --morado:#a855f7; --cyan:#06b6d4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 12% 0%, rgba(245,166,35,.10), transparent 40%),radial-gradient(circle at 90% 8%, rgba(59,130,246,.10), transparent 38%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 18px;}
+  a{color:var(--inti2);text-decoration:none;}
+
+  /* Header */
+  header.top{padding:30px 0 18px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden;}
+  .sol{font-size:2.6rem;display:inline-block;filter:drop-shadow(0 0 18px rgba(245,166,35,.6));animation:rot 28s linear infinite;}
+  @keyframes rot{to{transform:rotate(360deg);}}
+  header.top h1{font-size:clamp(1.8rem,4.6vw,3rem);font-weight:900;letter-spacing:-.5px;margin:6px 0 2px;
+    background:linear-gradient(90deg,var(--inti2),var(--sol));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  header.top .lead{color:var(--muted);font-size:clamp(.95rem,2.4vw,1.15rem);font-weight:500;}
+  header.top .sub{color:var(--muted2);font-size:.85rem;margin-top:4px;}
+  .disclaimer{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:rgba(245,166,35,.10);
+    border:1px solid rgba(245,166,35,.35);color:var(--inti2);padding:7px 16px;border-radius:999px;font-size:.8rem;font-weight:600;}
+
+  /* Selector sticky */
+  .selector{position:sticky;top:0;z-index:40;background:rgba(10,15,30,.92);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);padding:12px 0;margin-bottom:22px;}
+  .selector .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .selector label{font-size:.72rem;color:var(--muted);display:block;margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .selector select{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-family:inherit;font-size:.92rem;font-weight:600;min-width:150px;cursor:pointer;}
+  .selector select:focus{outline:none;border-color:var(--inti);}
+  .selector .campo{flex:1;min-width:150px;}
+
+  /* Nav chips */
+  .nav-chips{display:flex;gap:7px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;}
+  .nav-chips::-webkit-scrollbar{display:none;}
+  .nav-chips a{flex-shrink:0;white-space:nowrap;background:var(--card);border:1px solid var(--line);color:var(--muted);
+    padding:7px 13px;border-radius:999px;font-size:.82rem;font-weight:600;transition:.2s;}
+  .nav-chips a:hover{color:var(--txt);border-color:var(--inti);}
+
+  /* Secciones */
+  section{margin:34px 0;scroll-margin-top:140px;}
+  .sec-h{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .sec-h .ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:1.2rem;
+    background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(255,122,24,.15));border:1px solid rgba(245,166,35,.3);}
+  .sec-h h2{font-size:1.4rem;font-weight:800;}
+  .sec-desc{color:var(--muted);font-size:.9rem;margin-bottom:16px;}
+
+  /* Cards / grids */
+  .grid{display:grid;gap:14px;}
+  .g-stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+  .g-idx{grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
+  .g-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+  .g-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;}
+  .card.hover{transition:.22s;}
+  .card.hover:hover{transform:translateY(-3px);border-color:rgba(245,166,35,.4);box-shadow:0 14px 30px rgba(0,0,0,.3);}
+
+  .stat .k{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+  .stat .v{font-size:1.9rem;font-weight:800;margin:2px 0;}
+  .stat .d{font-size:.8rem;color:var(--muted2);}
+
+  /* Índice cards con semáforo */
+  .idx{position:relative;overflow:hidden;}
+  .idx .top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .idx .nom{font-size:.86rem;color:var(--muted);font-weight:600;max-width:70%;}
+  .idx .val{font-size:2rem;font-weight:900;line-height:1;}
+  .idx .bar{height:7px;border-radius:6px;background:#0b1228;margin-top:12px;overflow:hidden;}
+  .idx .bar i{display:block;height:100%;border-radius:6px;}
+  .idx .sem{font-size:.74rem;font-weight:700;margin-top:8px;display:inline-flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .v-verde{color:var(--verde);} .bg-verde{background:var(--verde);}
+  .v-ambar{color:var(--ambar);} .bg-ambar{background:var(--ambar);}
+  .v-rojo{color:var(--rojo);} .bg-rojo{background:var(--rojo);}
+
+  /* Tabs diagnóstico */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .tabs button{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:8px 14px;
+    border-radius:10px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;}
+  .tabs button.act{background:linear-gradient(135deg,var(--inti),var(--sol));color:#1a1206;border-color:transparent;}
+  .tab-panel{display:none;} .tab-panel.act{display:block;}
+  .metric-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem;}
+  .metric-row:last-child{border:0;}
+  .metric-row .mv{font-weight:700;}
+  .chartbox{position:relative;height:280px;}
+  .chartbox.sm{height:230px;}
+
+  /* Escenarios */
+  .esc-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .esc-toggle button{flex:1;min-width:160px;background:var(--card);border:1px solid var(--line);color:var(--txt);
+    padding:12px;border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;transition:.2s;}
+  .esc-toggle button .et{font-weight:800;font-size:.95rem;}
+  .esc-toggle button .ed{font-size:.76rem;color:var(--muted);}
+  .esc-toggle button.act{border-color:var(--inti);background:rgba(245,166,35,.10);}
+
+  /* Listas (riesgos, proyectos) */
+  .lista{display:grid;gap:10px;}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;}
+  .item .badge{flex-shrink:0;font-size:.7rem;font-weight:800;padding:4px 9px;border-radius:7px;}
+  .b-alta{background:rgba(239,68,68,.18);color:#fca5a5;}
+  .b-media{background:rgba(245,158,11,.18);color:#fcd34d;}
+  .b-baja{background:rgba(34,197,94,.18);color:#86efac;}
+  .item .it-t{font-weight:700;font-size:.92rem;}
+  .item .it-d{font-size:.82rem;color:var(--muted);margin-top:2px;}
+  .item .it-meta{font-size:.74rem;color:var(--muted2);margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;}
+
+  .proj-tabs{display:flex;gap:6px;margin-bottom:12px;}
+  .proj-tabs button{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:7px 16px;border-radius:9px;cursor:pointer;font-family:inherit;font-weight:700;font-size:.85rem;}
+  .proj-tabs button.act{background:var(--inti);color:#1a1206;border-color:transparent;}
+
+  /* Motor IA */
+  .ia-box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;}
+  .ia-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .ia-chips button{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#93c5fd;
+    padding:8px 13px;border-radius:999px;font-size:.82rem;cursor:pointer;font-family:inherit;font-weight:600;transition:.2s;}
+  .ia-chips button:hover{background:rgba(59,130,246,.22);}
+  .ia-input{display:flex;gap:8px;}
+  .ia-input input{flex:1;background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.92rem;}
+  .ia-input input:focus{outline:none;border-color:var(--inti);}
+  .ia-input button{background:linear-gradient(135deg,var(--inti),var(--sol));color:#1a1206;border:0;border-radius:10px;padding:0 20px;font-weight:800;cursor:pointer;font-family:inherit;}
+  .ia-resp{margin-top:16px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:.92rem;display:none;}
+  .ia-resp.show{display:block;}
+  .ia-resp h4{color:var(--inti2);margin-bottom:8px;}
+  .ia-resp ul{margin:8px 0 8px 18px;} .ia-resp li{margin:4px 0;}
+  .ia-resp .nota{font-size:.74rem;color:var(--muted2);margin-top:12px;border-top:1px solid var(--line);padding-top:8px;}
+
+  /* Descargas */
+  .dl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
+  .dl{background:linear-gradient(135deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:22px;}
+  .dl h3{font-size:1.1rem;margin-bottom:6px;}
+  .dl p{font-size:.85rem;color:var(--muted);margin-bottom:14px;}
+  .dl button{background:linear-gradient(135deg,var(--inti),var(--sol));color:#1a1206;border:0;border-radius:10px;
+    padding:12px 20px;font-weight:800;cursor:pointer;font-family:inherit;font-size:.92rem;width:100%;}
+  .dl button:hover{filter:brightness(1.08);}
+
+  footer{border-top:1px solid var(--line);margin-top:50px;padding:26px 0 50px;color:var(--muted2);font-size:.82rem;text-align:center;}
+  footer .fuentes{margin-top:8px;color:var(--muted);}
+
+  /* Reporte para impresión / PDF */
+  #reporte{display:none;}
+  @media print{
+    body{background:#fff;color:#111;}
+    .selector,.nav-chips,header.top,section,footer,.no-print{display:none !important;}
+    #reporte{display:block !important;color:#111;font-size:11px;}
+    #reporte h1{font-size:22px;color:#b8860b;} #reporte h2{font-size:15px;border-bottom:2px solid #f5a623;padding-bottom:3px;margin-top:18px;color:#0a0f1e;}
+    #reporte h3{font-size:12px;margin-top:10px;} #reporte table{width:100%;border-collapse:collapse;margin:6px 0;}
+    #reporte td,#reporte th{border:1px solid #ccc;padding:4px 6px;text-align:left;}
+    #reporte .rb{page-break-inside:avoid;} #reporte .pbreak{page-break-before:always;}
+    #reporte .cover{text-align:center;padding:60px 0;}
+  }
+  @media (max-width:600px){ .selector select{min-width:120px;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="sol">🌞</span>
+    <h1>Proyecto INTI</h1>
+    <p class="lead">Gemelo Digital del Perú 2075 · Sistema Nacional de Inteligencia Territorial y Desarrollo Distrital</p>
+    <p class="sub">Cobertura objetivo: 1,891 distritos · 196 provincias · 25 regiones</p>
+    <div class="disclaimer">⚠️ Demostración con <b>&nbsp;datos ilustrativos</b>&nbsp;— arquitectura lista para fuentes oficiales (INEI · MEF · MINSA · SENAMHI)</div>
+  </div>
+</header>
+
+<div class="selector">
+  <div class="wrap">
+    <div class="row">
+      <div class="campo"><label>País</label><select id="selPais"><option>Perú 🇵🇪</option></select></div>
+      <div class="campo"><label>Región</label><select id="selRegion"></select></div>
+      <div class="campo"><label>Provincia</label><select id="selProvincia"></select></div>
+      <div class="campo"><label>Distrito</label><select id="selDistrito"></select></div>
+      <div class="campo"><label>Centro poblado</label><select id="selCP"></select></div>
+    </div>
+    <div class="nav-chips">
+      <a href="#resumen">Resumen</a>
+      <a href="#diagnostico">Diagnóstico</a>
+      <a href="#familia">Familia</a>
+      <a href="#prospectiva">Prospectiva 2075</a>
+      <a href="#clima">Clima</a>
+      <a href="#conflictos">Conflictos</a>
+      <a href="#seguridad">Seguridad</a>
+      <a href="#oportunidades">Oportunidades</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#corredores">Corredores</a>
+      <a href="#ia">Motor IA</a>
+      <a href="#descargas">Descargas</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="app">
+
+  <!-- RESUMEN EJECUTIVO -->
+  <section id="resumen">
+    <div class="sec-h"><span class="ico">📊</span><h2>Resumen ejecutivo — <span id="nomDist">—</span></h2></div>
+    <p class="sec-desc" id="ubicacion">—</p>
+    <div class="grid g-stats" id="stats"></div>
+    <div class="grid g-idx" id="indices" style="margin-top:14px"></div>
+    <div class="grid g-2" style="margin-top:14px">
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Perfil de índices</h3><div class="chartbox"><canvas id="radar"></canvas></div></div>
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Proyección poblacional</h3><div class="chartbox"><canvas id="pobChart"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- DIAGNÓSTICO -->
+  <section id="diagnostico">
+    <div class="sec-h"><span class="ico">🔬</span><h2>Diagnóstico profundo</h2></div>
+    <p class="sec-desc">Análisis integral por dimensión del distrito.</p>
+    <div class="tabs" id="diagTabs"></div>
+    <div class="grid g-2">
+      <div class="card" id="diagMetrics"></div>
+      <div class="card"><div class="chartbox" id="diagChartBox"><canvas id="diagChart"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- FAMILIA -->
+  <section id="familia">
+    <div class="sec-h"><span class="ico">👨‍👩‍👧‍👦</span><h2>Fortalecimiento Familiar y Capital Social</h2></div>
+    <p class="sec-desc">Índice propio de INTI para medir y fortalecer el tejido social.</p>
+    <div class="grid g-2">
+      <div class="card" style="text-align:center;display:flex;flex-direction:column;justify-content:center">
+        <div class="k" style="color:var(--muted);font-weight:600">Índice de Fortalecimiento Familiar</div>
+        <div id="iffVal" style="font-size:3.4rem;font-weight:900;line-height:1.1">—</div>
+        <div id="iffSem" class="sem" style="justify-content:center"></div>
+      </div>
+      <div class="card"><div class="chartbox sm"><canvas id="famChart"></canvas></div></div>
+    </div>
+    <div class="card hover" style="margin-top:14px"><h3 style="font-size:1rem;margin-bottom:8px">🎯 Recomendaciones para fortalecer el tejido social</h3><ul id="famRecs" style="margin-left:18px;color:var(--muted);font-size:.9rem"></ul></div>
+  </section>
+
+  <!-- PROSPECTIVA -->
+  <section id="prospectiva">
+    <div class="sec-h"><span class="ico">🔮</span><h2>Prospectiva 2075</h2></div>
+    <p class="sec-desc">Escenarios proyectados a 5, 10, 25 y 50 años.</p>
+    <div class="esc-toggle" id="escToggle"></div>
+    <div class="grid g-2">
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Economía (PBI per cápita, índice)</h3><div class="chartbox"><canvas id="escEcon"></canvas></div></div>
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Bienestar y servicios</h3><div class="chartbox"><canvas id="escBien"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- CLIMA -->
+  <section id="clima">
+    <div class="sec-h"><span class="ico">🌦️</span><h2>Cambio climático</h2></div>
+    <p class="sec-desc">Riesgos futuros y estrategias de adaptación.</p>
+    <div class="grid g-2">
+      <div><h3 style="font-size:.95rem;margin-bottom:10px;color:var(--muted)">⚠️ Riesgos identificados</h3><div class="lista" id="climaRiesgos"></div></div>
+      <div><h3 style="font-size:.95rem;margin-bottom:10px;color:var(--muted)">🛡️ Estrategias de adaptación</h3><div class="lista" id="climaEstr"></div></div>
+    </div>
+  </section>
+
+  <!-- CONFLICTOS -->
+  <section id="conflictos">
+    <div class="sec-h"><span class="ico">⚖️</span><h2>Conflictos socioambientales</h2></div>
+    <p class="sec-desc">Impacto económico, ambiental y social + soluciones sostenibles.</p>
+    <div class="lista" id="conflictos"></div>
+  </section>
+
+  <!-- SEGURIDAD -->
+  <section id="seguridad">
+    <div class="sec-h"><span class="ico">🛡️</span><h2>Seguridad y resiliencia</h2></div>
+    <p class="sec-desc">Amenazas y planes preventivos.</p>
+    <div class="grid g-2">
+      <div class="card"><div class="chartbox sm"><canvas id="segChart"></canvas></div></div>
+      <div><div class="lista" id="segPlanes"></div></div>
+    </div>
+  </section>
+
+  <!-- OPORTUNIDADES -->
+  <section id="oportunidades">
+    <div class="sec-h"><span class="ico">💡</span><h2>Oportunidades económicas</h2></div>
+    <p class="sec-desc">Potencial, empleos generables e inversión necesaria por sector.</p>
+    <div class="grid g-3" id="oportunidades"></div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section id="proyectos">
+    <div class="sec-h"><span class="ico">🏗️</span><h2>Proyectos prioritarios</h2></div>
+    <p class="sec-desc">Cartera generada automáticamente según el diagnóstico distrital.</p>
+    <div class="proj-tabs">
+      <button data-n="10" class="act">Top 10 alto impacto</button>
+      <button data-n="25">Top 25 estratégicos</button>
+      <button data-n="50">Top 50 transformadores</button>
+    </div>
+    <div class="lista" id="proyectos"></div>
+  </section>
+
+  <!-- CORREDORES -->
+  <section id="corredores">
+    <div class="sec-h"><span class="ico">🔗</span><h2>Interconexión territorial</h2></div>
+    <p class="sec-desc">Corredores detectados y proyectos compartidos entre distritos.</p>
+    <div class="grid g-3" id="corredores"></div>
+  </section>
+
+  <!-- MOTOR IA -->
+  <section id="ia">
+    <div class="sec-h"><span class="ico">🤖</span><h2>Motor de consultas (IA)</h2></div>
+    <p class="sec-desc">Pregunta sobre el distrito seleccionado y obtén análisis y escenarios.</p>
+    <div class="ia-box">
+      <div class="ia-chips" id="iaChips"></div>
+      <div class="ia-input">
+        <input id="iaInput" placeholder="Ej: ¿Cómo reducir la pobreza en este distrito?" />
+        <button onclick="responderIA()">Analizar</button>
+      </div>
+      <div class="ia-resp" id="iaResp"></div>
+    </div>
+  </section>
+
+  <!-- DESCARGAS -->
+  <section id="descargas">
+    <div class="sec-h"><span class="ico">📄</span><h2>Planes descargables (PDF)</h2></div>
+    <p class="sec-desc">Documentos generados automáticamente, listos para imprimir o guardar como PDF.</p>
+    <div class="dl-grid">
+      <div class="dl">
+        <h3>📋 Plan Municipal 2027–2031</h3>
+        <p>Diagnóstico, problemas, oportunidades, visión, objetivos, cartera de proyectos, indicadores, cronograma, presupuesto y matriz de riesgos. Formato listo para campaña o gestión.</p>
+        <button onclick="generarReporte('municipal')">⬇️ Generar Plan Municipal 2027–2031</button>
+      </div>
+      <div class="dl">
+        <h3>🌅 Plan Maestro Distrital 2075</h3>
+        <p>Visión a 50 años: diagnóstico integral, escenarios prospectivos, estrategias por dimensión, infraestructura, riesgos climáticos y geopolíticos, y proyectos transformadores.</p>
+        <button onclick="generarReporte('maestro')">⬇️ Generar Plan Maestro 2075</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p><b>Proyecto INTI</b> — Gemelo Digital del Perú 2075 · "Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos."</p>
+    <p class="fuentes">⚠️ Los valores mostrados son <b>ilustrativos/demostrativos</b> (generados de forma sintética y consistente por distrito). La arquitectura está lista para integrar fuentes oficiales: INEI, MEF, MINSA, MINEDU, SENAMHI, IGP, INDECI, CENEPRED.</p>
+    <p style="margin-top:8px">Hecho por <a href="https://unimauro.github.io/">Carlos Mauro Cárdenas</a> · Decisiones basadas en evidencia, sostenibilidad y participación ciudadana.</p>
+  </div>
+</footer>
+
+<!-- Contenedor del reporte (PDF) -->
+<div id="reporte" class="wrap"></div>
+
+<script>
+/* ====================== DATOS BASE ====================== */
+// Jerarquía territorial (muestra representativa real; el sistema completo cargaría los 1,891 distritos desde INEI)
+const TERRITORIO = {
+  "Amazonas":{"Chachapoyas":["Chachapoyas","Asunción","Balsas"],"Bagua":["Bagua","Aramango","Imaza"]},
+  "Áncash":{"Huaraz":["Huaraz","Independencia","Tarica"],"Santa":["Chimbote","Nuevo Chimbote","Coishco"]},
+  "Apurímac":{"Abancay":["Abancay","Tamburco","Curahuasi"],"Andahuaylas":["Andahuaylas","Talavera","San Jerónimo"]},
+  "Arequipa":{"Arequipa":["Arequipa","Cayma","Cerro Colorado","Yanahuara","Paucarpata"],"Camaná":["Camaná","Mariano Nicolás Valcárcel"]},
+  "Ayacucho":{"Huamanga":["Ayacucho","Carmen Alto","San Juan Bautista"],"Huanta":["Huanta","Luricocha"]},
+  "Cajamarca":{"Cajamarca":["Cajamarca","Los Baños del Inca","Jesús"],"Jaén":["Jaén","Bellavista"]},
+  "Callao":{"Callao":["Callao","Bellavista","La Perla","Ventanilla","Mi Perú"]},
+  "Cusco":{"Cusco":["Cusco","Wanchaq","Santiago","San Sebastián","San Jerónimo"],"Urubamba":["Urubamba","Machupicchu","Ollantaytambo"]},
+  "Huancavelica":{"Huancavelica":["Huancavelica","Ascensión","Yauli"],"Tayacaja":["Pampas","Daniel Hernández"]},
+  "Huánuco":{"Huánuco":["Huánuco","Amarilis","Pillco Marca"],"Leoncio Prado":["Rupa-Rupa (Tingo María)","Castillo Grande"]},
+  "Ica":{"Ica":["Ica","La Tinguiña","Parcona","Subtanjalla"],"Pisco":["Pisco","San Andrés","Túpac Amaru Inca"]},
+  "Junín":{"Huancayo":["Huancayo","El Tambo","Chilca","Pilcomayo"],"Satipo":["Satipo","Río Negro","Pangoa"]},
+  "La Libertad":{"Trujillo":["Trujillo","Víctor Larco Herrera","La Esperanza","El Porvenir","Huanchaco"],"Pacasmayo":["San Pedro de Lloc","Guadalupe"]},
+  "Lambayeque":{"Chiclayo":["Chiclayo","José Leonardo Ortiz","La Victoria","Pimentel"],"Lambayeque":["Lambayeque","Mórrope","Olmos"]},
+  "Lima":{"Lima":["Lima (Cercado)","San Juan de Lurigancho","San Martín de Porres","Comas","Villa El Salvador","Villa María del Triunfo","Ate","Miraflores","San Isidro","Surco","San Borja","Los Olivos","Independencia","El Agustino","Carabayllo"],"Huaral":["Huaral","Chancay","Aucallama"],"Cañete":["San Vicente de Cañete","Imperial","Mala"]},
+  "Loreto":{"Maynas":["Iquitos","Belén","San Juan Bautista","Punchana"],"Alto Amazonas":["Yurimaguas","Balsapuerto"]},
+  "Madre de Dios":{"Tambopata":["Tambopata (Puerto Maldonado)","Inambari","Las Piedras"],"Manu":["Manu","Madre de Dios (Boca Colorado)"]},
+  "Moquegua":{"Mariscal Nieto":["Moquegua","Samegua","Torata"],"Ilo":["Ilo","Pacocha","El Algarrobal"]},
+  "Pasco":{"Pasco":["Chaupimarca","Yanacancha","Simón Bolívar"],"Oxapampa":["Oxapampa","Villa Rica","Pozuzo"]},
+  "Piura":{"Piura":["Piura","Castilla","Catacaos","Veintiséis de Octubre"],"Sullana":["Sullana","Bellavista","Marcavelica"],"Talara":["Pariñas (Talara)","La Brea (Negritos)"]},
+  "Puno":{"Puno":["Puno","Acora","Paucarcolla"],"San Román":["Juliaca","Cabana","Caracoto"]},
+  "San Martín":{"San Martín":["Tarapoto","Morales","La Banda de Shilcayo"],"Moyobamba":["Moyobamba","Soritor","Jepelacio"]},
+  "Tacna":{"Tacna":["Tacna","Alto de la Alianza","Ciudad Nueva","Pocollay"],"Jorge Basadre":["Locumba","Ite"]},
+  "Tumbes":{"Tumbes":["Tumbes","Corrales","La Cruz"],"Zarumilla":["Zarumilla","Aguas Verdes","Papayal"]},
+  "Ucayali":{"Coronel Portillo":["Callería (Pucallpa)","Yarinacocha","Manantay"],"Padre Abad":["Padre Abad (Aguaytía)","Irazola"]}
+};
+
+/* Generador determinístico: misma entrada → mismos valores (consistencia) */
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0);}
+function rng(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return ()=>{s=Math.imul(s,16807)%2147483647;return (s-1)/2147483646;};}
+function rangoVal(r,min,max){return Math.round(min+(max-min)*r());}
+
+const INDICES = [
+  ["idh","Índice de Desarrollo Humano"],["prosp","Prosperidad Distrital"],["bien","Bienestar Familiar"],
+  ["seg","Seguridad"],["edu","Educación"],["sal","Salud"],["amb","Ambiental"],
+  ["resi","Resiliencia Climática"],["gob","Gobernanza"],["inno","Innovación"]
+];
+const DIM = {
+  "Demografía":["Población","Crecimiento poblacional","Migración neta","Tasa de fertilidad","Índice de envejecimiento","Hogares unipersonales"],
+  "Economía":["Empleo formal","Desempleo","Informalidad","Pobreza","Pobreza extrema","Productividad","Competitividad"],
+  "Educación":["Cobertura","Rendimiento (ECE)","Infraestructura educativa","Acceso digital escolar"],
+  "Salud":["Anemia infantil","Desnutrición crónica","Mortalidad materna","Salud mental","Cobertura SIS"],
+  "Seguridad":["Criminalidad","Violencia familiar","Pandillaje","Narcotráfico","Extorsión"],
+  "Vivienda":["Acceso a vivienda","Hacinamiento","Agua potable","Desagüe","Electricidad"],
+  "Medio Ambiente":["Calidad del agua","Calidad del aire","Gestión de residuos","Áreas verdes/hab","Biodiversidad"],
+  "Infraestructura":["Vías pavimentadas","Puentes operativos","Conectividad digital","Electrificación rural"]
+};
+
+function generarDistrito(region, provincia, distrito){
+  const seed = hash(region+"|"+provincia+"|"+distrito);
+  const r = rng(seed);
+  const limeño = (region==="Lima"||region==="Callao");
+  const base = limeño ? 58 : 46; // urbano vs resto (ilustrativo)
+  const idx = {};
+  INDICES.forEach(([k])=>{ idx[k] = Math.max(18, Math.min(92, Math.round(base + (r()*44-22)))); });
+  const pob = rangoVal(r, limeño?20000:1500, limeño?1100000:90000);
+  const crec = (r()*3.4-0.6); // % anual
+  const proy = (anios)=> Math.round(pob*Math.pow(1+crec/100, anios));
+  // dimensiones (valores 0-100, donde corresponde "más es mejor" o "%")
+  const dim = {};
+  Object.entries(DIM).forEach(([d,arr])=>{ dim[d]=arr.map(m=>({m, v: rangoVal(r,8,95)})); });
+  // IFF (Índice de Fortalecimiento Familiar) — promedio ponderado ilustrativo
+  const iff = Math.round((idx.bien*0.3+idx.seg*0.2+idx.edu*0.2+idx.sal*0.15+idx.gob*0.15));
+  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño};
+}
+
+function semaforo(v){ return v>=66?["verde","Adecuado"]:v>=45?["ambar","Atención"]:["rojo","Crítico"]; }
+function fmt(n){ return n.toLocaleString('es-PE'); }
+
+/* ====================== ESTADO Y RENDER ====================== */
+let D = null, charts = {}, escenarioActivo = "esperado", diagActiva = "Demografía";
+const ESCENARIOS = {
+  conservador:{t:"Conservador",d:"Tendencia inercial, reformas limitadas",mult:1.012,bono:0},
+  esperado:{t:"Esperado",d:"Reformas graduales y crecimiento moderado",mult:1.03,bono:8},
+  transformador:{t:"Transformador",d:"Inversión, innovación y gobernanza fuerte",mult:1.055,bono:22}
+};
+
+function poblarSelectores(){
+  const sr=document.getElementById('selRegion');
+  sr.innerHTML = Object.keys(TERRITORIO).map(r=>`<option>${r}</option>`).join('');
+  sr.onchange=()=>{poblarProv();};
+  document.getElementById('selProvincia').onchange=()=>poblarDist();
+  document.getElementById('selDistrito').onchange=()=>{poblarCP();cargar();};
+  document.getElementById('selCP').onchange=()=>cargar();
+  sr.value="Lima"; poblarProv();
+}
+function poblarProv(){
+  const reg=document.getElementById('selRegion').value;
+  const sp=document.getElementById('selProvincia');
+  sp.innerHTML=Object.keys(TERRITORIO[reg]).map(p=>`<option>${p}</option>`).join('');
+  poblarDist();
+}
+function poblarDist(){
+  const reg=document.getElementById('selRegion').value, prov=document.getElementById('selProvincia').value;
+  const sd=document.getElementById('selDistrito');
+  sd.innerHTML=TERRITORIO[reg][prov].map(d=>`<option>${d}</option>`).join('');
+  poblarCP(); cargar();
+}
+function poblarCP(){
+  const d=document.getElementById('selDistrito').value;
+  const sc=document.getElementById('selCP');
+  sc.innerHTML=[`Todo el distrito`,`${d} (urbano)`,`${d} (rural)`].map(c=>`<option>${c}</option>`).join('');
+}
+
+function cargar(){
+  const reg=document.getElementById('selRegion').value, prov=document.getElementById('selProvincia').value, dist=document.getElementById('selDistrito').value;
+  if(!reg||!prov||!dist) return;
+  D = generarDistrito(reg,prov,dist);
+  document.getElementById('nomDist').textContent = dist;
+  document.getElementById('ubicacion').textContent = `${dist}, provincia de ${prov}, región ${reg} · Perú`;
+  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderClima();
+  renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
+}
+
+function renderResumen(){
+  const stats=[
+    ["Población actual",fmt(D.pob),"habitantes (ilustrativo)"],
+    ["Proyección 10 años",fmt(D.proy(10)),`crec. ${D.crec.toFixed(1)}%/año`],
+    ["Proyección 25 años",fmt(D.proy(25)),"escenario esperado"],
+    ["Proyección 50 años (2075)",fmt(D.proy(50)),"horizonte INTI"],
+  ];
+  document.getElementById('stats').innerHTML = stats.map(s=>`<div class="card stat"><div class="k">${s[0]}</div><div class="v">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('');
+
+  document.getElementById('indices').innerHTML = INDICES.map(([k,nom])=>{
+    const v=D.idx[k], [c,t]=semaforo(v);
+    return `<div class="card idx hover"><div class="top"><span class="nom">${nom}</span><span class="val v-${c}">${v}</span></div>
+      <div class="bar"><i class="bg-${c}" style="width:${v}%"></i></div>
+      <span class="sem v-${c}"><span class="dot bg-${c}"></span>${t}</span></div>`;
+  }).join('');
+
+  // Radar
+  mkChart('radar','radar',{
+    labels:INDICES.map(i=>i[1].split(' ').slice(-1)[0]),
+    datasets:[{label:D.distrito,data:INDICES.map(i=>D.idx[i[0]]),
+      backgroundColor:'rgba(245,166,35,.18)',borderColor:'#f5a623',pointBackgroundColor:'#ffcf5c'}]
+  },{scales:{r:{min:0,max:100,grid:{color:'#243156'},angleLines:{color:'#243156'},pointLabels:{color:'#8b9bc4',font:{size:10}},ticks:{display:false}}},plugins:{legend:{display:false}}});
+
+  // Población
+  const anios=[0,5,10,25,50], labels=anios.map(a=>2025+a);
+  mkChart('pobChart','line',{labels,datasets:[{label:'Población',data:anios.map(a=>D.proy(a)),
+    borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.15)',fill:true,tension:.3}]},ejeY());
+}
+
+function renderDiag(){
+  const tabs=document.getElementById('diagTabs');
+  tabs.innerHTML=Object.keys(DIM).map(d=>`<button class="${d===diagActiva?'act':''}" onclick="setDiag('${d}')">${d}</button>`).join('');
+  const data=D.dim[diagActiva];
+  document.getElementById('diagMetrics').innerHTML=`<h3 style="font-size:1rem;margin-bottom:10px">${diagActiva}</h3>`+
+    data.map(x=>{const [c]=semaforo(x.v);return `<div class="metric-row"><span>${x.m}</span><span class="mv v-${c}">${x.v}${diagActiva==='Demografía'&&x.m==='Población'?'':''}</span></div>`}).join('');
+  mkChart('diagChart','bar',{labels:data.map(x=>x.m),datasets:[{label:diagActiva,data:data.map(x=>x.v),
+    backgroundColor:data.map(x=>({verde:'#22c55e',ambar:'#f59e0b',rojo:'#ef4444'}[semaforo(x.v)[0]]))}]},
+    {indexAxis:'y',scales:{x:{max:100,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{grid:{display:false},ticks:{color:'#8b9bc4',font:{size:10}}}},plugins:{legend:{display:false}}});
+}
+function setDiag(d){diagActiva=d;renderDiag();}
+
+function renderFamilia(){
+  const v=D.iff,[c,t]=semaforo(v);
+  document.getElementById('iffVal').textContent=v;
+  document.getElementById('iffVal').className='v-'+c;
+  document.getElementById('iffSem').innerHTML=`<span class="dot bg-${c}"></span><span class="v-${c}">${t}</span>`;
+  const comp=[["Violencia intrafamiliar",100-D.dim["Seguridad"][1].v],["Embarazo adolescente",100-rangoVal(D.r,20,70)],
+    ["Permanencia escolar",D.dim["Educación"][0].v],["Empleo familiar",D.dim["Economía"][0].v],
+    ["Salud mental",D.dim["Salud"][3].v],["Cohesión social",D.idx.bien],["Participación comunitaria",D.idx.gob]];
+  mkChart('famChart','radar',{labels:comp.map(x=>x[0]),datasets:[{data:comp.map(x=>x[1]),
+    backgroundColor:'rgba(168,85,247,.18)',borderColor:'#a855f7',pointBackgroundColor:'#c084fc'}]},
+    {scales:{r:{min:0,max:100,grid:{color:'#243156'},angleLines:{color:'#243156'},pointLabels:{color:'#8b9bc4',font:{size:9}},ticks:{display:false}}},plugins:{legend:{display:false}}});
+  const recs=[];
+  if(D.dim["Seguridad"][1].v<55) recs.push("Crear Centros de Emergencia Mujer (CEM) descentralizados y rutas de denuncia comunitaria.");
+  if(D.dim["Educación"][0].v<60) recs.push("Programa de retención escolar con tutoría y alimentación para reducir el abandono.");
+  if(D.dim["Economía"][0].v<55) recs.push("Bolsa de empleo familiar local + formalización de microemprendimientos del hogar.");
+  if(D.dim["Salud"][3].v<55) recs.push("Red de salud mental comunitaria con atención psicológica gratuita en postas.");
+  recs.push("Escuelas de familias y redes de cuidado vecinal para fortalecer la cohesión social.");
+  recs.push("Presupuesto participativo enfocado en infancia, juventud y adulto mayor.");
+  document.getElementById('famRecs').innerHTML=recs.map(r=>`<li>${r}</li>`).join('');
+}
+
+function renderProspectiva(){
+  const t=document.getElementById('escToggle');
+  t.innerHTML=Object.entries(ESCENARIOS).map(([k,e])=>`<button class="${k===escenarioActivo?'act':''}" onclick="setEsc('${k}')"><div class="et">${e.t}</div><div class="ed">${e.d}</div></button>`).join('');
+  const e=ESCENARIOS[escenarioActivo], anios=[0,5,10,25,50], labels=anios.map(a=>2025+a);
+  const econ0=D.idx.prosp, bien0=D.idx.bien;
+  const econ=anios.map(a=>Math.min(100,Math.round(econ0*Math.pow(e.mult,a)+ (a>0?e.bono*a/50:0))));
+  const bien=anios.map(a=>Math.min(100,Math.round(bien0+ (e.bono+6)*a/50 + a*0.2)));
+  mkChart('escEcon','line',{labels,datasets:[{label:'Índice económico',data:econ,borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,.15)',fill:true,tension:.3}]},eje100());
+  mkChart('escBien','line',{labels,datasets:[
+    {label:'Bienestar',data:bien,borderColor:'#22c55e',tension:.3},
+    {label:'Educación',data:anios.map(a=>Math.min(100,Math.round(D.idx.edu+(e.bono+4)*a/50))),borderColor:'#3b82f6',tension:.3},
+    {label:'Salud',data:anios.map(a=>Math.min(100,Math.round(D.idx.sal+(e.bono+3)*a/50))),borderColor:'#a855f7',tension:.3}
+  ]},eje100(true));
+}
+function setEsc(k){escenarioActivo=k;renderProspectiva();}
+
+function renderClima(){
+  const riesgos=[
+    ["Inundaciones",D.region.match(/Loreto|Ucayali|San Martín|Madre/)?"alta":"media","Crecidas de ríos y lluvias intensas (El Niño)."],
+    ["Sequías / estrés hídrico",D.region.match(/Ica|Tacna|Moquegua|Piura|Lambayeque/)?"alta":"media","Reducción de disponibilidad de agua para consumo y agro."],
+    ["Huaycos / deslizamientos",D.region.match(/Lima|Áncash|Arequipa|Cusco|Junín/)?"alta":"baja","Quebradas activas en temporada de lluvias."],
+    ["Aumento de temperatura",D.limeño?"media":"alta","Olas de calor y cambios en ciclos agrícolas."],
+    ["Desertificación",D.region.match(/Piura|Lambayeque|Ica|Tacna/)?"alta":"baja","Degradación de suelos y pérdida de cobertura vegetal."],
+  ];
+  document.getElementById('climaRiesgos').innerHTML=riesgos.map(x=>itemHTML(x[0],x[2],x[1])).join('');
+  const estr=[
+    ["Siembra y cosecha de agua","Qochas, zanjas de infiltración y reforestación de cabeceras de cuenca.","baja"],
+    ["Alerta temprana","Sensores de caudal y SMS comunitario ante huaycos e inundaciones.","media"],
+    ["Infraestructura resiliente","Defensas ribereñas, drenaje pluvial y normas de construcción.","alta"],
+    ["Agricultura climáticamente inteligente","Riego tecnificado, cultivos resistentes y seguros agrarios.","media"],
+  ];
+  document.getElementById('climaEstr').innerHTML=estr.map(x=>itemHTML(x[0],x[1],x[2])).join('');
+}
+
+function renderConflictos(){
+  const c=[
+    ["Conflictos por el agua","Competencia entre uso agrícola, poblacional y minero.","baja","media","alta"],
+    ["Actividad minera / minería ilegal",D.region.match(/Madre|Puno|Cajamarca|Áncash|Arequipa/)?"alta":"media","Tensiones por licencia social y pasivos ambientales.","alta","alta"],
+    ["Contaminación","Vertimientos y residuos que afectan salud y ecosistemas.","media","alta","media"],
+    ["Conflictos territoriales","Límites distritales y titulación de tierras.","baja","baja","media"],
+  ];
+  document.getElementById('conflictos').innerHTML=c.map(x=>{
+    const prio = typeof x[2]==='string' && ['alta','media','baja'].includes(x[2])? x[2] : 'media';
+    return `<div class="item"><span class="badge b-${prio}">${prio.toUpperCase()}</span><div>
+      <div class="it-t">${x[0]}</div><div class="it-d">${x[1]}</div>
+      <div class="it-meta"><span>💰 Impacto económico: ${x[3]||'media'}</span><span>🌱 Ambiental: ${x[4]||'media'}</span><span>👥 Social: ${prio}</span></div>
+      <div class="it-d" style="margin-top:6px;color:var(--inti2)">✔ Solución: mesa de diálogo multiactor, monitoreo ambiental participativo y fondo de desarrollo compartido.</div></div></div>`;
+  }).join('');
+}
+
+function renderSeguridad(){
+  const amenazas=[["Crimen organizado",rangoVal(D.r,20,80)],["Minería ilegal",D.region.match(/Madre|Puno/)?75:rangoVal(D.r,5,45)],
+    ["Narcotráfico",D.region.match(/Junín|San Martín|Ucayali|Cusco/)?70:rangoVal(D.r,8,40)],
+    ["Trata de personas",rangoVal(D.r,10,55)],["Ciberdelincuencia",D.limeño?65:rangoVal(D.r,15,50)]];
+  mkChart('segChart','bar',{labels:amenazas.map(a=>a[0]),datasets:[{label:'Nivel de amenaza',data:amenazas.map(a=>a[1]),
+    backgroundColor:amenazas.map(a=>a[1]>60?'#ef4444':a[1]>40?'#f59e0b':'#22c55e')}]},
+    {indexAxis:'y',scales:{x:{max:100,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{grid:{display:false},ticks:{color:'#8b9bc4',font:{size:10}}}},plugins:{legend:{display:false}}});
+  const planes=[
+    ["Patrullaje integrado","Serenazgo + PNP con mapas de calor del delito y cámaras.","alta"],
+    ["Prevención juvenil","Escuelas deportivas, cultura y empleo joven contra el pandillaje.","media"],
+    ["Interdicción ambiental","Operativos contra minería ilegal y tala con fiscalía especializada.","alta"],
+    ["Ciberseguridad ciudadana","Educación digital y canal de denuncia de fraudes y extorsión.","media"],
+  ];
+  document.getElementById('segPlanes').innerHTML=planes.map(p=>itemHTML(p[0],p[1],p[2])).join('');
+}
+
+function renderOportunidades(){
+  const base=[["Turismo","🏞️"],["Agricultura","🌾"],["Agroindustria","🏭"],["Industria","⚙️"],["Tecnología","💻"],["Energía","⚡"],["Comercio","🛒"],["Economía digital","📱"]];
+  document.getElementById('oportunidades').innerHTML=base.map(([s,e])=>{
+    const pot=rangoVal(D.r,30,98), empleos=fmt(rangoVal(D.r,200,12000)), inv=rangoVal(D.r,2,180);
+    const [c]=semaforo(pot);
+    return `<div class="card hover"><div style="font-size:1.6rem">${e}</div><div class="it-t" style="margin:4px 0">${s}</div>
+      <div class="metric-row"><span>Potencial</span><span class="mv v-${c}">${pot}/100</span></div>
+      <div class="metric-row"><span>Empleos generables</span><span class="mv">${empleos}</span></div>
+      <div class="metric-row"><span>Inversión necesaria</span><span class="mv">S/ ${inv} M</span></div></div>`;
+  }).join('');
+}
+
+const PROYECTOS_POOL=[
+  ["Planta de tratamiento de agua potable","Agua segura para toda la población.","Salud/Vivienda"],
+  ["Red de desagüe y PTAR","Saneamiento y descontaminación de ríos.","Ambiente"],
+  ["Hospital / centro de salud II-E","Cierre de brecha de atención y reducción de anemia.","Salud"],
+  ["Colegios con conectividad y STEM","Educación digital y mejora de aprendizajes.","Educación"],
+  ["Centro de innovación y empleo joven","Empleabilidad, tecnología y emprendimiento.","Economía"],
+  ["Pavimentación y veredas","Conectividad urbana y reducción de accidentes.","Infraestructura"],
+  ["Mercado y centro de acopio","Cadena agroalimentaria y formalización.","Economía"],
+  ["Parque, áreas verdes y arborización","Calidad del aire y espacios públicos seguros.","Ambiente"],
+  ["Sistema de videovigilancia y serenazgo","Seguridad ciudadana integrada.","Seguridad"],
+  ["Siembra y cosecha de agua","Resiliencia hídrica frente a sequías.","Clima"],
+  ["Electrificación y energía solar rural","Acceso universal a energía limpia.","Energía"],
+  ["Banda ancha / fibra óptica","Cierre de brecha digital.","Tecnología"],
+  ["Defensas ribereñas y drenaje pluvial","Protección ante inundaciones y huaycos.","Clima"],
+  ["Centro de Emergencia Mujer y casa refugio","Reducción de violencia familiar.","Familia"],
+  ["Programa cuna-más y estimulación temprana","Desarrollo infantil y nutrición.","Familia"],
+  ["Terminal terrestre y vías de evitamiento","Logística y ordenamiento del tránsito.","Infraestructura"],
+  ["Planta de residuos sólidos y reciclaje","Gestión integral de residuos.","Ambiente"],
+  ["Corredor turístico y puesta en valor","Turismo sostenible y empleo local.","Turismo"],
+  ["Riego tecnificado y reservorios","Productividad agrícola y empleo rural.","Agricultura"],
+  ["Parque industrial / zona económica","Industrialización y atracción de inversión.","Industria"],
+];
+let projN=10;
+function renderProyectos(){
+  const r=rng(D.seed^99);
+  const lista=PROYECTOS_POOL.map((p,i)=>{
+    const costo=rangoVal(r,2,250), benef=rangoVal(r,1000,Math.max(2000,Math.round(D.pob*0.8))), imp=rangoVal(r,55,98);
+    const prio=imp>82?"alta":imp>68?"media":"baja";
+    const hz=["Corto (0-2 a)","Medio (3-7 a)","Largo (8-50 a)"][rangoVal(r,0,2)];
+    return {n:p[0],d:p[1],sec:p[2],costo,benef,imp,prio,hz};
+  }).sort((a,b)=>b.imp-a.imp).slice(0,projN);
+  document.getElementById('proyectos').innerHTML=lista.map((p,i)=>`<div class="item"><span class="badge b-${p.prio}">#${i+1} · ${p.prio.toUpperCase()}</span><div>
+    <div class="it-t">${p.n}</div><div class="it-d">${p.d}</div>
+    <div class="it-meta"><span>🏷️ ${p.sec}</span><span>💰 S/ ${p.costo} M</span><span>👥 ${fmt(p.benef)} benef.</span><span>📈 Impacto ${p.imp}/100</span><span>⏱️ ${p.hz}</span></div>
+    </div></div>`).join('');
+}
+document.querySelectorAll('.proj-tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.proj-tabs button').forEach(x=>x.classList.remove('act'));b.classList.add('act');projN=+b.dataset.n;renderProyectos();});
+
+function renderCorredores(){
+  const reg=D.region, prov=D.provincia;
+  const tipos=[
+    ["Corredor económico","🛣️",`Encadena ${prov} con polos productivos de ${reg} para escalar mercados.`],
+    ["Corredor turístico","🏔️",`Ruta integrada de atractivos naturales y culturales de ${reg}.`],
+    ["Corredor logístico","🚛",`Conexión a puertos/aeropuertos y centros de acopio regionales.`],
+    ["Corredor hídrico","💧",`Gestión compartida de cuencas entre distritos vecinos.`],
+    ["Corredor ambiental","🌳",`Conectividad de áreas verdes y corredores de biodiversidad.`],
+  ];
+  document.getElementById('corredores').innerHTML=tipos.map(t=>`<div class="card hover"><div style="font-size:1.6rem">${t[1]}</div>
+    <div class="it-t" style="margin:4px 0">${t[0]}</div><div class="it-d">${t[2]}</div>
+    <div class="it-d" style="margin-top:8px;color:var(--inti2)">🤝 Proyecto compartido sugerido entre distritos de ${prov}.</div></div>`).join('');
+}
+
+/* ====================== MOTOR IA (demo heurística) ====================== */
+const PREGUNTAS=["¿Cómo reducir la pobreza en este distrito?","¿Cómo duplicar el ingreso promedio en 15 años?","¿Cómo eliminar la anemia?","¿Cómo mejorar la seguridad?","¿Cómo fortalecer a las familias?","¿Qué inversiones son prioritarias?","¿Qué impacto tendría aumentar el presupuesto educativo?"];
+function renderIAChips(){
+  document.getElementById('iaChips').innerHTML=PREGUNTAS.map(q=>`<button onclick="document.getElementById('iaInput').value=this.textContent;responderIA()">${q}</button>`).join('');
+}
+function responderIA(){
+  const q=(document.getElementById('iaInput').value||'').toLowerCase();
+  const el=document.getElementById('iaResp'); el.classList.add('show');
+  let titulo="Análisis técnico", cuerpo="";
+  const li=arr=>'<ul>'+arr.map(x=>`<li>${x}</li>`).join('')+'</ul>';
+  if(q.includes('pobreza')){titulo="Reducir la pobreza";cuerpo=`Pobreza estimada (ilustrativa): <b>${D.dim["Economía"][3].v}/100</b>. Palancas:`+li(["Formalizar microempresas y bajar el costo de cumplimiento.","Empleo intensivo vía proyectos de infraestructura local.","Articular cadenas agro/turismo para elevar productividad.","Transferencias condicionadas ligadas a salud y educación."]);}
+  else if(q.includes('ingreso')||q.includes('duplicar')){titulo="Duplicar el ingreso en 15 años";cuerpo=`Requiere crecer el índice de productividad ~4.7%/año. Estrategia:`+li(["Atraer 1-2 inversiones ancla por sector con mayor potencial.","Capacitación técnica alineada a la demanda laboral.","Conectividad (vías + banda ancha) para integrar mercados.","Acceso a crédito y formalización progresiva."]);}
+  else if(q.includes('anemia')){titulo="Eliminar la anemia";cuerpo=`Anemia infantil (ilustrativa): <b>${D.dim["Salud"][0].v}/100</b>. Plan:`+li(["Suplementación con hierro y tamizaje universal 6-35 meses.","Agua segura y saneamiento (causa subyacente clave).","Consejería nutricional casa por casa.","Articulación CUNA MÁS + postas + municipio."]);}
+  else if(q.includes('segur')){titulo="Mejorar la seguridad";cuerpo=`Índice de seguridad: <b>${D.idx.seg}/100</b>. Acciones:`+li(["Patrullaje integrado con mapas de calor del delito.","Recuperación de espacios públicos e iluminación.","Prevención juvenil (deporte, cultura, empleo).","Cámaras + central de monitoreo + alerta vecinal."]);}
+  else if(q.includes('famil')){titulo="Fortalecer a las familias";cuerpo=`Índice de Fortalecimiento Familiar: <b>${D.iff}/100</b>. Recomendaciones:`+li(["Centros de Emergencia Mujer y salud mental comunitaria.","Programas de primera infancia y retención escolar.","Empleo familiar y economía del cuidado.","Escuelas de familias y participación comunitaria."]);}
+  else if(q.includes('invers')||q.includes('priorit')){titulo="Inversiones prioritarias";cuerpo=`Según el diagnóstico, prioriza:`+li(["Agua y saneamiento (mayor retorno social).","Salud y educación con conectividad.","Resiliencia climática (defensas, siembra de agua).","Seguridad ciudadana integrada."])+`<br>Ver módulo <a href="#proyectos">Proyectos prioritarios</a>.`;}
+  else if(q.includes('educ')||q.includes('presupuesto educativo')){titulo="Impacto de más presupuesto educativo";cuerpo=`Educación: <b>${D.idx.edu}/100</b>. Un aumento sostenido podría:`+li(["Subir el rendimiento (ECE) si se invierte en docentes y materiales.","Cerrar la brecha digital escolar.","Reducir el abandono con alimentación y tutoría.","Efecto de largo plazo en empleo e ingresos."]);}
+  else{titulo="Análisis general del distrito";cuerpo=`Para <b>${D.distrito}</b>: IDH ${D.idx.idh}, Seguridad ${D.idx.seg}, Educación ${D.idx.edu}, Salud ${D.idx.sal}. `+li(["Atiende primero los índices en rojo/ámbar.","Combina proyectos de alto impacto y bajo costo.","Apóyate en los corredores territoriales para escalar."]);}
+  el.innerHTML=`<h4>🤖 ${titulo}</h4>${cuerpo}<div class="nota">Respuesta generada por reglas heurísticas sobre datos ilustrativos del distrito. En producción, este motor se conecta a un LLM con datos oficiales georreferenciados.</div>`;
+}
+
+/* ====================== CHARTS HELPERS ====================== */
+function ejeY(){return {plugins:{legend:{display:false}},scales:{y:{grid:{color:'#243156'},ticks:{color:'#8b9bc4',callback:v=>v>=1000?(v/1000)+'k':v}},x:{grid:{display:false},ticks:{color:'#8b9bc4'}}}};}
+function eje100(leg){return {plugins:{legend:{display:!!leg,labels:{color:'#8b9bc4',boxWidth:12}}},scales:{y:{min:0,max:100,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},x:{grid:{display:false},ticks:{color:'#8b9bc4'}}}};}
+function mkChart(id,type,data,opts){
+  if(charts[id]) charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id),{type,data,options:Object.assign({responsive:true,maintainAspectRatio:false},opts)});
+}
+function itemHTML(t,d,prio){return `<div class="item"><span class="badge b-${prio}">${prio.toUpperCase()}</span><div><div class="it-t">${t}</div><div class="it-d">${d}</div></div></div>`;}
+
+/* ====================== REPORTES PDF ====================== */
+function fila(a,b){return `<tr><td><b>${a}</b></td><td>${b}</td></tr>`;}
+function generarReporte(tipo){
+  const R=document.getElementById('reporte');
+  const fecha=document.getElementById('selRegion').value;
+  const idxTabla=INDICES.map(([k,n])=>fila(n,`${D.idx[k]}/100 — ${semaforo(D.idx[k])[1]}`)).join('');
+  const top=PROYECTOS_POOL.slice(0,tipo==='municipal'?10:16).map((p,i)=>`<tr><td>${i+1}</td><td>${p[0]}</td><td>${p[2]}</td></tr>`).join('');
+  if(tipo==='municipal'){
+    R.innerHTML=`
+    <div class="cover"><h1>Plan Municipal 2027–2031</h1><h2 style="border:0">${D.distrito} · ${D.provincia} · ${D.region}</h2>
+      <p>Proyecto INTI — Gemelo Digital del Perú 2075</p><p style="color:#888">Documento generado automáticamente · datos ilustrativos</p></div>
+    <h2>1. Diagnóstico distrital</h2><table>${idxTabla}</table>
+    <table>${fila("Población actual",fmt(D.pob))}${fila("Proyección 2031",fmt(D.proy(5)))}${fila("Crecimiento anual",D.crec.toFixed(1)+"%")}${fila("Índice de Fortalecimiento Familiar",D.iff+"/100")}</table>
+    <h2>2. Principales problemas</h2><p>${INDICES.filter(([k])=>D.idx[k]<55).map(([,n])=>n).join(', ')||'Indicadores en rango aceptable.'}</p>
+    <h2>3. Principales oportunidades</h2><p>Turismo, agroindustria, economía digital y energía (ver módulo de oportunidades).</p>
+    <h2>4. Visión municipal</h2><p>Hacer de ${D.distrito} un distrito seguro, próspero y con familias fuertes al 2031.</p>
+    <h2>5. Objetivos estratégicos</h2><p>Reducir pobreza y anemia; mejorar seguridad, educación y servicios básicos; fortalecer las familias.</p>
+    <h2 class="pbreak">6. Metas de gestión (2027–2031)</h2><table><tr><th>Indicador</th><th>Meta</th></tr><tr><td>Agua potable</td><td>+15 pts</td></tr><tr><td>Anemia infantil</td><td>-10 pts</td></tr><tr><td>Seguridad</td><td>+12 pts</td></tr><tr><td>Cobertura educativa</td><td>+8 pts</td></tr></table>
+    <h2>7. Cartera de proyectos (Top 10)</h2><table><tr><th>#</th><th>Proyecto</th><th>Sector</th></tr>${top}</table>
+    <h2>8. Indicadores de seguimiento</h2><p>Tablero INTI con los 10 índices distritales, actualización anual.</p>
+    <h2>9. Cronograma</h2><p>Año 1: agua/saneamiento y seguridad. Años 2-3: salud y educación. Años 4-5: economía e infraestructura.</p>
+    <h2>10. Presupuesto estimado</h2><p>S/ ${rangoVal(rng(D.seed^7),60,420)} millones (referencial, sujeto a expediente técnico).</p>
+    <h2>11. Matriz de seguimiento</h2><p>Responsable, meta, medio de verificación y frecuencia por cada objetivo.</p>
+    <h2>12. Riesgos y mitigación</h2><p>Riesgo fiscal, climático y social; mitigación vía priorización, fondos de contingencia y diálogo.</p>`;
+  } else {
+    R.innerHTML=`
+    <div class="cover"><h1>Plan Maestro Distrital 2075</h1><h2 style="border:0">${D.distrito} · ${D.provincia} · ${D.region}</h2>
+      <p>Proyecto INTI — Gemelo Digital del Perú 2075</p><p style="color:#888">Horizonte 50 años · datos ilustrativos</p></div>
+    <h2>1. Diagnóstico integral</h2><table>${idxTabla}</table>
+    <h2>2. Visión Perú 2075</h2><p>Un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos.</p>
+    <h2>3. Visión distrital 2075</h2><p>${D.distrito}: territorio modelo de bienestar, con población proyectada de ${fmt(D.proy(50))} habitantes.</p>
+    <h2>4. Escenarios prospectivos</h2><table><tr><th>Escenario</th><th>Descripción</th></tr><tr><td>Conservador</td><td>Tendencia inercial</td></tr><tr><td>Esperado</td><td>Reformas graduales</td></tr><tr><td>Transformador</td><td>Inversión + innovación + gobernanza</td></tr></table>
+    <h2 class="pbreak">5–11. Estrategias por dimensión</h2>
+    <h3>Económica</h3><p>Diversificación productiva, formalización, atracción de inversión y economía digital.</p>
+    <h3>Social y familiar</h3><p>Primera infancia, retención escolar, salud mental y reducción de la violencia familiar.</p>
+    <h3>Ambiental</h3><p>Agua, residuos, áreas verdes y protección de la biodiversidad.</p>
+    <h3>Seguridad</h3><p>Patrullaje integrado, prevención juvenil e interdicción ambiental.</p>
+    <h3>Educación y salud</h3><p>Conectividad escolar, STEM, cierre de brechas y atención primaria universal.</p>
+    <h2 class="pbreak">12. Infraestructura estratégica</h2><p>Agua/saneamiento, energía limpia, banda ancha, vías y defensas climáticas.</p>
+    <h2>13. Riesgos climáticos</h2><p>Inundaciones, sequías, huaycos y aumento de temperatura — con adaptación temprana.</p>
+    <h2>14. Riesgos geopolíticos</h2><p>Cadenas de suministro, recursos hídricos transfronterizos y seguridad regional.</p>
+    <h2>15. Proyectos transformadores</h2><table><tr><th>#</th><th>Proyecto</th><th>Sector</th></tr>${top}</table>
+    <h2>16. Indicadores de seguimiento a 50 años</h2><p>Tablero INTI con metas quinquenales hasta 2075.</p>`;
+  }
+  setTimeout(()=>window.print(),200);
+}
+
+/* ====================== INIT ====================== */
+poblarSelectores();
+</script>
+</body>
+</html>
