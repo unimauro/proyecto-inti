@@ -210,6 +210,11 @@
   .util .util-share{background:var(--card);border:1px solid var(--line);color:var(--txt);cursor:pointer;font-weight:700;font-size:.82rem;padding:7px 12px;border-radius:999px;}
   .util .util-share:hover{border-color:var(--inti);}
   /* FAQ */
+  #faqBody{overflow:hidden;transition:max-height .7s ease, opacity .55s ease, filter .55s ease;max-height:3200px;opacity:1;}
+  #faqBody.col{max-height:0;opacity:0;filter:blur(6px);}
+  #faq .faq-hint{font-size:.72rem;color:var(--muted2);margin-left:auto;font-weight:600;}
+  #faq .chev{color:var(--inti);font-weight:800;margin-left:8px;transition:transform .3s;}
+  #faq.col-on .chev{transform:rotate(180deg);}
   .faq-grid{display:grid;gap:10px;}
   .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 16px;overflow:hidden;}
   .faq summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;}
@@ -277,8 +282,8 @@
 
   <!-- FAQ / QUÉ ES -->
   <section id="faq">
-    <div class="sec-h"><span class="ico">❓</span><h2>¿Qué es INTI y para qué te sirve?</h2></div>
-    <div class="faq">
+    <div class="sec-h" onclick="toggleFaq()" style="cursor:pointer"><span class="ico">❓</span><h2>¿Qué es INTI y para qué te sirve?</h2><span class="faq-hint" id="faqHint">(toca para ocultar)</span><span class="chev" id="faqChev">▲</span></div>
+    <div class="faq" id="faqBody">
       <div class="intro"><b>Proyecto INTI</b> es un <b>gemelo digital del Perú</b>: reúne los datos de cada uno de los 1,891 distritos y los convierte en un <b>diagnóstico claro, una proyección a 2075 y un plan de gobierno descargable</b>. Pensado para las <b>elecciones municipales</b>: que las propuestas se basen en evidencia y no en promesas vacías.</div>
       <div class="faq-grid">
         <details open><summary>🎯 ¿Qué problema resuelve?</summary><p>Hoy muchos planes municipales son genéricos y sin datos. INTI te muestra, por distrito, dónde estás peor (semáforos rojos), qué proyectos tendrían más impacto y cómo se vería tu distrito en 5, 10, 25 y 50 años. Convierte datos dispersos en <b>decisiones accionables</b>.</p></details>
@@ -997,6 +1002,16 @@ function compartirINTI(m,btn){
   else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
 }
+
+/* ====================== FAQ COLAPSABLE ====================== */
+function toggleFaq(force){
+  const b=document.getElementById('faqBody'), sec=document.getElementById('faq'), h=document.getElementById('faqHint');
+  if(!b) return;
+  const col = force==='col' ? true : force==='open' ? false : !b.classList.contains('col');
+  b.classList.toggle('col', col); sec.classList.toggle('col-on', col);
+  if(h) h.textContent = col ? '(toca para ver)' : '(toca para ocultar)';
+}
+setTimeout(()=>toggleFaq('col'), 7000);
 
 /* ====================== AVISO EVAPORABLE ====================== */
 function cerrarAviso(){ const a=document.getElementById('aviso'); if(a) a.classList.add('evapora'); }
