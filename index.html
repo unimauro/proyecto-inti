@@ -194,6 +194,10 @@
     #reporte .rb{page-break-inside:avoid;} #reporte .pbreak{page-break-before:always;}
     #reporte .cover{text-align:center;padding:60px 0;}
   }
+  .disclaimer{transition:opacity .9s ease, filter .9s ease, transform .9s ease; position:relative;}
+  .disclaimer.evapora{opacity:0;filter:blur(9px);transform:translateY(-14px) scale(.95);pointer-events:none;}
+  .disclaimer .aviso-x{margin-left:10px;background:rgba(255,255,255,.15);border:0;color:inherit;cursor:pointer;width:20px;height:20px;border-radius:50%;font-size:.7rem;line-height:1;}
+  .disclaimer .aviso-x:hover{background:rgba(255,255,255,.3);}
   @media (max-width:600px){ .selector select{min-width:120px;} }
   /* Temas */
   body[data-theme="cafe"]{--bg:#1d1410;--bg2:#26190f;--card:#2c1d12;--card2:#372616;--line:#4d3722;--txt:#f4e9dc;--muted:#cbab8d;--muted2:#917055;}
@@ -236,7 +240,7 @@
     <h1>Proyecto INTI</h1>
     <p class="lead">Gemelo Digital del Perú 2075 · Sistema Nacional de Inteligencia Territorial y Desarrollo Distrital</p>
     <p class="sub">Cobertura objetivo: 1,891 distritos · 196 provincias · 25 regiones</p>
-    <div class="disclaimer">✅ <b>&nbsp;Datos reales</b>:&nbsp;IDH 2019, pobreza y población (PNUD/INEI) en 1,892 distritos · otros índices ilustrativos</div>
+    <div class="disclaimer" id="aviso">✅ <b>&nbsp;Datos reales</b>:&nbsp;Censo 2017, IDH 2019, pobreza y vulnerabilidad alimentaria (PNUD/INEI) · otros índices ilustrativos <button class="aviso-x" onclick="cerrarAviso()" aria-label="Cerrar aviso">✕</button></div>
   </div>
 </header>
 
@@ -291,6 +295,7 @@
           <li>4. Descarga tu <b>Plan Municipal</b> o <b>Plan Maestro 2075</b> en PDF.</li>
           <li>5. ¿Otra consulta? Usa el botón <b>🔄 Reiniciar</b>.</li></ul></details>
         <details><summary>📊 ¿De dónde salen los datos?</summary><p><b>Datos reales:</b> población (Censo 2017 INEI), IDH 2019 (PNUD), pobreza y pobreza extrema, vulnerabilidad alimentaria, coordenadas y altitud — fuentes oficiales abiertas. <b>Datos ilustrativos:</b> los demás índices (seguridad, educación, etc.) son sintéticos y consistentes por distrito, hasta integrar sus fuentes oficiales (MINEDU, MINSA, etc.). Siempre marcamos qué es real y qué es ilustrativo.</p></details>
+        <details><summary>🧮 ¿Cómo se calculan los indicadores? (metodología)</summary><p><b>Datos reales</b> (con su fuente y año): población = Censo 2017 (INEI); IDH = 2019 (PNUD); pobreza y pobreza extrema = INEI; vulnerabilidad alimentaria = PNUD/INEI. Estos se muestran tal cual y se marcan con <b>●real</b>.<br><br><b>Datos ilustrativos:</b> los demás índices (seguridad, educación, salud, etc.) se generan de forma <b>sintética y determinística por distrito</b> (un mismo distrito siempre da los mismos valores) para demostrar el sistema mientras integramos cada fuente oficial. No son mediciones reales y así se indican.<br><br>👉 <b>Pasa el cursor sobre cada dato</b> (ⓘ) para ver qué significa y si es real o ilustrativo. Las cifras en S/ y empleos de "Oportunidades" son estimaciones referenciales.</p></details>
         <details><summary>🌅 ¿Cuál es la visión?</summary><p>"Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos hacia 2075." INTI busca que cada distrito tenga una <b>hoja de ruta deseable</b> y medible.</p></details>
       </div>
     </div>
@@ -466,8 +471,8 @@ let TERRITORIO = {}, UBIGEO = {};
 
 /* Generador determinístico: misma entrada → mismos valores (consistencia) */
 function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0);}
-function rng(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return ()=>{s=Math.imul(s,16807)%2147483647;return (s-1)/2147483646;};}
-function rangoVal(r,min,max){return Math.round(min+(max-min)*r());}
+function rng(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return ()=>{s=(s*16807)%2147483647;return (s-1)/2147483646;};}
+function rangoVal(r,min,max){const x=Math.min(1,Math.max(0,r()));return Math.round(min+(max-min)*x);}
 
 const INDICES = [
   ["idh","Índice de Desarrollo Humano"],["prosp","Prosperidad Distrital"],["bien","Bienestar Familiar"],
@@ -511,6 +516,53 @@ function generarDistrito(region, provincia, distrito, ubigeo){
 
 function semaforo(v){ return v>=66?["verde","Adecuado"]:v>=45?["ambar","Atención"]:["rojo","Crítico"]; }
 function fmt(n){ return n.toLocaleString('es-PE'); }
+
+/* ====================== EXPLICACIONES (tooltips) ====================== */
+const EXPLICA = {
+  // Índices del resumen (0-100, mayor = mejor)
+  "Índice de Desarrollo Humano":"IDH: combina esperanza de vida, educación e ingresos. REAL (PNUD 2019). 0=bajo, 100=alto.",
+  "Prosperidad Distrital":"Síntesis de economía, empleo y productividad del distrito (0-100). Ilustrativo.",
+  "Bienestar Familiar":"Calidad de vida del hogar: ingresos, servicios y entorno (0-100). Ilustrativo.",
+  "Seguridad":"Nivel de seguridad ciudadana; mayor = más seguro (0-100). Ilustrativo.",
+  "Educación":"Acceso, cobertura y aprendizajes; mayor = mejor (0-100). Ilustrativo.",
+  "Salud":"Acceso y resultados de salud; mayor = mejor (0-100). Ilustrativo.",
+  "Ambiental":"Calidad ambiental: agua, aire, residuos, áreas verdes (0-100). Ilustrativo.",
+  "Resiliencia Climática":"Capacidad de resistir y adaptarse a riesgos climáticos (0-100). Ilustrativo.",
+  "Gobernanza":"Transparencia, gestión y participación del gobierno local (0-100). Ilustrativo.",
+  "Innovación":"Conectividad, tecnología y emprendimiento (0-100). Ilustrativo.",
+  // Demografía
+  "Población":"N.º de habitantes. REAL (Censo 2017 INEI).",
+  "Crecimiento poblacional":"Ritmo de aumento de la población (índice 0-100). Ilustrativo.",
+  "Migración neta":"Saldo entre quienes llegan y quienes se van (índice 0-100). Ilustrativo.",
+  "Tasa de fertilidad":"Hijos promedio por mujer (índice 0-100). Ilustrativo.",
+  "Índice de envejecimiento":"Proporción de adultos mayores respecto a jóvenes (0-100). Ilustrativo.",
+  "Hogares unipersonales":"Hogares de una sola persona (índice 0-100). Ilustrativo.",
+  // Economía
+  "Empleo formal":"Trabajadores con empleo formal; mayor = mejor (0-100). Ilustrativo.",
+  "Desempleo":"Personas sin trabajo que lo buscan (índice 0-100). Ilustrativo.",
+  "Informalidad":"Empleo sin protección ni registro (0-100). Ilustrativo.",
+  "Pobreza":"% de población en pobreza monetaria. REAL (INEI). Mayor = peor.",
+  "Pobreza extrema":"% que no cubre ni la canasta básica de alimentos. REAL (INEI). Mayor = peor.",
+  "Productividad":"Valor producido por trabajador (índice 0-100). Ilustrativo.",
+  "Competitividad":"Capacidad de competir y atraer inversión (0-100). Ilustrativo.",
+  // Salud
+  "Anemia infantil":"% de niños con anemia (índice 0-100). Ilustrativo (pendiente ENDES).",
+  "Desnutrición crónica":"% de niños con talla baja para su edad (0-100). Ilustrativo.",
+  "Mortalidad materna":"Muertes maternas (índice 0-100). Ilustrativo.",
+  "Salud mental":"Acceso a atención de salud mental (0-100). Ilustrativo.",
+  "Cobertura SIS":"% afiliado al Seguro Integral de Salud (0-100). Ilustrativo.",
+  "Vulnerabilidad alimentaria":"Riesgo de inseguridad alimentaria. REAL (PNUD/INEI). Mayor = peor.",
+  // Educación
+  "Cobertura":"% de niños/jóvenes matriculados (0-100). Ilustrativo.",
+  "Rendimiento (ECE)":"Aprendizajes (Evaluación Censal). Ilustrativo (pendiente MINEDU/UMC).",
+  "Infraestructura educativa":"Estado de locales escolares (0-100). Ilustrativo.",
+  "Acceso digital escolar":"Conectividad y dispositivos en colegios (0-100). Ilustrativo.",
+  // Oportunidades
+  "Potencial":"Qué tan prometedor es el sector en este distrito (0-100). Estimación ilustrativa.",
+  "Empleos generables":"Puestos de trabajo que podría crear el sector. Estimación ilustrativa.",
+  "Inversión necesaria":"Capital aproximado para desarrollar el sector. Estimación ilustrativa."
+};
+function tip(nom){ return EXPLICA[nom] ? ` title="${EXPLICA[nom].replace(/\"/g,'')}"` : ''; }
 
 /* ====================== ESTADO Y RENDER ====================== */
 let D = null, charts = {}, escenarioActivo = "esperado", diagActiva = "Demografía";
@@ -578,7 +630,7 @@ function renderResumen(){
   document.getElementById('indices').innerHTML = INDICES.map(([k,nom])=>{
     const v=D.idx[k], [c,t]=semaforo(v);
     const tag=(k==='idh'&&D.real&&D.real.i!=null)?' <span style="font-size:.58rem;background:rgba(34,197,94,.22);color:#86efac;padding:1px 6px;border-radius:5px">real 2019</span>':'';
-    return `<div class="card idx hover"><div class="top"><span class="nom">${nom}${tag}</span><span class="val v-${c}">${v}</span></div>
+    return `<div class="card idx hover"><div class="top"><span class="nom" style="cursor:help"${tip(nom)}>${nom}${tag} <span style="opacity:.5;font-size:.75rem">ⓘ</span></span><span class="val v-${c}">${v}</span></div>
       <div class="bar"><i class="bg-${c}" style="width:${v}%"></i></div>
       <span class="sem v-${c}"><span class="dot bg-${c}"></span>${t}</span></div>`;
   }).join('');
@@ -601,7 +653,7 @@ function renderDiag(){
   tabs.innerHTML=Object.keys(DIM).map(d=>`<button class="${d===diagActiva?'act':''}" onclick="setDiag('${d}')">${d}</button>`).join('');
   const data=D.dim[diagActiva];
   document.getElementById('diagMetrics').innerHTML=`<h3 style="font-size:1rem;margin-bottom:10px">${diagActiva}</h3>`+
-    data.map(x=>{const sv=x.inv?100-x.v:x.v;const [c]=semaforo(sv);const rt=x.real?' <span style="font-size:.58rem;color:#86efac">●real</span>':'';return `<div class="metric-row"><span>${x.m}${rt}</span><span class="mv v-${c}">${x.v}${x.pct?'%':''}</span></div>`}).join('');
+    data.map(x=>{const sv=x.inv?100-x.v:x.v;const [c]=semaforo(sv);const rt=x.real?' <span style="font-size:.58rem;color:#86efac">●real</span>':'';return `<div class="metric-row"><span style="cursor:help"${tip(x.m)}>${x.m}${rt} <span style="opacity:.4;font-size:.72rem">ⓘ</span></span><span class="mv v-${c}">${x.v}${x.pct?'%':''}</span></div>`}).join('');
   mkChart('diagChart','bar',{labels:data.map(x=>x.m),datasets:[{label:diagActiva,data:data.map(x=>x.v),
     backgroundColor:data.map(x=>({verde:'#22c55e',ambar:'#f59e0b',rojo:'#ef4444'}[semaforo(x.v)[0]]))}]},
     {indexAxis:'y',scales:{x:{max:100,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{grid:{display:false},ticks:{color:'#8b9bc4',font:{size:10}}}},plugins:{legend:{display:false}}});
@@ -719,9 +771,9 @@ function renderOportunidades(){
     const pot=rangoVal(D.r,30,98), empleos=fmt(rangoVal(D.r,200,12000)), inv=rangoVal(D.r,2,180);
     const [c]=semaforo(pot);
     return `<div class="card hover"><div style="font-size:1.6rem">${e}</div><div class="it-t" style="margin:4px 0">${s}</div>
-      <div class="metric-row"><span>Potencial</span><span class="mv v-${c}">${pot}/100</span></div>
-      <div class="metric-row"><span>Empleos generables</span><span class="mv">${empleos}</span></div>
-      <div class="metric-row"><span>Inversión necesaria</span><span class="mv">S/ ${inv} M</span></div></div>`;
+      <div class="metric-row"><span style="cursor:help"${tip('Potencial')}>Potencial ⓘ</span><span class="mv v-${c}">${pot}/100</span></div>
+      <div class="metric-row"><span style="cursor:help"${tip('Empleos generables')}>Empleos generables ⓘ</span><span class="mv">${empleos}</span></div>
+      <div class="metric-row"><span style="cursor:help"${tip('Inversión necesaria')}>Inversión necesaria ⓘ</span><span class="mv">S/ ${inv} M</span></div></div>`;
   }).join('');
 }
 
@@ -945,6 +997,10 @@ function compartirINTI(m,btn){
   else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
 }
+
+/* ====================== AVISO EVAPORABLE ====================== */
+function cerrarAviso(){ const a=document.getElementById('aviso'); if(a) a.classList.add('evapora'); }
+setTimeout(cerrarAviso, 5000);
 
 /* ====================== REINICIAR ====================== */
 function reiniciar(){
