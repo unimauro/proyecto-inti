@@ -205,6 +205,16 @@
   .util a.bmc{background:#ffdd00;color:#1a1206;font-weight:800;font-size:.82rem;padding:7px 14px;border-radius:999px;text-decoration:none;}
   .util .util-share{background:var(--card);border:1px solid var(--line);color:var(--txt);cursor:pointer;font-weight:700;font-size:.82rem;padding:7px 12px;border-radius:999px;}
   .util .util-share:hover{border-color:var(--inti);}
+  /* FAQ */
+  .faq-grid{display:grid;gap:10px;}
+  .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 16px;overflow:hidden;}
+  .faq summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::after{content:'+';color:var(--inti);font-size:1.4rem;font-weight:800;}
+  .faq details[open] summary::after{content:'−';}
+  .faq details p, .faq details ul{color:var(--muted);font-size:.92rem;padding-bottom:14px;margin:0;}
+  .faq details ul{margin-left:18px;}
+  .faq .intro{background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(59,130,246,.08));border:1px solid rgba(245,166,35,.3);border-radius:16px;padding:18px 20px;margin-bottom:14px;font-size:1rem;}
 </style>
 </head>
 <body>
@@ -238,8 +248,10 @@
       <div class="campo"><label>Provincia</label><select id="selProvincia"></select></div>
       <div class="campo"><label>Distrito</label><select id="selDistrito"></select></div>
       <div class="campo"><label>Centro poblado</label><select id="selCP"></select></div>
+      <div class="campo" style="flex:0"><label>&nbsp;</label><button id="btnReset" onclick="reiniciar()" title="Limpiar y empezar de nuevo" style="background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-family:inherit;font-weight:700;cursor:pointer;white-space:nowrap">🔄 Reiniciar</button></div>
     </div>
     <div class="nav-chips">
+      <a href="#faq">¿Qué es?</a>
       <a href="#resumen">Resumen</a>
       <a href="#mapa">Mapa</a>
       <a href="#diagnostico">Diagnóstico</a>
@@ -258,6 +270,31 @@
 </div>
 
 <div class="wrap" id="app">
+
+  <!-- FAQ / QUÉ ES -->
+  <section id="faq">
+    <div class="sec-h"><span class="ico">❓</span><h2>¿Qué es INTI y para qué te sirve?</h2></div>
+    <div class="faq">
+      <div class="intro"><b>Proyecto INTI</b> es un <b>gemelo digital del Perú</b>: reúne los datos de cada uno de los 1,891 distritos y los convierte en un <b>diagnóstico claro, una proyección a 2075 y un plan de gobierno descargable</b>. Pensado para las <b>elecciones municipales</b>: que las propuestas se basen en evidencia y no en promesas vacías.</div>
+      <div class="faq-grid">
+        <details open><summary>🎯 ¿Qué problema resuelve?</summary><p>Hoy muchos planes municipales son genéricos y sin datos. INTI te muestra, por distrito, dónde estás peor (semáforos rojos), qué proyectos tendrían más impacto y cómo se vería tu distrito en 5, 10, 25 y 50 años. Convierte datos dispersos en <b>decisiones accionables</b>.</p></details>
+        <details><summary>👥 ¿A quién le sirve?</summary><ul>
+          <li><b>Alcaldes y candidatos:</b> generan su Plan de Gobierno 2027–2031 en PDF.</li>
+          <li><b>Gobiernos regionales y técnicos:</b> priorizan inversión por evidencia.</li>
+          <li><b>Periodistas e investigadores:</b> comparan distritos y rankings.</li>
+          <li><b>Ciudadanos y dirigentes:</b> exigen propuestas concretas para su barrio.</li>
+          <li><b>Universidades:</b> material para prospectiva y políticas públicas.</li></ul></details>
+        <details><summary>🕹️ ¿Cómo lo uso?</summary><ul>
+          <li>1. Elige tu <b>región → provincia → distrito</b> arriba (o haz clic en el <a href="#mapa">mapa</a>).</li>
+          <li>2. Revisa el <b>resumen</b>, los <b>índices con semáforos</b> y el <b>diagnóstico</b>.</li>
+          <li>3. Mira la <b>prospectiva 2075</b> y los <b>proyectos prioritarios</b>.</li>
+          <li>4. Descarga tu <b>Plan Municipal</b> o <b>Plan Maestro 2075</b> en PDF.</li>
+          <li>5. ¿Otra consulta? Usa el botón <b>🔄 Reiniciar</b>.</li></ul></details>
+        <details><summary>📊 ¿De dónde salen los datos?</summary><p><b>Datos reales:</b> población (Censo 2017 INEI), IDH 2019 (PNUD), pobreza y pobreza extrema, vulnerabilidad alimentaria, coordenadas y altitud — fuentes oficiales abiertas. <b>Datos ilustrativos:</b> los demás índices (seguridad, educación, etc.) son sintéticos y consistentes por distrito, hasta integrar sus fuentes oficiales (MINEDU, MINSA, etc.). Siempre marcamos qué es real y qué es ilustrativo.</p></details>
+        <details><summary>🌅 ¿Cuál es la visión?</summary><p>"Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos hacia 2075." INTI busca que cada distrito tenga una <b>hoja de ruta deseable</b> y medible.</p></details>
+      </div>
+    </div>
+  </section>
 
   <!-- RESUMEN EJECUTIVO -->
   <section id="resumen">
@@ -582,14 +619,32 @@ function renderFamilia(){
   mkChart('famChart','radar',{labels:comp.map(x=>x[0]),datasets:[{data:comp.map(x=>x[1]),
     backgroundColor:'rgba(168,85,247,.18)',borderColor:'#a855f7',pointBackgroundColor:'#c084fc'}]},
     {scales:{r:{min:0,max:100,grid:{color:'#243156'},angleLines:{color:'#243156'},pointLabels:{color:'#8b9bc4',font:{size:9}},ticks:{display:false}}},plugins:{legend:{display:false}}});
-  const recs=[];
-  if(D.dim["Seguridad"][1].v<55) recs.push("Crear Centros de Emergencia Mujer (CEM) descentralizados y rutas de denuncia comunitaria.");
+  const recs=[]; const rr=rng(D.seed^555);
+  // Basadas en DATOS REALES del distrito
+  if(D.real&&D.real.t!=null&&D.real.t>20) recs.push(`Pobreza alta (<b>${D.real.t}%</b>): empleo temporal (obras por impuestos) + transferencias condicionadas a salud y educación.`);
+  if(D.real&&D.real.va!=null&&D.real.va>45) recs.push(`Vulnerabilidad alimentaria elevada (<b>${D.real.va}/100</b>): ollas comunes, huertos familiares y suplementación de hierro a gestantes y niños.`);
+  if(D.real&&D.real.i!=null&&D.real.i<55) recs.push(`IDH bajo (<b>${D.real.i}</b>): inversión combinada en educación, salud e ingresos — el trío que más mueve el IDH.`);
+  // Basadas en el diagnóstico
+  if(D.dim["Seguridad"][1].v<55) recs.push("Centros de Emergencia Mujer descentralizados y rutas de denuncia comunitaria contra la violencia familiar.");
   if(D.dim["Educación"][0].v<60) recs.push("Programa de retención escolar con tutoría y alimentación para reducir el abandono.");
-  if(D.dim["Economía"][0].v<55) recs.push("Bolsa de empleo familiar local + formalización de microemprendimientos del hogar.");
-  if(D.dim["Salud"][3].v<55) recs.push("Red de salud mental comunitaria con atención psicológica gratuita en postas.");
-  recs.push("Escuelas de familias y redes de cuidado vecinal para fortalecer la cohesión social.");
-  recs.push("Presupuesto participativo enfocado en infancia, juventud y adulto mayor.");
-  document.getElementById('famRecs').innerHTML=recs.map(r=>`<li>${r}</li>`).join('');
+  if(D.dim["Economía"][0].v<55) recs.push("Bolsa de empleo familiar y formalización de microemprendimientos del hogar.");
+  if(D.dim["Salud"][3].v<55) recs.push("Salud mental comunitaria con atención psicológica gratuita en postas.");
+  if(D.idx.gob<55) recs.push("Mesa de concertación y presupuesto participativo vecinal para recuperar confianza.");
+  if(D.idx.bien<55) recs.push("Espacios públicos seguros (parques, lozas, bibliotecas) como puntos de encuentro familiar.");
+  // Pool general — se eligen variados y distintos por distrito
+  const pool=[
+    "Escuelas de familias: talleres de crianza positiva y prevención de violencia.",
+    "Red de cuidado vecinal para infancia y adulto mayor (economía del cuidado).",
+    "Programa de primera infancia (estimulación temprana 0–5 años).",
+    "Casa de la juventud: deporte, cultura y empleo joven para prevenir el pandillaje.",
+    "Voluntariado comunitario y mapeo participativo de necesidades del barrio.",
+    "Ferias del emprendimiento familiar y compras locales para circular la economía.",
+    "Acompañamiento a familias monoparentales y registro de paternidad responsable.",
+    "Promotores de salud casa por casa para anemia, vacunas y controles."
+  ];
+  const baraja=pool.slice().sort(()=>rr()-0.5);
+  while(recs.length<5 && baraja.length) recs.push(baraja.pop());
+  document.getElementById('famRecs').innerHTML=recs.slice(0,6).map(r=>`<li>${r}</li>`).join('');
 }
 
 function renderProspectiva(){
@@ -889,6 +944,15 @@ function compartirINTI(m,btn){
   if(m==='wa') window.open(`https://wa.me/?text=${t}%20${u}`,'_blank','noopener');
   else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
+}
+
+/* ====================== REINICIAR ====================== */
+function reiniciar(){
+  const sr=document.getElementById('selRegion');
+  if(sr&&sr.options.length){ sr.value = TERRITORIO["Lima"]?"Lima":sr.options[0].value; poblarProv(); }
+  const ia=document.getElementById('iaInput'); if(ia) ia.value='';
+  const ir=document.getElementById('iaResp'); if(ir){ ir.classList.remove('show'); ir.innerHTML=''; }
+  document.getElementById('faq').scrollIntoView({behavior:'smooth'});
 }
 
 /* ====================== INIT ====================== */
