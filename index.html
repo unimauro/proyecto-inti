@@ -548,6 +548,11 @@
     <div class="sec-h"><span class="ico">📄</span><h2>Planes descargables (PDF)</h2></div>
     <p class="sec-desc">Documentos generados automáticamente, listos para imprimir o guardar como PDF.</p>
     <div class="dl-grid">
+      <div class="dl" style="grid-column:1/-1;border:1px solid var(--inti)">
+        <h3>🏛️ Plan de Gobierno 2027–2034 (2 periodos) + Articulación Regional</h3>
+        <p>Propuesta sólida por distrito construida sobre los datos reales y la simulación: visión, ejes, <b>metas cuantificadas por periodo</b> (líneas base reales → 2030 → 2034), cartera de proyectos por periodo, presupuesto referencial, articulación con el gobierno regional e indicadores de seguimiento. Pensada para candidatos a alcaldías y gobiernos regionales 2026 y 2030.</p>
+        <button onclick="generarPlanGobierno()">⬇️ Generar Plan de Gobierno 2027–2034</button>
+      </div>
       <div class="dl">
         <h3>📋 Plan Municipal 2027–2031</h3>
         <p>Diagnóstico, problemas, oportunidades, visión, objetivos, cartera de proyectos, indicadores, cronograma, presupuesto y matriz de riesgos. Formato listo para campaña o gestión.</p>
@@ -1378,6 +1383,91 @@ function exportarDatos(tipo){
   const flat={}; for(const k in obj){ if(k==='indices'){ for(const ik in obj.indices) flat['indice_'+ik]=obj.indices[ik]; } else flat[k]=obj[k]; }
   const heads=Object.keys(flat), vals=heads.map(h=>{const v=flat[h]; return (typeof v==='string'&&/[,\n"]/.test(v))?('"'+v.replace(/"/g,'""')+'"'):(v==null?'':v);});
   descargar(heads.join(',')+'\n'+vals.join(','), `inti_${D.ubigeo}_${slug}.csv`, 'text/csv;charset=utf-8');
+}
+
+/* ====================== PLAN DE GOBIERNO 2027-2034 ====================== */
+function generarPlanGobierno(){
+  if(!D) return;
+  const R=document.getElementById('reporte'), real=D.real||{}, dep=D.region;
+  const ra=(window.REG_AVG||{})[dep]||{};
+  const anem=D.anemiaReg?D.anemiaReg.v:null;
+  const metaUp=(b)=>{ if(b==null) return ['—','—']; const g=100-b; return [Math.round(b+g*0.25), Math.round(b+g*0.45)]; };
+  const metaDown=(b)=>{ if(b==null) return ['—','—']; return [(+(b*0.80).toFixed(1)), (+(b*0.62).toFixed(1))]; };
+  const idh=real.i!=null?real.i:D.idx.idh;
+  const M=[
+    ['Población', real.p25?fmt(real.p25):(real.p?fmt(real.p):'—'), fmt(D.proy(5)), fmt(D.proy(9)), 'INEI / proyección'],
+    ['IDH', idh, metaUp(idh)[0], metaUp(idh)[1], 'subir'],
+    ['Pobreza %', real.t!=null?real.t:'—', metaDown(real.t)[0], metaDown(real.t)[1], 'bajar'],
+    ['Pobreza extrema %', real.e!=null?real.e:'—', metaDown(real.e)[0], metaDown(real.e)[1], 'bajar'],
+    ['Anemia 6-35m % (reg)', anem!=null?anem:'—', metaDown(anem)[0], metaDown(anem)[1], 'bajar'],
+    ['Vulnerab. alimentaria', real.va!=null?real.va:'—', metaDown(real.va)[0], metaDown(real.va)[1], 'bajar'],
+    ['Seguridad (índice)', D.idx.seg, metaUp(D.idx.seg)[0], metaUp(D.idx.seg)[1], 'subir'],
+    ['Educación (índice)', D.idx.edu, metaUp(D.idx.edu)[0], metaUp(D.idx.edu)[1], 'subir'],
+    ['Agua y saneamiento (índice)', D.idx.amb, metaUp(D.idx.amb)[0], metaUp(D.idx.amb)[1], 'subir'],
+  ];
+  const metasTabla=M.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+  const ejes=[
+    ['🏥 Salud y nutrición','Reducir anemia y desnutrición; cerrar brechas de atención primaria.'],
+    ['🎓 Educación','Aprendizajes, conectividad escolar y permanencia.'],
+    ['💼 Economía y empleo','Formalización, cadenas productivas y empleo local.'],
+    ['🛡️ Seguridad ciudadana','Patrullaje integrado, prevención y recuperación de espacios.'],
+    ['💧 Servicios básicos','Agua potable, saneamiento, residuos y energía.'],
+    ['👨‍👩‍👧‍👦 Familia y cohesión social','Primera infancia, prevención de violencia, cuidado.'],
+    ['🌱 Ambiente y clima','Áreas verdes, gestión de riesgos y resiliencia.'],
+    ['🏛️ Gobernanza','Transparencia, presupuesto participativo y datos abiertos.'],
+  ].map(e=>`<tr><td><b>${e[0]}</b></td><td>${e[1]}</td></tr>`).join('');
+  const sorted=PROYECTOS_POOL.slice();
+  const cart=(arr)=>arr.map((p,i)=>`<tr><td>${i+1}</td><td>${p[0]}</td><td>${p[2]}</td></tr>`).join('');
+  const p1=cart(sorted.slice(0,8)), p2=cart(sorted.slice(8,16));
+  const pob=real.p25||real.p||50000;
+  const presup1=Math.round(pob*0.6/1000); const presup2=Math.round(pob*0.7/1000);
+  const rk=(window.RANK_IDH||{})[D.ubigeo];
+  R.innerHTML=`
+    <div class="cover"><h1>Plan de Gobierno 2027–2034</h1><h2 style="border:0">${D.distrito} · ${D.provincia} · ${dep}</h2>
+      <p>Dos periodos municipales (2027–2030 y 2031–2034) + articulación regional</p>
+      <p style="color:#888">Proyecto INTI — propuesta basada en datos reales y simulación</p></div>
+
+    <h2>1. Ficha y diagnóstico</h2><table>
+      ${fila('Población (Censo 2017 / est. 2025)', (real.p?fmt(real.p):'—')+' / '+(real.p25?fmt(real.p25):'—'))}
+      ${fila('IDH 2019 (PNUD)', idh)}
+      ${fila('Pobreza / extrema (INEI)', (real.t!=null?real.t+'%':'—')+' / '+(real.e!=null?real.e+'%':'—'))}
+      ${fila('Anemia 6-35m (ENDES 2022, regional)', anem!=null?anem+'%':'—')}
+      ${fila('Ranking IDH nacional', rk?('#'+rk):'—')}
+      ${fila('Promedio regional IDH / pobreza', (ra.i!=null?Math.round(ra.i):'—')+' / '+(ra.t!=null?Math.round(ra.t)+'%':'—'))}
+    </table>
+    <p><b>Brechas prioritarias:</b> ${INDICES.filter(([k])=>D.idx[k]<55).map(([,n])=>n).join(', ')||'Sin brechas críticas.'}</p>
+
+    <h2>2. Visión 2034</h2>
+    <p>Hacer de ${D.distrito} un distrito con familias fuertes, servicios básicos universales, economía local dinámica y seguridad, reduciendo de forma medible la pobreza y la anemia, y articulado con la estrategia regional de ${dep}.</p>
+
+    <h2>3. Ejes estratégicos</h2><table><tr><th>Eje</th><th>Enfoque</th></tr>${ejes}</table>
+
+    <h2 class="pbreak">4. Metas cuantificadas (línea base real → 2030 → 2034)</h2>
+    <table><tr><th>Indicador</th><th>Línea base</th><th>Meta 2030</th><th>Meta 2034</th></tr>${metasTabla}</table>
+    <p style="color:#555">Las metas son referenciales: cierran ~25% de la brecha al 2030 y ~45% al 2034 (indicadores "a subir"), y reducen ~20%/~38% los "a bajar". Ajustables según presupuesto.</p>
+
+    <h2 class="pbreak">5. Primer periodo 2027–2030 (quick wins + base)</h2>
+    <p><b>Objetivos:</b> destrabar agua/saneamiento y salud, ordenar la gestión y seguridad, y sentar la base de datos del distrito.</p>
+    <table><tr><th>#</th><th>Proyecto</th><th>Sector</th></tr>${p1}</table>
+    <p><b>Presupuesto referencial:</b> S/ ${presup1} millones (4 años).</p>
+
+    <h2 class="pbreak">6. Segundo periodo 2031–2034 (consolidación)</h2>
+    <p><b>Objetivos:</b> escalar economía local, educación con tecnología, infraestructura y resiliencia climática.</p>
+    <table><tr><th>#</th><th>Proyecto</th><th>Sector</th></tr>${p2}</table>
+    <p><b>Presupuesto referencial:</b> S/ ${presup2} millones (4 años).</p>
+
+    <h2>7. Articulación con el Gobierno Regional de ${dep}</h2>
+    <p>Alinear la inversión distrital con el plan regional: corredores económicos y logísticos, gestión compartida de cuencas (agua), salud de nivel II–III, vías departamentales y programas regionales contra la anemia. El distrito aporta a las metas regionales y compite por canon/FONIPREL.</p>
+
+    <h2>8. Financiamiento</h2>
+    <p>FONCOMUN, canon y regalías, recursos directamente recaudados, Obras por Impuestos, FONIPREL, cooperación y alianzas público-privadas. Priorización por costo-efectividad social.</p>
+
+    <h2>9. Seguimiento y transparencia</h2>
+    <p>Tablero INTI con la línea base y metas 2030/2034, reporte anual público y presupuesto participativo. Datos abiertos del distrito (exportables en CSV/JSON).</p>
+
+    <h2>10. Nota metodológica</h2>
+    <p>Datos reales: población (Censo 2017), IDH 2019, pobreza (INEI), anemia regional (ENDES 2022), vulnerabilidad (PNUD/INEI). Proyecciones y metas: referenciales (no oficiales). Otros índices: ilustrativos hasta integrar su fuente. Generado por Proyecto INTI.</p>`;
+  setTimeout(()=>window.print(),200);
 }
 
 /* ====================== INIT ====================== */
