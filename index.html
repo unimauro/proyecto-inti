@@ -224,6 +224,14 @@
   .faq details p, .faq details ul{color:var(--muted);font-size:.92rem;padding-bottom:14px;margin:0;}
   .faq details ul{margin-left:18px;}
   .faq .intro{background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(59,130,246,.08));border:1px solid rgba(245,166,35,.3);border-radius:16px;padding:18px 20px;margin-bottom:14px;font-size:1rem;}
+  /* Simulador */
+  .sim-lever{margin-bottom:15px;}
+  .sim-top{display:flex;justify-content:space-between;font-size:.9rem;font-weight:600;margin-bottom:6px;}
+  .sim-top span:last-child{color:var(--inti2);font-weight:800;}
+  .sim-lever input[type=range]{width:100%;accent-color:var(--inti);cursor:pointer;}
+  .sim-preset{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .sim-preset button{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;}
+  .sim-preset button:hover{border-color:var(--inti);}
 </style>
 </head>
 <body>
@@ -266,12 +274,14 @@
       <a href="#diagnostico">Diagnóstico</a>
       <a href="#familia">Familia</a>
       <a href="#prospectiva">Prospectiva 2075</a>
+      <a href="#simulador">🎛️ Simulador</a>
       <a href="#clima">Clima</a>
       <a href="#conflictos">Conflictos</a>
       <a href="#seguridad">Seguridad</a>
       <a href="#oportunidades">Oportunidades</a>
       <a href="#proyectos">Proyectos</a>
       <a href="#corredores">Corredores</a>
+      <a href="#roadmap">Roadmap</a>
       <a href="#ia">Motor IA</a>
       <a href="#descargas">Descargas</a>
     </div>
@@ -370,6 +380,24 @@
     </div>
   </section>
 
+  <!-- SIMULADOR -->
+  <section id="simulador">
+    <div class="sec-h"><span class="ico">🎛️</span><h2>Simulador de políticas 2027–2075</h2></div>
+    <p class="sec-desc">Mueve las palancas de inversión y observa cómo cambiaría el desarrollo del distrito al 2075. <b>Simulación ilustrativa</b> basada en el diagnóstico.</p>
+    <div class="grid g-2">
+      <div class="card">
+        <div class="sim-preset">
+          <button onclick="simPreset(0)">Reiniciar</button>
+          <button onclick="simPreset(40)">Esfuerzo moderado</button>
+          <button onclick="simPreset(80)">Esfuerzo alto</button>
+        </div>
+        <div id="simLevers"></div>
+      </div>
+      <div class="card"><div class="chartbox"><canvas id="simChart"></canvas></div></div>
+    </div>
+    <div class="grid g-stats" id="simOut" style="margin-top:14px"></div>
+  </section>
+
   <!-- CLIMA -->
   <section id="clima">
     <div class="sec-h"><span class="ico">🌦️</span><h2>Cambio climático</h2></div>
@@ -435,6 +463,13 @@
       </div>
       <div class="ia-resp" id="iaResp"></div>
     </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="sec-h"><span class="ico">🗺️</span><h2>Roadmap — para que sirva a todo el país</h2></div>
+    <p class="sec-desc">Cómo construimos INTI paso a paso. <a href="https://github.com/unimauro/proyecto-inti/blob/main/ROADMAP.md" target="_blank" rel="noopener">Ver roadmap completo en GitHub ↗</a></p>
+    <div class="lista" id="roadmapList"></div>
   </section>
 
   <!-- DESCARGAS -->
@@ -616,7 +651,7 @@ function cargar(){
   if(D.real){ _ex=` · <span style="color:var(--inti2)">IDH 2019: ${D.real.i??'—'} · Pobreza: ${D.real.t!=null?D.real.t+'%':'—'}${D.real.al!=null?' · '+D.real.al+' msnm':''}</span>`; }
   document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex}`;
   if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
-  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderClima();
+  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderClima();
   renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
 }
 
@@ -1003,6 +1038,49 @@ function compartirINTI(m,btn){
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
 }
 
+/* ====================== SIMULADOR DE POLÍTICAS ====================== */
+const LEVERS=[{k:'edu',t:'🎓 Educación'},{k:'sal',t:'🏥 Salud'},{k:'seg',t:'🛡️ Seguridad'},{k:'amb',t:'💧 Agua y ambiente'},{k:'prosp',t:'💼 Empleo y economía'},{k:'resi',t:'🌱 Resiliencia climática'}];
+function simIndex(base,e,y){ return Math.min(100, base + (100-base)*(e/100)*(y/50)*0.85); }
+function renderSimulador(){
+  const c=document.getElementById('simLevers'); if(!c) return;
+  c.innerHTML=LEVERS.map(l=>`<div class="sim-lever"><div class="sim-top"><span>${l.t}</span><span id="sv-${l.k}">0%</span></div><input type="range" min="0" max="100" value="0" id="sl-${l.k}" oninput="simCalc()"></div>`).join('');
+  simCalc();
+}
+function simPreset(v){ LEVERS.forEach(l=>{const el=document.getElementById('sl-'+l.k); if(el) el.value=v;}); simCalc(); }
+function simCalc(){
+  if(!D) return;
+  const years=[0,5,10,25,50]; const ef={}; let tot=0;
+  LEVERS.forEach(l=>{ const e=+(document.getElementById('sl-'+l.k)||{value:0}).value; ef[l.k]=e; tot+=e; const sv=document.getElementById('sv-'+l.k); if(sv) sv.textContent=e+'%'; });
+  const baseProm=Math.round(LEVERS.reduce((a,l)=>a+D.idx[l.k],0)/LEVERS.length);
+  const baseline=years.map(()=>baseProm);
+  const sim=years.map(y=>Math.round(LEVERS.reduce((a,l)=>a+simIndex(D.idx[l.k],ef[l.k],y),0)/LEVERS.length));
+  mkChart('simChart','line',{labels:years.map(y=>2025+y),datasets:[
+    {label:'Sin nuevas políticas',data:baseline,borderColor:'#8b9bc4',borderDash:[6,4],tension:.2},
+    {label:'Con tus políticas',data:sim,borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,.15)',fill:true,tension:.3}
+  ]},eje100(true));
+  const ids=sim[sim.length-1], delta=ids-baseProm;
+  const [c1,t1]=semaforo(ids);
+  const inv=Math.round(tot/100*(D.pob/1000)*0.9);
+  const empleos=Math.round(ef.prosp/100*D.pob*0.12);
+  document.getElementById('simOut').innerHTML=
+    `<div class="card stat"><div class="k">Índice de Desarrollo 2075</div><div class="v v-${c1}">${ids}</div><div class="d">hoy: ${baseProm} · <b>${delta>=0?'+':''}${delta} pts</b> · ${t1}</div></div>`+
+    `<div class="card stat"><div class="k">Inversión estimada</div><div class="v">S/ ${fmt(inv)} M</div><div class="d">acumulada a 2075 (referencial)</div></div>`+
+    `<div class="card stat"><div class="k">Empleos potenciales</div><div class="v">${fmt(empleos)}</div><div class="d">eje empleo y economía</div></div>`;
+}
+
+/* ====================== ROADMAP ====================== */
+function renderRoadmap(){
+  const items=[
+    ['✅','Fase 0 — Base','Dashboard, 1,834 distritos reales, mapa nacional, datos reales (Censo 2017, IDH, pobreza), planes PDF, simulador.','baja'],
+    ['🚧','Fase 1 — Más datos reales','Educación (MINEDU ESCALE), salud (MINSA/ENDES), camas y personal médico, ingresos. Dependencia: CSV públicos sin captcha.','alta'],
+    ['🧩','Fase 2 — Documentos base por distrito','Un Documento Base estandarizado por cada uno de los 1,891 distritos para definir políticas.','media'],
+    ['🏛️','Fase 3 — Simulación y participación','Comparador entre distritos + módulo de turismo & economía local (fotos comunitarias enlazadas a comercios).','media'],
+    ['🔒','Fase 4 — Confianza y escala','Trazabilidad de fuentes, API/exportación, Censo 2025 cuando INEI publique, accesibilidad e idiomas.','baja'],
+  ];
+  const el=document.getElementById('roadmapList'); if(!el) return;
+  el.innerHTML=items.map(x=>`<div class="item"><span class="badge b-${x[3]}">${x[0]}</span><div><div class="it-t">${x[1]}</div><div class="it-d">${x[2]}</div></div></div>`).join('');
+}
+
 /* ====================== FAQ COLAPSABLE ====================== */
 function toggleFaq(force){
   const b=document.getElementById('faqBody'), sec=document.getElementById('faq'), h=document.getElementById('faqHint');
@@ -1041,6 +1119,7 @@ Promise.all([
   for(const dep in j) for(const prov in j[dep]) for(const o of j[dep][prov]) UBIGEO[o.u]={dep,prov,dist:o.d};
   poblarSelectores();
   initMapaIdxSelect();
+  renderRoadmap();
 }).catch(e=>{ document.getElementById('ubicacion').textContent='No se pudo cargar la base territorial.'; });
 </script>
 </body>
