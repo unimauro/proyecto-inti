@@ -17,9 +17,3 @@ window.INTI_IA = {
   model:  "meta-llama/llama-3.3-70b-instruct:free",    // modelo OpenRouter
   endpoint: "https://openrouter.ai/api/v1/chat/completions"
 };
-
-// Turismo & economía local (Supabase) — la publishable key es pública y segura (RLS)
-window.INTI_SUPABASE = {
-  url:     "https://dmgvwksdlotqhfshlwzz.supabase.co",
-  anonKey: "sb_publishable_sHyPPX3x0Zvguls_tSks4g_IWYhMriw"
-};

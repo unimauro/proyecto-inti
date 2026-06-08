@@ -32,9 +32,11 @@ Prioridad y dependencias (lo que necesitamos para cada uno):
 
 ## 🏛️ Fase 3 — Simulación y participación
 - [x] Simulador de políticas (palancas de inversión → impacto).
+- [x] **Comparador de distritos** (hasta 4, datos reales + perfil de índices).
 - [ ] **Comparador** entre distritos y benchmarking regional.
-- [ ] 📸 **Módulo de turismo & economía local**: la comunidad sube fotos de lugares turísticos y se enlazan a comercios locales (restaurantes, hospedajes). *Reutiliza el patrón galería + Supabase.*
-- [ ] Aportes ciudadanos y reporte de necesidades por barrio.
+- [ ] **Benchmarking regional** y agrupamiento (clustering) de distritos por perfil.
+- [ ] **Forecasting con datos reales**: proyecciones poblacionales y de pobreza basadas en series oficiales.
+- [ ] Escenarios de política comparables entre distritos.
 
 ## 🔒 Fase 4 — Confianza y escala
 - [ ] Fuentes y fecha visibles en cada dato (trazabilidad total).
