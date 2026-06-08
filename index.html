@@ -326,7 +326,7 @@
           <li>4. Descarga tu <b>Plan Municipal</b> o <b>Plan Maestro 2075</b> en PDF.</li>
           <li>5. ¿Otra consulta? Usa el botón <b>🔄 Reiniciar</b>.</li></ul></details>
         <details><summary>📊 ¿De dónde salen los datos?</summary><p><b>Datos reales:</b> población (Censo 2017 INEI), IDH 2019 (PNUD), pobreza y pobreza extrema, vulnerabilidad alimentaria, coordenadas y altitud — fuentes oficiales abiertas. <b>Datos ilustrativos:</b> los demás índices (seguridad, educación, etc.) son sintéticos y consistentes por distrito, hasta integrar sus fuentes oficiales (MINEDU, MINSA, etc.). Siempre marcamos qué es real y qué es ilustrativo.</p></details>
-        <details><summary>🧮 ¿Cómo se calculan los indicadores? (metodología)</summary><p><b>Datos reales</b> (con su fuente y año): población = Censo 2017 (INEI); IDH = 2019 (PNUD); pobreza y pobreza extrema = INEI; vulnerabilidad alimentaria = PNUD/INEI. <b>Anemia 6-35m</b> = ENDES 2022 (INEI) a nivel <b>regional</b> (●reg), no distrital. Se marcan con <b>●real</b> o <b>●reg</b>.<br><br><b>Datos ilustrativos:</b> los demás índices (seguridad, educación, salud, etc.) se generan de forma <b>sintética y determinística por distrito</b> (un mismo distrito siempre da los mismos valores) para demostrar el sistema mientras integramos cada fuente oficial. No son mediciones reales y así se indican.<br><br>👉 <b>Pasa el cursor sobre cada dato</b> (ⓘ) para ver qué significa y si es real o ilustrativo. Las cifras en S/ y empleos de "Oportunidades" son estimaciones referenciales.</p></details>
+        <details><summary>🧮 ¿Cómo se calculan los indicadores? (metodología)</summary><p><b>Datos reales</b> (con su fuente y año): población = Censo 2017 (INEI); IDH = 2019 (PNUD); pobreza y pobreza extrema = INEI; vulnerabilidad alimentaria = PNUD/INEI. <b>Anemia 6-35m</b> = ENDES 2022 (INEI) a nivel <b>regional</b> (●reg), no distrital. Se marcan con <b>●real</b> o <b>●reg</b>.<br><br><b>Datos ilustrativos:</b> los demás índices (seguridad, educación, salud, etc.) se generan de forma <b>sintética y determinística por distrito</b> (un mismo distrito siempre da los mismos valores) para demostrar el sistema mientras integramos cada fuente oficial. No son mediciones reales y así se indican.<br><br>👉 <b>Pasa el cursor sobre cada dato</b> (ⓘ) para ver qué significa y si es real o ilustrativo. Las cifras en S/ y empleos de "Oportunidades" son estimaciones referenciales.<br><br><b>Forecasting poblacional:</b> ancla el <b>Censo 2017 (real)</b> y una <b>estimación 2025</b>; la tasa de crecimiento es la real implícita 2017→2025. Las proyecciones 2035/2050/2075 son <b>extrapolaciones de INTI con amortiguación</b> (la tasa decae con los años) — son escenarios, <b>no proyecciones oficiales por distrito</b>.</p></details>
         <details><summary>🌅 ¿Cuál es la visión?</summary><p>"Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos hacia 2075." INTI busca que cada distrito tenga una <b>hoja de ruta deseable</b> y medible.</p></details>
       </div>
     </div>
@@ -340,7 +340,7 @@
     <div class="grid g-idx" id="indices" style="margin-top:14px"></div>
     <div class="grid g-2" style="margin-top:14px">
       <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Perfil de índices</h3><div class="chartbox"><canvas id="radar"></canvas></div></div>
-      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Proyección poblacional</h3><div class="chartbox"><canvas id="pobChart"></canvas></div></div>
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:2px">Forecasting poblacional</h3><div style="font-size:.72rem;color:var(--muted2);margin-bottom:8px">🟢 2017 Censo (real) · 2025 estimación &nbsp; 🟠 2035–2075 extrapolación (no oficial)</div><div class="chartbox"><canvas id="pobChart"></canvas></div></div>
     </div>
   </section>
 
@@ -579,9 +579,12 @@ function generarDistrito(region, provincia, distrito, ubigeo){
   INDICES.forEach(([k])=>{ idx[k] = Math.max(18, Math.min(92, Math.round(base + (r()*44-22)))); });
   let pob = rangoVal(r, limeño?20000:1500, limeño?1100000:90000);
   const real = (typeof IND!=='undefined'&&IND[ubigeo])||null;
-  if(real){ if(real.p) pob = real.p; if(real.i!=null) idx.idh = Math.max(5,Math.min(100,Math.round(real.i))); }
-  const crec = (r()*3.4-0.6); // % anual
-  const proy = (anios)=> Math.round(pob*Math.pow(1+crec/100, anios));
+  let pob2017=null;
+  if(real){ if(real.p){ pob2017=real.p; pob=real.p; } if(real.p25) pob=real.p25; if(real.i!=null) idx.idh = Math.max(5,Math.min(100,Math.round(real.i))); }
+  const gReal = (real&&real.g!=null)?real.g:null;
+  const crec = gReal!=null ? gReal*100 : (r()*3.4-0.6);
+  // proy(anios desde 2025): crecimiento amortiguado para horizontes largos (evita extrapolar en exceso)
+  const proy = (anios)=>{ let pp=pob, r0=crec/100; for(let y=1;y<=anios;y++){ const damp=Math.max(0.25, 1-(y/50)*0.75); pp*=(1+r0*damp); } return Math.round(pp); };
   // dimensiones (valores 0-100, donde corresponde "más es mejor" o "%")
   const dim = {};
   Object.entries(DIM).forEach(([d,arr])=>{ dim[d]=arr.map(m=>({m, v: rangoVal(r,8,95)})); });
@@ -593,7 +596,7 @@ function generarDistrito(region, provincia, distrito, ubigeo){
   const _an=anemiaDep(region);
   if(_an){ const sd=dim["Salud"]; const ai=sd.findIndex(x=>x.m==='Anemia infantil'); if(ai>=0) sd[ai]={m:'Anemia infantil 6-35m',v:Math.round(_an.v),real:true,regional:true,inv:true,pct:true}; }
   const iff = Math.round((idx.bien*0.3+idx.seg*0.2+idx.edu*0.2+idx.sal*0.15+idx.gob*0.15));
-  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño,real,anemiaReg:_an};
+  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño,real,anemiaReg:_an,pob2017};
 }
 
 function semaforo(v){ return v>=66?["verde","Adecuado"]:v>=45?["ambar","Atención"]:["rojo","Crítico"]; }
@@ -700,11 +703,13 @@ function cargar(){
 }
 
 function renderResumen(){
+  const baseLbl = (D.real&&D.real.p25)?"habitantes · estimación 2025":((D.real&&D.real.pc)?"habitantes · Censo 2017 (INEI)":"habitantes (ilustrativo)");
+  const crecLbl = (D.real&&D.real.g!=null)?`real ${D.crec>=0?'+':''}${D.crec.toFixed(1)}%/año (2017→2025)`:`${D.crec.toFixed(1)}%/año (supuesto)`;
   const stats=[
-    ["Población actual",fmt(D.pob),(D.real&&D.real.pc)?"habitantes · Censo 2017 (INEI)":(D.real&&D.real.p)?"hab. · estimación 2020":"habitantes (ilustrativo)"],
-    ["Proyección 10 años",fmt(D.proy(10)),`crec. ${D.crec.toFixed(1)}%/año`],
-    ["Proyección 25 años",fmt(D.proy(25)),"escenario esperado"],
-    ["Proyección 50 años (2075)",fmt(D.proy(50)),"horizonte INTI"],
+    ["Población base (2025)",fmt(D.pob),baseLbl],
+    ["Crecimiento anual",`${D.crec>=0?'+':''}${D.crec.toFixed(1)}%`,crecLbl],
+    ["Proyección 2050",fmt(D.proy(25)),"extrapolación INTI (amortiguada)"],
+    ["Proyección 2075",fmt(D.proy(50)),"extrapolación · no oficial"],
   ];
   const ub=D.ubigeo, ri=(window.RANK_IDH||{})[ub], rp=(window.RANK_POB||{})[ub];
   if(ri) stats.push(["🏆 Ranking IDH nacional",`#${ri}`,`de ${fmt(window.RANK_N_IDH)} distritos · real 2019`]);
@@ -726,10 +731,12 @@ function renderResumen(){
       backgroundColor:'rgba(245,166,35,.18)',borderColor:'#f5a623',pointBackgroundColor:'#ffcf5c'}]
   },{scales:{r:{min:0,max:100,grid:{color:'#243156'},angleLines:{color:'#243156'},pointLabels:{color:'#8b9bc4',font:{size:10}},ticks:{display:false}}},plugins:{legend:{display:false}}});
 
-  // Población
-  const anios=[0,5,10,25,50], labels=anios.map(a=>2025+a);
-  mkChart('pobChart','line',{labels,datasets:[{label:'Población',data:anios.map(a=>D.proy(a)),
-    borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.15)',fill:true,tension:.3}]},ejeY());
+  // Población: 2017 Censo (real) · 2025 estimación · 2035-2075 extrapolación
+  const pYrs=[2017,2025,2035,2050,2075];
+  const pData=[ (D.pob2017||D.pob), D.proy(0), D.proy(10), D.proy(25), D.proy(50) ];
+  mkChart('pobChart','line',{labels:pYrs,datasets:[{label:'Población',data:pData,
+    borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.15)',fill:true,tension:.3,
+    pointRadius:5,pointBackgroundColor:pYrs.map(y=>y<=2025?'#22c55e':'#f5a623')}]},ejeY());
 }
 
 function renderDiag(){
