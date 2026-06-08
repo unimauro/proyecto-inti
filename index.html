@@ -538,6 +538,19 @@
         <p>Visión a 50 años: diagnóstico integral, escenarios prospectivos, estrategias por dimensión, infraestructura, riesgos climáticos y geopolíticos, y proyectos transformadores.</p>
         <button onclick="generarReporte('maestro')">⬇️ Generar Plan Maestro 2075</button>
       </div>
+      <div class="dl">
+        <h3>📋 Documento Base Distrital</h3>
+        <p>Ficha técnica estandarizada con todos los datos reales del distrito (población, IDH, pobreza, anemia, vulnerabilidad, ranking, tipología), índices con semáforos, brechas y cartera priorizada. La base para definir políticas.</p>
+        <button onclick="generarBase()">⬇️ Generar Documento Base</button>
+      </div>
+      <div class="dl">
+        <h3>📤 Exportar datos del distrito</h3>
+        <p>Descarga los datos reales y calculados del distrito para reutilizarlos en Excel, Power BI o tus propios análisis.</p>
+        <div style="display:flex;gap:10px">
+          <button onclick="exportarDatos('csv')" style="flex:1">⬇️ CSV</button>
+          <button onclick="exportarDatos('json')" style="flex:1">⬇️ JSON</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1267,6 +1280,55 @@ function reiniciar(){
   const ia=document.getElementById('iaInput'); if(ia) ia.value='';
   const ir=document.getElementById('iaResp'); if(ir){ ir.classList.remove('show'); ir.innerHTML=''; }
   document.getElementById('faq').scrollIntoView({behavior:'smooth'});
+}
+
+/* ====================== DOCUMENTO BASE + EXPORT ====================== */
+function generarBase(){
+  if(!D) return;
+  const R=document.getElementById('reporte'), real=D.real||{}, rk=(window.RANK_IDH||{})[D.ubigeo];
+  const tn=tipologia(D)[0];
+  const idxTabla=INDICES.map(([k,n])=>`<tr><td><b>${n}</b></td><td>${D.idx[k]}/100 — ${semaforo(D.idx[k])[1]}</td></tr>`).join('');
+  const brechas=INDICES.filter(([k])=>D.idx[k]<55).map(([,n])=>n).join(', ')||'Sin brechas críticas.';
+  const top=PROYECTOS_POOL.slice(0,12).map((p,i)=>`<tr><td>${i+1}</td><td>${p[0]}</td><td>${p[2]}</td></tr>`).join('');
+  const sim=(window.FEAT||[]).filter(x=>x.u!==D.ubigeo&&x.i!=null).slice(0,0); // (similares se ven en el dashboard)
+  R.innerHTML=`
+    <div class="cover"><h1>Documento Base Distrital</h1><h2 style="border:0">${D.distrito} · ${D.provincia} · ${D.region}</h2><p>Proyecto INTI — Gemelo Digital del Perú 2075</p><p style="color:#888">Generado automáticamente · datos reales + ilustrativos (ver nota)</p></div>
+    <h2>1. Ficha del distrito</h2><table>
+      ${fila('Tipología',tn)}
+      ${fila('Ubigeo',D.ubigeo)}
+      ${fila('Población (Censo 2017, INEI)', real.p?fmt(real.p):'—')}
+      ${fila('Población (estimación 2025)', real.p25?fmt(real.p25):'—')}
+      ${fila('Crecimiento anual 2017–2025', real.g!=null?((real.g*100>=0?'+':'')+(real.g*100).toFixed(1)+'%'):'—')}
+      ${fila('Proyección 2050 / 2075 (extrapolación)', fmt(D.proy(25))+' / '+fmt(D.proy(50)))}
+      ${fila('IDH 2019 (PNUD)', real.i!=null?real.i:'—')}
+      ${fila('Pobreza / pobreza extrema (INEI)', (real.t!=null?real.t+'%':'—')+' / '+(real.e!=null?real.e+'%':'—'))}
+      ${fila('Anemia 6–35m (regional, ENDES 2022)', D.anemiaReg?D.anemiaReg.v+'%':'—')}
+      ${fila('Vulnerabilidad alimentaria', real.va!=null?real.va+'/100':'—')}
+      ${fila('Altitud', real.al!=null?real.al+' msnm':'—')}
+      ${fila('Índice de Fortalecimiento Familiar', D.iff+'/100')}
+      ${fila('Ranking IDH nacional', rk?('#'+rk+' de '+fmt(window.RANK_N_IDH)):'—')}
+    </table>
+    <h2>2. Índices (semáforos)</h2><table>${idxTabla}</table>
+    <h2>3. Brechas prioritarias</h2><p>${brechas}</p>
+    <h2 class="pbreak">4. Cartera priorizada (referencial)</h2><table><tr><th>#</th><th>Proyecto</th><th>Sector</th></tr>${top}</table>
+    <h2>5. Nota metodológica</h2><p><b>Datos reales:</b> población (Censo 2017 INEI), IDH 2019 (PNUD), pobreza y pobreza extrema (INEI), vulnerabilidad alimentaria (PNUD/INEI), anemia 6–35m a nivel regional (ENDES 2022). <b>Estimación 2025</b> y proyecciones: referenciales (no oficiales por distrito). <b>Otros índices</b> (seguridad, educación, etc.): ilustrativos hasta integrar su fuente oficial.</p>`;
+  setTimeout(()=>window.print(),200);
+}
+function descargar(content,name,type){ const b=new Blob([content],{type:type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1500); }
+function exportarDatos(tipo){
+  if(!D) return; const real=D.real||{};
+  const obj={ distrito:D.distrito, provincia:D.provincia, region:D.region, ubigeo:D.ubigeo, tipologia:tipologia(D)[0],
+    poblacion_censo2017: real.p!=null?real.p:null, poblacion_estimacion2025: real.p25!=null?real.p25:null,
+    crecimiento_anual_pct: real.g!=null?+(real.g*100).toFixed(2):null, proyeccion_2050:D.proy(25), proyeccion_2075:D.proy(50),
+    idh_2019: real.i!=null?real.i:null, pobreza_pct: real.t!=null?real.t:null, pobreza_extrema_pct: real.e!=null?real.e:null,
+    anemia_6_35m_regional_pct: D.anemiaReg?D.anemiaReg.v:null, vulnerabilidad_alimentaria: real.va!=null?real.va:null,
+    altitud_msnm: real.al!=null?real.al:null, ranking_idh_nacional:(window.RANK_IDH||{})[D.ubigeo]||null,
+    iff:D.iff, indices:Object.assign({},D.idx) };
+  const slug=(D.distrito||'distrito').replace(/[^a-z0-9]/gi,'_');
+  if(tipo==='json'){ descargar(JSON.stringify(obj,null,2), `inti_${D.ubigeo}_${slug}.json`, 'application/json'); return; }
+  const flat={}; for(const k in obj){ if(k==='indices'){ for(const ik in obj.indices) flat['indice_'+ik]=obj.indices[ik]; } else flat[k]=obj[k]; }
+  const heads=Object.keys(flat), vals=heads.map(h=>{const v=flat[h]; return (typeof v==='string'&&/[,\n"]/.test(v))?('"'+v.replace(/"/g,'""')+'"'):(v==null?'':v);});
+  descargar(heads.join(',')+'\n'+vals.join(','), `inti_${D.ubigeo}_${slug}.csv`, 'text/csv;charset=utf-8');
 }
 
 /* ====================== INIT ====================== */
