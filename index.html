@@ -553,6 +553,11 @@
         <p>Propuesta sólida por distrito construida sobre los datos reales y la simulación: visión, ejes, <b>metas cuantificadas por periodo</b> (líneas base reales → 2030 → 2034), cartera de proyectos por periodo, presupuesto referencial, articulación con el gobierno regional e indicadores de seguimiento. Pensada para candidatos a alcaldías y gobiernos regionales 2026 y 2030.</p>
         <button onclick="generarPlanGobierno()">⬇️ Generar Plan de Gobierno 2027–2034</button>
       </div>
+      <div class="dl" style="grid-column:1/-1;border:1px solid var(--turquesa)">
+        <h3>🏞️ Plan de Gobierno REGIONAL 2027–2034</h3>
+        <p>Propuesta agregada para el <b>Gobierno Regional</b> de la región del distrito seleccionado: agrega los datos reales de todos sus distritos (población, IDH, pobreza, anemia), identifica los distritos más críticos, define metas regionales 2030/2034 y ejes de inversión a escala departamental.</p>
+        <button onclick="generarPlanRegional()">⬇️ Generar Plan Regional 2027–2034</button>
+      </div>
       <div class="dl">
         <h3>📋 Plan Municipal 2027–2031</h3>
         <p>Diagnóstico, problemas, oportunidades, visión, objetivos, cartera de proyectos, indicadores, cronograma, presupuesto y matriz de riesgos. Formato listo para campaña o gestión.</p>
@@ -1494,6 +1499,67 @@ function exportarCatalogo(btn){
   }
   descargar(rows.join('\n'), 'inti_catalogo_nacional_distritos.csv', 'text/csv;charset=utf-8');
   if(btn){ btn.textContent='✅ Descargado ('+(rows.length-1)+' distritos)'; setTimeout(()=>btn.textContent=btn._o,2500); }
+}
+
+/* ====================== PLAN REGIONAL ====================== */
+function datosRegion(dep){
+  const ind=window.IND||{}, U=(typeof UBIGEO!=='undefined'?UBIGEO:{});
+  let pop=0,popc=0,n=0; const idhs=[],pobs=[],vas=[];
+  for(const u in U){ if(U[u].dep!==dep) continue; n++; const r=ind[u]; if(!r) continue;
+    if(r.p25) pop+=r.p25; if(r.p) popc+=r.p;
+    if(r.i!=null) idhs.push({u,d:U[u].dist,i:r.i,t:(r.t!=null?r.t:null)});
+    if(r.t!=null) pobs.push(r.t); if(r.va!=null) vas.push(r.va);
+  }
+  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  idhs.sort((a,b)=>a.i-b.i);
+  return {dep,n,pop,popc,idh:avg(idhs.map(x=>x.i)),pob:avg(pobs),va:avg(vas),anemia:(anemiaDep(dep)||{}).v,peores:idhs.slice(0,6),mejores:idhs.slice(-5).reverse()};
+}
+function generarPlanRegional(){
+  if(!D) return; const dep=D.region, g=datosRegion(dep);
+  const r1=v=>v==null?'—':Math.round(v*10)/10;
+  const mUp=b=> b==null?['—','—']:[Math.round(b+(100-b)*0.25),Math.round(b+(100-b)*0.45)];
+  const mDn=b=> b==null?['—','—']:[(+(b*0.80).toFixed(1)),(+(b*0.62).toFixed(1))];
+  const iu=mUp(g.idh), pd=mDn(g.pob), ad=mDn(g.anemia);
+  const peores=g.peores.map((x,i)=>`<tr><td>${i+1}</td><td>${x.d}</td><td>${x.i}</td><td>${x.t!=null?x.t+'%':'—'}</td></tr>`).join('');
+  const ejes=[
+    ['🛣️ Conectividad e infraestructura','Vías departamentales, corredores logísticos y energía.'],
+    ['🏥 Salud regional','Hospitales II–III, anemia y desnutrición, telesalud.'],
+    ['🎓 Educación','Colegios emblemáticos, institutos tecnológicos y conectividad.'],
+    ['💧 Agua y cuencas','Gestión de cuencas, siembra y cosecha de agua, saneamiento.'],
+    ['💼 Desarrollo económico','Cadenas productivas regionales, agroindustria y turismo.'],
+    ['🛡️ Seguridad y gestión de riesgos','Coordinación PNP, prevención y resiliencia climática.'],
+  ].map(e=>`<tr><td><b>${e[0]}</b></td><td>${e[1]}</td></tr>`).join('');
+  const R=document.getElementById('reporte');
+  R.innerHTML=`
+    <div class="cover"><h1>Plan de Gobierno Regional 2027–2034</h1><h2 style="border:0">Región ${dep}</h2>
+      <p>Propuesta agregada · dos periodos (2027–2030 y 2031–2034)</p><p style="color:#888">Proyecto INTI — datos reales agregados de los distritos</p></div>
+    <h2>1. Diagnóstico regional</h2><table>
+      ${fila('Distritos en la región', g.n)}
+      ${fila('Población (est. 2025 / Censo 2017)', fmt(g.pop)+' / '+fmt(g.popc))}
+      ${fila('IDH promedio (2019)', r1(g.idh))}
+      ${fila('Pobreza promedio', r1(g.pob)+'%')}
+      ${fila('Anemia 6-35m (ENDES 2022, regional)', g.anemia!=null?g.anemia+'%':'—')}
+      ${fila('Vulnerabilidad alimentaria promedio', r1(g.va))}
+    </table>
+    <h2>2. Distritos más críticos (menor IDH)</h2>
+    <table><tr><th>#</th><th>Distrito</th><th>IDH</th><th>Pobreza</th></tr>${peores}</table>
+    <p style="color:#555">Priorizar inversión y acompañamiento en estos distritos.</p>
+    <h2>3. Visión regional 2034</h2>
+    <p>Una región ${dep} más equitativa: cerrar brechas entre distritos, reducir pobreza y anemia, e integrar el territorio con infraestructura y cadenas productivas.</p>
+    <h2 class="pbreak">4. Metas regionales (promedio → 2030 → 2034)</h2>
+    <table><tr><th>Indicador</th><th>Línea base</th><th>2030</th><th>2034</th></tr>
+      <tr><td><b>IDH promedio</b></td><td>${r1(g.idh)}</td><td>${iu[0]}</td><td>${iu[1]}</td></tr>
+      <tr><td><b>Pobreza promedio %</b></td><td>${r1(g.pob)}</td><td>${pd[0]}</td><td>${pd[1]}</td></tr>
+      <tr><td><b>Anemia 6-35m %</b></td><td>${g.anemia!=null?g.anemia:'—'}</td><td>${ad[0]}</td><td>${ad[1]}</td></tr>
+    </table>
+    <h2>5. Ejes estratégicos regionales</h2><table><tr><th>Eje</th><th>Enfoque</th></tr>${ejes}</table>
+    <h2>6. Articulación con municipios</h2>
+    <p>El Gobierno Regional cofinancia y coordina con las ${g.n} municipalidades distritales: convenios, asistencia técnica y priorización conjunta de proyectos por brechas. Cada distrito cuenta con su propio Plan de Gobierno y Documento Base en esta plataforma.</p>
+    <h2>7. Financiamiento</h2>
+    <p>Canon y regalías regionales, FONIPREL, presupuesto por resultados, Obras por Impuestos y cooperación. Priorización por costo-efectividad y cierre de brechas territoriales.</p>
+    <h2>8. Nota metodológica</h2>
+    <p>Agregados calculados desde los datos reales por distrito (Censo 2017, IDH 2019, pobreza INEI, anemia ENDES 2022 regional, vulnerabilidad PNUD/INEI). Metas referenciales. Generado por Proyecto INTI.</p>`;
+  setTimeout(()=>window.print(),200);
 }
 
 /* ====================== INIT ====================== */
