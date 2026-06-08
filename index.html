@@ -37,6 +37,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#0a0f1e; --bg2:#0f1730; --card:#131d3a; --card2:#18244a;
@@ -232,6 +233,31 @@
   .sim-preset{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
   .sim-preset button{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;}
   .sim-preset button:hover{border-color:var(--inti);}
+  /* Turismo */
+  .tur-cats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
+  .tur-cats button{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:6px 13px;border-radius:999px;font-family:inherit;font-size:.82rem;font-weight:600;cursor:pointer;}
+  .tur-cats button.act{background:linear-gradient(135deg,var(--inti),var(--sol));color:#1a1206;border-color:transparent;}
+  .tur-form{background:var(--card);border:1px dashed var(--inti);border-radius:14px;padding:16px;margin-bottom:16px;}
+  .tur-form input,.tur-form textarea,.tur-form select{width:100%;background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:.9rem;margin-top:8px;}
+  .tur-form .drop{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;cursor:pointer;color:var(--muted);background:var(--bg2);}
+  .tur-form .drop img{max-width:160px;border-radius:8px;margin-top:8px;display:none;}
+  .tur-form button.send{background:linear-gradient(135deg,var(--inti),var(--sol));color:#1a1206;border:0;border-radius:9px;padding:11px 18px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px;}
+  .tur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+  .tur-item{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .tur-item .ph{aspect-ratio:4/3;overflow:hidden;cursor:zoom-in;background:var(--bg2);}
+  .tur-item .ph img{width:100%;height:100%;object-fit:cover;}
+  .tur-item .body{padding:12px;}
+  .tur-item .cat{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:6px;background:rgba(245,166,35,.18);color:var(--inti2);display:inline-block;}
+  .tur-item .nom{font-weight:700;margin:6px 0 2px;}
+  .tur-item .desc{font-size:.82rem;color:var(--muted);}
+  .tur-item .acts{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.82rem;}
+  .tur-item .acts a,.tur-item .acts button{border:0;background:var(--card2);color:var(--txt);border-radius:7px;padding:6px 10px;cursor:pointer;text-decoration:none;font-weight:700;font-size:.8rem;}
+  .tur-item .acts .wsp{background:#25d366;color:#063;}
+  .tur-empty{color:var(--muted2);text-align:center;padding:24px;}
+  .tur-modal{position:fixed;inset:0;z-index:80;background:rgba(5,8,18,.9);display:none;align-items:center;justify-content:center;padding:20px;}
+  .tur-modal.on{display:flex;}
+  .tur-modal img{max-width:94vw;max-height:90vh;border-radius:12px;}
+  .tur-modal .x{position:fixed;top:16px;right:20px;font-size:2rem;color:#fff;background:none;border:0;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -281,6 +307,7 @@
       <a href="#oportunidades">Oportunidades</a>
       <a href="#proyectos">Proyectos</a>
       <a href="#corredores">Corredores</a>
+      <a href="#turismo">🏞️ Turismo</a>
       <a href="#roadmap">Roadmap</a>
       <a href="#ia">Motor IA</a>
       <a href="#descargas">Descargas</a>
@@ -464,6 +491,37 @@
       <div class="ia-resp" id="iaResp"></div>
     </div>
   </section>
+
+  <!-- TURISMO -->
+  <section id="turismo">
+    <div class="sec-h"><span class="ico">🏞️</span><h2>Turismo & economía local — <span id="turDist">—</span></h2></div>
+    <p class="sec-desc">Sube fotos de <b>lugares turísticos</b> y enlaza <b>comercios locales</b> (restaurantes, hospedajes, artesanía). Aportes de la comunidad para impulsar la economía del distrito.</p>
+    <div class="tur-form">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input type="text" id="turNombre" maxlength="80" placeholder="Nombre del lugar o negocio *">
+        <select id="turCat">
+          <option value="turismo">🏞️ Lugar turístico</option>
+          <option value="restaurante">🍽️ Restaurante</option>
+          <option value="hospedaje">🏨 Hospedaje</option>
+          <option value="artesania">🧶 Artesanía / comercio</option>
+          <option value="otro">📍 Otro</option>
+        </select>
+      </div>
+      <textarea id="turDesc" rows="2" maxlength="240" placeholder="Descripción (opcional)"></textarea>
+      <input type="text" id="turContacto" maxlength="120" placeholder="Contacto (WhatsApp 9XXXXXXXX o enlace) — opcional">
+      <label class="drop" id="turDrop" style="display:block;margin-top:8px">
+        <input type="file" id="turFile" accept="image/*" hidden>
+        📷 Toca para elegir una foto (máx. 6 MB)
+        <img id="turPrev" alt="">
+      </label>
+      <button class="send" id="turSend" disabled>🚀 Publicar</button>
+      <span id="turEstado" style="margin-left:10px;font-size:.85rem"></span>
+    </div>
+    <div class="tur-cats" id="turCats"></div>
+    <div class="tur-grid" id="turGrid"></div>
+    <div class="tur-empty" id="turEmpty"></div>
+  </section>
+  <div class="tur-modal" id="turModal" onclick="this.classList.remove('on')"><button class="x">✕</button><img id="turModalImg" src="" alt=""></div>
 
   <!-- ROADMAP -->
   <section id="roadmap">
@@ -651,7 +709,7 @@ function cargar(){
   if(D.real){ _ex=` · <span style="color:var(--inti2)">IDH 2019: ${D.real.i??'—'} · Pobreza: ${D.real.t!=null?D.real.t+'%':'—'}${D.real.al!=null?' · '+D.real.al+' msnm':''}</span>`; }
   document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex}`;
   if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
-  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderClima();
+  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderTurismo(); renderClima();
   renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
 }
 
@@ -1037,6 +1095,75 @@ function compartirINTI(m,btn){
   else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
 }
+
+/* ====================== TURISMO & ECONOMÍA LOCAL ====================== */
+let SB=null, turCat='todos', turArchivo=null, turLiked=new Set(JSON.parse(localStorage.getItem('inti_tur_likes')||'[]'));
+function sbClient(){ const c=window.INTI_SUPABASE||{}; if(!SB && window.supabase && c.url && c.anonKey){ SB=window.supabase.createClient(c.url,c.anonKey); } return SB; }
+const TUR_CATS=[['todos','Todos'],['turismo','🏞️ Turismo'],['restaurante','🍽️ Restaurantes'],['hospedaje','🏨 Hospedajes'],['artesania','🧶 Comercios'],['otro','📍 Otros']];
+function turResize(file,max,q){ return new Promise((res,rej)=>{ const img=new Image(),fr=new FileReader(); fr.onload=()=>img.src=fr.result; fr.onerror=rej; img.onload=()=>{ let{width:w,height:h}=img; if(Math.max(w,h)>max){ if(w>=h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;} } const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cv.toBlob(b=>b?res(b):rej(),'image/webp',q); }; img.onerror=rej; fr.readAsDataURL(file); }); }
+let turWired=false;
+function renderTurismo(){
+  if(!D) return;
+  document.getElementById('turDist').textContent=D.distrito;
+  document.getElementById('turCats').innerHTML=TUR_CATS.map(c=>`<button class="${c[0]===turCat?'act':''}" onclick="turSetCat('${c[0]}')">${c[1]}</button>`).join('');
+  if(!turWired){ turWired=true; wireTurForm(); }
+  cargarTurismo();
+}
+function turSetCat(c){ turCat=c; renderTurismo(); }
+function wireTurForm(){
+  const file=document.getElementById('turFile'), prev=document.getElementById('turPrev'), send=document.getElementById('turSend');
+  const cfg=window.INTI_SUPABASE||{};
+  if(!cfg.url){ document.getElementById('turEstado').textContent='(galería no configurada)'; return; }
+  file.addEventListener('change',e=>{ const f=e.target.files[0]; if(!f) return; if(!f.type.startsWith('image/')||f.size>6*1024*1024){ alert('Elige una imagen de máx 6 MB'); return; } turArchivo=f; prev.src=URL.createObjectURL(f); prev.style.display='inline-block'; send.disabled=false; });
+  send.addEventListener('click', async ()=>{
+    const sb=sbClient(); if(!sb||!turArchivo) return;
+    const nombre=document.getElementById('turNombre').value.trim(); if(!nombre){ alert('Pon un nombre'); return; }
+    send.disabled=true; const est=document.getElementById('turEstado'); est.style.color='var(--inti2)'; est.textContent='⏳ Subiendo...';
+    try{
+      const [web,thumb]=await Promise.all([turResize(turArchivo,1280,.82),turResize(turArchivo,480,.8)]);
+      const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
+      const pw=`turismo/web/${id}.webp`, pt=`turismo/thumb/${id}.webp`;
+      let up=await sb.storage.from('fotos').upload(pw,web,{contentType:'image/webp'}); if(up.error) throw up.error;
+      up=await sb.storage.from('fotos').upload(pt,thumb,{contentType:'image/webp'}); if(up.error) throw up.error;
+      const uw=sb.storage.from('fotos').getPublicUrl(pw).data.publicUrl, ut=sb.storage.from('fotos').getPublicUrl(pt).data.publicUrl;
+      const ins=await sb.from('inti_turismo').insert({ubigeo:D.ubigeo,distrito:D.distrito,categoria:document.getElementById('turCat').value,nombre:nombre.slice(0,80),descripcion:document.getElementById('turDesc').value.trim().slice(0,240)||null,contacto:document.getElementById('turContacto').value.trim().slice(0,120)||null,url:uw,thumb_url:ut}).select().single();
+      if(ins.error) throw ins.error;
+      est.style.color='var(--verde)'; est.textContent='🎉 ¡Publicado!';
+      turArchivo=null; file.value=''; prev.style.display='none'; document.getElementById('turNombre').value=''; document.getElementById('turDesc').value=''; document.getElementById('turContacto').value='';
+      cargarTurismo();
+    }catch(e){ console.error(e); est.style.color='var(--rojo)'; est.textContent='No se pudo subir.'; send.disabled=false; }
+  });
+}
+async function cargarTurismo(){
+  const grid=document.getElementById('turGrid'), empty=document.getElementById('turEmpty');
+  const sb=sbClient(); if(!sb){ setTimeout(cargarTurismo,400); return; }
+  try{
+    let q=sb.from('inti_turismo').select('*').eq('ubigeo',D.ubigeo).order('created_at',{ascending:false}).limit(60);
+    if(turCat!=='todos') q=q.eq('categoria',turCat);
+    const {data,error}=await q; if(error) throw error;
+    grid.innerHTML=''; 
+    if(!data||!data.length){ empty.innerHTML=`🏞️ Aún no hay aportes para <b>${D.distrito}</b>. ¡Sé el primero en subir un lugar turístico o tu negocio local!`; return; }
+    empty.textContent='';
+    const ICON={turismo:'🏞️ Turismo',restaurante:'🍽️ Restaurante',hospedaje:'🏨 Hospedaje',artesania:'🧶 Comercio',otro:'📍 Lugar'};
+    data.forEach(it=>{
+      const el=document.createElement('div'); el.className='tur-item';
+      const wsp=it.contacto&&/^9\d{8}$/.test(it.contacto.replace(/\s/g,''))?`https://wa.me/51${it.contacto.replace(/\s/g,'')}`:(it.contacto&&/^https?:/.test(it.contacto)?it.contacto:null);
+      el.innerHTML=`<div class="ph"><img loading="lazy" src="${it.thumb_url||it.url}" alt="${(it.nombre||'').replace(/"/g,'')}"></div>
+        <div class="body"><span class="cat">${ICON[it.categoria]||it.categoria}</span>
+        <div class="nom">${esc(it.nombre)}</div>${it.descripcion?`<div class="desc">${esc(it.descripcion)}</div>`:''}
+        <div class="acts">
+          <button onclick="turLike('${it.id}',this)">❤️ <span>${it.likes||0}</span></button>
+          ${wsp?`<a class="wsp" href="${wsp}" target="_blank" rel="noopener">${wsp.includes('wa.me')?'💬 WhatsApp':'🔗 Enlace'}</a>`:''}
+          <button title="Reportar" onclick="turReport('${it.id}',this)" style="margin-left:auto;opacity:.5">🚩</button>
+        </div></div>`;
+      el.querySelector('.ph').addEventListener('click',()=>{ const m=document.getElementById('turModal'); document.getElementById('turModalImg').src=it.url; m.classList.add('on'); });
+      grid.appendChild(el);
+    });
+  }catch(e){ console.error(e); empty.textContent='No se pudo cargar la galería.'; }
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+async function turLike(id,btn){ const sb=sbClient(); if(!sb||turLiked.has(id))return; turLiked.add(id); localStorage.setItem('inti_tur_likes',JSON.stringify([...turLiked])); const sp=btn.querySelector('span'); sp.textContent=(+sp.textContent+1); try{await sb.rpc('tur_like',{fid:id});}catch(e){} }
+async function turReport(id,btn){ if(!confirm('¿Reportar este aporte?'))return; const sb=sbClient(); if(!sb)return; try{await sb.rpc('tur_report',{fid:id}); btn.closest('.tur-item').style.display='none';}catch(e){} }
 
 /* ====================== SIMULADOR DE POLÍTICAS ====================== */
 const LEVERS=[{k:'edu',t:'🎓 Educación'},{k:'sal',t:'🏥 Salud'},{k:'seg',t:'🛡️ Seguridad'},{k:'amb',t:'💧 Agua y ambiente'},{k:'prosp',t:'💼 Empleo y economía'},{k:'resi',t:'🌱 Resiliencia climática'}];
