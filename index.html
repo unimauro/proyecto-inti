@@ -337,7 +337,7 @@
           <li>4. Descarga tu <b>Plan Municipal</b> o <b>Plan Maestro 2075</b> en PDF.</li>
           <li>5. ¿Otra consulta? Usa el botón <b>🔄 Reiniciar</b>.</li></ul></details>
         <details><summary>📊 ¿De dónde salen los datos?</summary><p><b>Datos reales:</b> población (Censo 2017 INEI), IDH 2019 (PNUD), pobreza y pobreza extrema, vulnerabilidad alimentaria, coordenadas y altitud — fuentes oficiales abiertas. <b>Datos ilustrativos:</b> los demás índices (seguridad, educación, etc.) son sintéticos y consistentes por distrito, hasta integrar sus fuentes oficiales (MINEDU, MINSA, etc.). Siempre marcamos qué es real y qué es ilustrativo.</p></details>
-        <details><summary>🧮 ¿Cómo se calculan los indicadores? (metodología)</summary><p><b>Datos reales</b> (con su fuente y año): población = Censo 2017 (INEI); IDH = 2019 (PNUD); pobreza y pobreza extrema = INEI; vulnerabilidad alimentaria = PNUD/INEI. Estos se muestran tal cual y se marcan con <b>●real</b>.<br><br><b>Datos ilustrativos:</b> los demás índices (seguridad, educación, salud, etc.) se generan de forma <b>sintética y determinística por distrito</b> (un mismo distrito siempre da los mismos valores) para demostrar el sistema mientras integramos cada fuente oficial. No son mediciones reales y así se indican.<br><br>👉 <b>Pasa el cursor sobre cada dato</b> (ⓘ) para ver qué significa y si es real o ilustrativo. Las cifras en S/ y empleos de "Oportunidades" son estimaciones referenciales.</p></details>
+        <details><summary>🧮 ¿Cómo se calculan los indicadores? (metodología)</summary><p><b>Datos reales</b> (con su fuente y año): población = Censo 2017 (INEI); IDH = 2019 (PNUD); pobreza y pobreza extrema = INEI; vulnerabilidad alimentaria = PNUD/INEI. <b>Anemia 6-35m</b> = ENDES 2022 (INEI) a nivel <b>regional</b> (●reg), no distrital. Se marcan con <b>●real</b> o <b>●reg</b>.<br><br><b>Datos ilustrativos:</b> los demás índices (seguridad, educación, salud, etc.) se generan de forma <b>sintética y determinística por distrito</b> (un mismo distrito siempre da los mismos valores) para demostrar el sistema mientras integramos cada fuente oficial. No son mediciones reales y así se indican.<br><br>👉 <b>Pasa el cursor sobre cada dato</b> (ⓘ) para ver qué significa y si es real o ilustrativo. Las cifras en S/ y empleos de "Oportunidades" son estimaciones referenciales.</p></details>
         <details><summary>🌅 ¿Cuál es la visión?</summary><p>"Construir un Perú seguro, próspero, innovador, sostenible y resiliente, con familias fuertes y oportunidades para todos hacia 2075." INTI busca que cada distrito tenga una <b>hoja de ruta deseable</b> y medible.</p></details>
       </div>
     </div>
@@ -588,6 +588,14 @@ const DIM = {
   "Infraestructura":["Vías pavimentadas","Puentes operativos","Conectividad digital","Electrificación rural"]
 };
 
+/* Anemia infantil 6-35m - INEI/ENDES 2022. Valor por region natural del depto;
+   exacto para Puno/Ucayali/Huancavelica. DATO REGIONAL (no distrital). */
+const ANEMIA_NAT={costa:34.4,sierra:50.4,selva:52.5};
+const DEP_NAT={'TUMBES':'costa','PIURA':'costa','LAMBAYEQUE':'costa','LA LIBERTAD':'costa','LIMA':'costa','CALLAO':'costa','ICA':'costa','AREQUIPA':'costa','MOQUEGUA':'costa','TACNA':'costa','CAJAMARCA':'sierra','ANCASH':'sierra','HUANUCO':'sierra','PASCO':'sierra','JUNIN':'sierra','HUANCAVELICA':'sierra','AYACUCHO':'sierra','APURIMAC':'sierra','CUSCO':'sierra','PUNO':'sierra','AMAZONAS':'selva','LORETO':'selva','UCAYALI':'selva','MADRE DE DIOS':'selva','SAN MARTIN':'selva'};
+const DEP_EXACT={'PUNO':67.2,'UCAYALI':65.8,'HUANCAVELICA':65.0};
+function normDep(x){ return String(x).normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().trim(); }
+function anemiaDep(dep){ const k=normDep(dep); const v=DEP_EXACT[k]!=null?DEP_EXACT[k]:(ANEMIA_NAT[DEP_NAT[k]]); return v==null?null:{v:Math.round(v*10)/10, exact:DEP_EXACT[k]!=null}; }
+
 function generarDistrito(region, provincia, distrito, ubigeo){
   const seed = hash(String(ubigeo||(region+"|"+provincia+"|"+distrito)));
   const r = rng(seed);
@@ -608,8 +616,10 @@ function generarDistrito(region, provincia, distrito, ubigeo){
       if(x.m==='Pobreza'&&real.t!=null){x.v=Math.round(real.t);x.real=true;x.pct=true;x.inv=true;}
       if(x.m==='Pobreza extrema'&&real.e!=null){x.v=Math.round(real.e);x.real=true;x.pct=true;x.inv=true;} }); 
     if(real.va!=null){ dim["Salud"].push({m:'Vulnerabilidad alimentaria',v:real.va,real:true,inv:true}); } }
+  const _an=anemiaDep(region);
+  if(_an){ const sd=dim["Salud"]; const ai=sd.findIndex(x=>x.m==='Anemia infantil'); if(ai>=0) sd[ai]={m:'Anemia infantil 6-35m',v:Math.round(_an.v),real:true,regional:true,inv:true,pct:true}; }
   const iff = Math.round((idx.bien*0.3+idx.seg*0.2+idx.edu*0.2+idx.sal*0.15+idx.gob*0.15));
-  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño,real};
+  return {region,provincia,distrito,seed,r:rng(seed),idx,pob,crec,proy,dim,iff,limeño,real,anemiaReg:_an};
 }
 
 function semaforo(v){ return v>=66?["verde","Adecuado"]:v>=45?["ambar","Atención"]:["rojo","Crítico"]; }
@@ -644,7 +654,8 @@ const EXPLICA = {
   "Productividad":"Valor producido por trabajador (índice 0-100). Ilustrativo.",
   "Competitividad":"Capacidad de competir y atraer inversión (0-100). Ilustrativo.",
   // Salud
-  "Anemia infantil":"% de niños con anemia (índice 0-100). Ilustrativo (pendiente ENDES).",
+  "Anemia infantil":"% de niños con anemia (índice 0-100). Ilustrativo.",
+  "Anemia infantil 6-35m":"% de 6 a 35 meses con anemia. REAL pero REGIONAL (ENDES 2022, INEI): valor de la region natural del depto; exacto para Puno/Ucayali/Huancavelica. No es distrital.",
   "Desnutrición crónica":"% de niños con talla baja para su edad (0-100). Ilustrativo.",
   "Mortalidad materna":"Muertes maternas (índice 0-100). Ilustrativo.",
   "Salud mental":"Acceso a atención de salud mental (0-100). Ilustrativo.",
@@ -707,6 +718,7 @@ function cargar(){
   document.getElementById('nomDist').textContent = dist;
   let _ex='';
   if(D.real){ _ex=` · <span style="color:var(--inti2)">IDH 2019: ${D.real.i??'—'} · Pobreza: ${D.real.t!=null?D.real.t+'%':'—'}${D.real.al!=null?' · '+D.real.al+' msnm':''}</span>`; }
+  if(D.anemiaReg){ _ex += ' · Anemia 6-35m (reg): '+D.anemiaReg.v+'%'+(D.anemiaReg.exact?'':' aprox'); }
   document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex}`;
   if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
   renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderTurismo(); renderClima();
@@ -751,7 +763,7 @@ function renderDiag(){
   tabs.innerHTML=Object.keys(DIM).map(d=>`<button class="${d===diagActiva?'act':''}" onclick="setDiag('${d}')">${d}</button>`).join('');
   const data=D.dim[diagActiva];
   document.getElementById('diagMetrics').innerHTML=`<h3 style="font-size:1rem;margin-bottom:10px">${diagActiva}</h3>`+
-    data.map(x=>{const sv=x.inv?100-x.v:x.v;const [c]=semaforo(sv);const rt=x.real?' <span style="font-size:.58rem;color:#86efac">●real</span>':'';return `<div class="metric-row"><span style="cursor:help"${tip(x.m)}>${x.m}${rt} <span style="opacity:.4;font-size:.72rem">ⓘ</span></span><span class="mv v-${c}">${x.v}${x.pct?'%':''}</span></div>`}).join('');
+    data.map(x=>{const sv=x.inv?100-x.v:x.v;const [c]=semaforo(sv);const rt=x.regional?' <span style="font-size:.58rem;color:#7dd3fc" title="Dato regional ENDES 2022, no distrital">●reg</span>':x.real?' <span style="font-size:.58rem;color:#86efac">●real</span>':'';return `<div class="metric-row"><span style="cursor:help"${tip(x.m)}>${x.m}${rt} <span style="opacity:.4;font-size:.72rem">ⓘ</span></span><span class="mv v-${c}">${x.v}${x.pct?'%':''}</span></div>`}).join('');
   mkChart('diagChart','bar',{labels:data.map(x=>x.m),datasets:[{label:diagActiva,data:data.map(x=>x.v),
     backgroundColor:data.map(x=>({verde:'#22c55e',ambar:'#f59e0b',rojo:'#ef4444'}[semaforo(x.v)[0]]))}]},
     {indexAxis:'y',scales:{x:{max:100,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{grid:{display:false},ticks:{color:'#8b9bc4',font:{size:10}}}},plugins:{legend:{display:false}}});
@@ -1014,7 +1026,7 @@ function valorIndice(ubigeo, dep, key){
 let MAPA=null, GEO=null, capaGeo=null, mapIniciado=false;
 function initMapaIdxSelect(){
   const sel=document.getElementById('mapIdx'); if(!sel) return;
-  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}${k==='idh'?' (real 2019)':''}</option>`).join('')+'<option value="pobreza_real">Pobreza (real 2019, invertido)</option><option value="va_real">Vulnerabilidad alimentaria (real, invertido)</option>';
+  sel.innerHTML=INDICES.map(([k,n])=>`<option value="${k}">${n}${k==='idh'?' (real 2019)':''}</option>`).join('')+'<option value="pobreza_real">Pobreza (real 2019, invertido)</option><option value="va_real">Vulnerabilidad alimentaria (real, invertido)</option><option value="anemia_reg">Anemia infantil 6-35m (ENDES 2022, regional)</option>';
   sel.onchange=()=>recolorMapa();
 }
 function colorIdx(v){ return `hsl(${Math.round(v*1.2)},66%,46%)`; }
@@ -1024,6 +1036,7 @@ function estiloFeat(f){
   let v;
   if(key==='pobreza_real'){ v = (rec&&rec.t!=null)?Math.max(0,Math.min(100,100-rec.t)):valorIndice(ub,f.properties.NOMBDEP,'prosp'); }
   else if(key==='va_real'){ v = (rec&&rec.va!=null)?Math.max(0,Math.min(100,100-rec.va)):valorIndice(ub,f.properties.NOMBDEP,'sal'); }
+  else if(key==='anemia_reg'){ const a=anemiaDep(f.properties.NOMBDEP); v = a?Math.max(0,Math.min(100,100-a.v)):valorIndice(ub,f.properties.NOMBDEP,'sal'); }
   else { v=valorIndice(ub,f.properties.NOMBDEP,key); }
   return {fillColor:colorIdx(v),weight:.4,color:'#0a0f1e',fillOpacity:.8};
 }
