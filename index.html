@@ -546,7 +546,7 @@
   <!-- DESCARGAS -->
   <section id="descargas">
     <div class="sec-h"><span class="ico">📄</span><h2>Planes descargables (PDF)</h2></div>
-    <p class="sec-desc">Documentos generados automáticamente, listos para imprimir o guardar como PDF.</p>
+    <p class="sec-desc">Documentos generados automáticamente. 📄 <b>Para guardar en PDF</b>: al pulsar un botón se abre el diálogo de impresión → en <b>Destino</b> elige <b>"Guardar como PDF"</b>.</p>
     <div class="dl-grid">
       <div class="dl" style="grid-column:1/-1;border:1px solid var(--inti)">
         <h3>🏛️ Plan de Gobierno 2027–2034 (2 periodos) + Articulación Regional</h3>
@@ -575,6 +575,11 @@
           <button onclick="exportarDatos('csv')" style="flex:1">⬇️ CSV</button>
           <button onclick="exportarDatos('json')" style="flex:1">⬇️ JSON</button>
         </div>
+      </div>
+      <div class="dl" style="grid-column:1/-1">
+        <h3>🗂️ Catálogo Nacional (1,891 distritos)</h3>
+        <p>Descarga UN CSV con los indicadores reales de <b>todos los distritos del país</b> + sus metas 2030/2034 (IDH y pobreza). Es la base de datos para generar los planes de gobierno a escala nacional, abrir en Excel/Power BI o alimentar otros análisis.</p>
+        <button onclick="exportarCatalogo(this)">⬇️ Descargar Catálogo Nacional (CSV)</button>
       </div>
     </div>
   </section>
@@ -1468,6 +1473,27 @@ function generarPlanGobierno(){
     <h2>10. Nota metodológica</h2>
     <p>Datos reales: población (Censo 2017), IDH 2019, pobreza (INEI), anemia regional (ENDES 2022), vulnerabilidad (PNUD/INEI). Proyecciones y metas: referenciales (no oficiales). Otros índices: ilustrativos hasta integrar su fuente. Generado por Proyecto INTI.</p>`;
   setTimeout(()=>window.print(),200);
+}
+
+/* ====================== CATÁLOGO NACIONAL ====================== */
+function exportarCatalogo(btn){
+  const ind=window.IND||{}, U=(typeof UBIGEO!=='undefined'?UBIGEO:{});
+  if(!Object.keys(ind).length){ alert('Datos aún cargando, intenta en unos segundos.'); return; }
+  if(btn){ btn._o=btn.textContent; btn.textContent='⏳ Generando…'; }
+  const metaUp=b=> b==null?['','']:[Math.round(b+(100-b)*0.25), Math.round(b+(100-b)*0.45)];
+  const metaDn=b=> b==null?['','']:[(+(b*0.80).toFixed(1)),(+(b*0.62).toFixed(1))];
+  const tipo=(idh,pob)=> idh>=65?'Urbano consolidado':idh>=52?'En desarrollo':((pob!=null&&pob>=40)?'Rural en pobreza':'Rural emergente');
+  const heads=['ubigeo','distrito','provincia','region','tipologia','pob_censo2017','pob_est2025','crec_anual_pct','idh_2019','idh_meta2030','idh_meta2034','pobreza_pct','pobreza_meta2030','pobreza_meta2034','pobreza_extrema_pct','anemia_6_35m_reg_pct','vulnerab_alimentaria','ranking_idh_nac'];
+  const esc=v=>{ if(v==null) return ''; const sN=String(v); return /[",\n]/.test(sN)?('"'+sN.replace(/"/g,'""')+'"'):sN; };
+  const rows=[heads.join(',')];
+  for(const u in ind){ const r=ind[u], info=U[u]; if(!info) continue;
+    const idh=r.i!=null?r.i:null, an=(anemiaDep(info.dep)||{}).v;
+    const iu=metaUp(idh), pd=metaDn(r.t!=null?r.t:null);
+    const vals=[u, info.dist, info.prov, info.dep, tipo(idh!=null?idh:0, r.t), r.p!=null?r.p:'', r.p25!=null?r.p25:'', r.g!=null?(r.g*100).toFixed(2):'', idh!=null?idh:'', iu[0], iu[1], r.t!=null?r.t:'', pd[0], pd[1], r.e!=null?r.e:'', an!=null?an:'', r.va!=null?r.va:'', (window.RANK_IDH||{})[u]||''];
+    rows.push(vals.map(esc).join(','));
+  }
+  descargar(rows.join('\n'), 'inti_catalogo_nacional_distritos.csv', 'text/csv;charset=utf-8');
+  if(btn){ btn.textContent='✅ Descargado ('+(rows.length-1)+' distritos)'; setTimeout(()=>btn.textContent=btn._o,2500); }
 }
 
 /* ====================== INIT ====================== */
