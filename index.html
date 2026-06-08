@@ -251,6 +251,11 @@
   #benchmark .bm-tipo{display:inline-block;font-weight:800;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card2);}
   #benchmark .bm-note{font-size:.78rem;color:var(--muted2);margin-top:6px;}
   #bmSimilares .card{cursor:pointer;}
+  /* Correlaciones */
+  #correlaciones .corr-ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  #correlaciones .corr-ctrl select{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-family:inherit;font-weight:600;cursor:pointer;}
+  #correlaciones .corr-r{margin-top:12px;font-size:.95rem;font-weight:600;color:var(--inti2);}
+  #correlaciones .chartbox{height:420px;}
 </style>
 </head>
 <body>
@@ -296,6 +301,7 @@
       <a href="#simulador">🎛️ Simulador</a>
       <a href="#comparador">⚖️ Comparador</a>
       <a href="#benchmark">📊 Benchmarking</a>
+      <a href="#correlaciones">🔗 Correlaciones</a>
       <a href="#clima">Clima</a>
       <a href="#conflictos">Conflictos</a>
       <a href="#seguridad">Seguridad</a>
@@ -446,6 +452,20 @@
       <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">🔎 Distritos más parecidos</h3>
         <p class="bm-note" style="margin-bottom:10px">Por IDH, pobreza, vulnerabilidad y crecimiento. Haz clic para analizarlo.</p>
         <div class="grid g-3" id="bmSimilares"></div></div>
+    </div>
+  </section>
+
+  <!-- CORRELACIONES -->
+  <section id="correlaciones">
+    <div class="sec-h"><span class="ico">🔗</span><h2>Correlación de indicadores</h2></div>
+    <p class="sec-desc">Explora cómo se relacionan dos indicadores en los 1,891 distritos del Perú. Cada punto es un distrito; el <b style="color:var(--inti2)">punto naranja</b> es el distrito seleccionado.</p>
+    <div class="card">
+      <div class="corr-ctrl">
+        <span style="color:var(--muted);font-size:.85rem">Eje X:</span><select id="corrX"></select>
+        <span style="color:var(--muted);font-size:.85rem">Eje Y:</span><select id="corrY"></select>
+      </div>
+      <div class="chartbox"><canvas id="corrChart"></canvas></div>
+      <div class="corr-r" id="corrR">—</div>
     </div>
   </section>
 
@@ -730,7 +750,7 @@ function cargar(){
   if(D.anemiaReg){ _ex += ' · Anemia 6-35m (reg): '+D.anemiaReg.v+'%'+(D.anemiaReg.exact?'':' aprox'); }
   document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex}`;
   if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
-  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderBenchmark(); renderClima();
+  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderBenchmark(); renderCorrelaciones(); renderClima();
   renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
 }
 
@@ -1120,6 +1140,35 @@ function compartirINTI(m,btn){
   if(m==='wa') window.open(`https://wa.me/?text=${t}%20${u}`,'_blank','noopener');
   else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
+}
+
+/* ====================== CORRELACIONES ====================== */
+const CORR_VARS=[['i','IDH 2019'],['t','Pobreza %'],['e','Pobreza extrema %'],['va','Vulnerab. alimentaria'],['anemia','Anemia 6-35m % (reg)'],['g','Crecimiento anual %'],['al','Altitud (msnm)'],['p','Población (Censo 2017)']];
+function corrVal(u,key){
+  const r=(window.IND||{})[u]; if(!r) return null;
+  if(key==='anemia'){ const info=(typeof UBIGEO!=='undefined'?UBIGEO:{})[u]; if(!info) return null; const a=anemiaDep(info.dep); return a?a.v:null; }
+  if(key==='g') return r.g!=null? +(r.g*100).toFixed(2):null;
+  return r[key]!=null? r[key]:null;
+}
+function pearson(pts){ const n=pts.length; if(n<3) return null; let sx=0,sy=0,sxy=0,sx2=0,sy2=0; pts.forEach(p=>{sx+=p.x;sy+=p.y;sxy+=p.x*p.y;sx2+=p.x*p.x;sy2+=p.y*p.y;}); const num=n*sxy-sx*sy, den=Math.sqrt((n*sx2-sx*sx)*(n*sy2-sy*sy)); return den?num/den:null; }
+function renderCorrelaciones(){
+  const xs=document.getElementById('corrX'), ys=document.getElementById('corrY'); if(!xs) return;
+  if(!xs.options.length){ const op=CORR_VARS.map(v=>`<option value="${v[0]}">${v[1]}</option>`).join(''); xs.innerHTML=op; ys.innerHTML=op; xs.value='t'; ys.value='i'; xs.onchange=drawCorr; ys.onchange=drawCorr; }
+  drawCorr();
+}
+function drawCorr(){
+  const kx=document.getElementById('corrX').value, ky=document.getElementById('corrY').value;
+  const lx=(CORR_VARS.find(v=>v[0]===kx)||[])[1], ly=(CORR_VARS.find(v=>v[0]===ky)||[])[1];
+  const pts=[]; for(const u in (window.IND||{})){ const x=corrVal(u,kx), y=corrVal(u,ky); if(x!=null&&y!=null) pts.push({x,y}); }
+  const r=pearson(pts);
+  const datasets=[{label:`${pts.length} distritos`,data:pts.map(p=>({x:p.x,y:p.y})),backgroundColor:'rgba(59,130,246,.35)',pointRadius:2}];
+  if(D){ const cx=corrVal(D.ubigeo,kx), cy=corrVal(D.ubigeo,ky); if(cx!=null&&cy!=null) datasets.push({label:D.distrito,data:[{x:cx,y:cy}],backgroundColor:'#f5a623',pointRadius:8,pointHoverRadius:10}); }
+  mkChart('corrChart','scatter',{datasets},{scales:{x:{title:{display:true,text:lx,color:'#8b9bc4'},grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{title:{display:true,text:ly,color:'#8b9bc4'},grid:{color:'#243156'},ticks:{color:'#8b9bc4'}}},plugins:{legend:{labels:{color:'#8b9bc4',boxWidth:10}}}});
+  const el=document.getElementById('corrR');
+  if(r==null){ el.textContent='Datos insuficientes para correlacionar.'; return; }
+  const a=Math.abs(r), fuerza=a>=0.7?'fuerte':a>=0.4?'moderada':a>=0.2?'débil':'muy débil o nula', signo=r>0?'positiva':'negativa';
+  const dir = r>0?`cuando sube «${lx}», tiende a subir «${ly}»`:`cuando sube «${lx}», «${ly}» tiende a bajar`;
+  el.textContent=`Correlación ${signo} ${fuerza} — r = ${r.toFixed(2)} (n = ${pts.length}). En general, ${dir}. (Correlación ≠ causalidad.)`;
 }
 
 /* ====================== BENCHMARKING & CLUSTERING ====================== */
