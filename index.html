@@ -247,6 +247,10 @@
   .cmp-tabla .worst{color:var(--rojo);}
   .cmp-empty{color:var(--muted2);text-align:center;padding:22px;}
   .cmp-wrap{overflow-x:auto;}
+  /* Benchmarking */
+  #benchmark .bm-tipo{display:inline-block;font-weight:800;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card2);}
+  #benchmark .bm-note{font-size:.78rem;color:var(--muted2);margin-top:6px;}
+  #bmSimilares .card{cursor:pointer;}
 </style>
 </head>
 <body>
@@ -291,6 +295,7 @@
       <a href="#prospectiva">Prospectiva 2075</a>
       <a href="#simulador">🎛️ Simulador</a>
       <a href="#comparador">⚖️ Comparador</a>
+      <a href="#benchmark">📊 Benchmarking</a>
       <a href="#clima">Clima</a>
       <a href="#conflictos">Conflictos</a>
       <a href="#seguridad">Seguridad</a>
@@ -427,6 +432,20 @@
     <div class="grid g-2">
       <div class="card cmp-wrap"><table class="cmp-tabla" id="cmpTabla"></table></div>
       <div class="card"><div class="chartbox"><canvas id="cmpRadar"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- BENCHMARKING -->
+  <section id="benchmark">
+    <div class="sec-h"><span class="ico">📊</span><h2>Benchmarking & distritos similares</h2></div>
+    <p class="sec-desc">Compara el distrito con su región y el promedio nacional, su tipología y los distritos más parecidos por perfil (datos reales).</p>
+    <p style="margin-bottom:12px">Tipología del distrito: <span class="bm-tipo" id="bmTipo">—</span></p>
+    <div class="grid g-2">
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">Distrito vs Región vs Nacional</h3><div class="chartbox"><canvas id="bmChart"></canvas></div>
+        <div class="bm-note">IDH: más alto es mejor. Pobreza, Anemia y Vulnerabilidad: más bajo es mejor.</div></div>
+      <div class="card"><h3 style="font-size:1rem;margin-bottom:8px">🔎 Distritos más parecidos</h3>
+        <p class="bm-note" style="margin-bottom:10px">Por IDH, pobreza, vulnerabilidad y crecimiento. Haz clic para analizarlo.</p>
+        <div class="grid g-3" id="bmSimilares"></div></div>
     </div>
   </section>
 
@@ -698,7 +717,7 @@ function cargar(){
   if(D.anemiaReg){ _ex += ' · Anemia 6-35m (reg): '+D.anemiaReg.v+'%'+(D.anemiaReg.exact?'':' aprox'); }
   document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex}`;
   if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
-  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderClima();
+  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderBenchmark(); renderClima();
   renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
 }
 
@@ -1090,6 +1109,54 @@ function compartirINTI(m,btn){
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
 }
 
+/* ====================== BENCHMARKING & CLUSTERING ====================== */
+function buildBenchData(){
+  const ind=window.IND||{}; const regAcc={}; window.FEAT=[];
+  for(const u in ind){ const r=ind[u]; const info=(typeof UBIGEO!=='undefined'?UBIGEO:{})[u]; if(!info) continue;
+    const dep=info.dep; regAcc[dep]=regAcc[dep]||{i:0,ni:0,t:0,nt:0,va:0,nv:0};
+    if(r.i!=null){regAcc[dep].i+=r.i;regAcc[dep].ni++;}
+    if(r.t!=null){regAcc[dep].t+=r.t;regAcc[dep].nt++;}
+    if(r.va!=null){regAcc[dep].va+=r.va;regAcc[dep].nv++;}
+    window.FEAT.push({u,dep,dist:info.dist,i:r.i,t:r.t,va:r.va,g:r.g});
+  }
+  window.REG_AVG={}; for(const dep in regAcc){const a=regAcc[dep];window.REG_AVG[dep]={i:a.ni?a.i/a.ni:null,t:a.nt?a.t/a.nt:null,va:a.nv?a.va/a.nv:null};}
+  const all=window.FEAT, avg=k=>{const v=all.map(x=>x[k]).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};
+  window.NAT_AVG={i:avg('i'),t:avg('t'),va:avg('va')};
+  const rng=k=>{const v=all.map(x=>x[k]).filter(x=>x!=null);return v.length?[Math.min(...v),Math.max(...v)]:[0,1];};
+  window.FEAT_RANGE={i:rng('i'),t:rng('t'),va:rng('va'),g:[-0.02,0.06]};
+}
+function tipologia(d){
+  const idh=d.real&&d.real.i!=null?d.real.i:d.idx.idh;
+  const pob=d.real&&d.real.t!=null?d.real.t:null;
+  if(idh>=65) return ['🏙️ Urbano consolidado','#60a5fa'];
+  if(idh>=52) return ['🏘️ En desarrollo','#34d399'];
+  if(pob!=null&&pob>=40) return ['🌾 Rural en pobreza','#f87171'];
+  return ['⛰️ Rural emergente','#fbbf24'];
+}
+function renderBenchmark(){
+  if(!D) return;
+  const [tn,tc]=tipologia(D); const tip=document.getElementById('bmTipo'); if(tip){tip.textContent=tn;tip.style.color=tc;}
+  const dep=D.region, ra=(window.REG_AVG||{})[dep]||{}, na=window.NAT_AVG||{};
+  const dIdh=D.real&&D.real.i!=null?D.real.i:D.idx.idh, dPob=D.real&&D.real.t!=null?D.real.t:null, dVa=D.real&&D.real.va!=null?D.real.va:null, dAn=D.anemiaReg?D.anemiaReg.v:null;
+  const r1=v=>v==null?null:Math.round(v*10)/10;
+  mkChart('bmChart','bar',{labels:['IDH','Pobreza %','Anemia %','Vulnerab.'],datasets:[
+    {label:D.distrito,data:[r1(dIdh),r1(dPob),r1(dAn),r1(dVa)],backgroundColor:'#f5a623'},
+    {label:'Región '+dep,data:[r1(ra.i),r1(ra.t),r1(dAn),r1(ra.va)],backgroundColor:'#3b82f6'},
+    {label:'Nacional',data:[r1(na.i),r1(na.t),42.4,r1(na.va)],backgroundColor:'#8b9bc4'}
+  ]},{scales:{y:{beginAtZero:true,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},x:{grid:{display:false},ticks:{color:'#8b9bc4'}}},plugins:{legend:{labels:{color:'#8b9bc4',boxWidth:12,font:{size:11}}}}});
+  renderSimilares();
+}
+function renderSimilares(){
+  const cont=document.getElementById('bmSimilares'); if(!cont) return;
+  if(!window.FEAT){ cont.innerHTML='<div class="bm-note">—</div>'; return; }
+  const R=window.FEAT_RANGE, feats=['i','t','va','g'];
+  const norm=(o,k)=> (o&&o[k]!=null)?(o[k]-R[k][0])/((R[k][1]-R[k][0])||1):null;
+  const me=window.FEAT.find(x=>x.u===D.ubigeo) || {i:D.real&&D.real.i, t:D.real&&D.real.t, va:D.real&&D.real.va, g:D.real&&D.real.g};
+  const meV=feats.map(k=>norm(me,k));
+  const scored=window.FEAT.filter(x=>x.u!==D.ubigeo).map(x=>{ let s=0,n=0; feats.forEach((k,i)=>{const a=norm(x,k),b=meV[i]; if(a!=null&&b!=null){s+=(a-b)*(a-b);n++;}}); return {x,d:n?Math.sqrt(s/n):9}; }).sort((a,b)=>a.d-b.d).slice(0,8);
+  cont.innerHTML=scored.map(o=>{const x=o.x;return `<div class="card hover" onclick="selDistByUbigeo('${x.u}')"><div class="it-t" style="font-size:.92rem">${x.dist}</div><div class="it-d">${x.dep}</div><div class="it-meta"><span>IDH ${x.i!=null?x.i:'—'}</span><span>Pobr. ${x.t!=null?x.t+'%':'—'}</span></div></div>`;}).join('');
+}
+
 /* ====================== COMPARADOR DE DISTRITOS ====================== */
 let CMP=[]; const CMP_COL=['#f5a623','#3b82f6','#22c55e','#a855f7'];
 function cmpAdd(){
@@ -1215,6 +1282,7 @@ Promise.all([
   const _byPob=_arr.filter(([,v])=>v.t!=null).sort((a,b)=>a[1].t-b[1].t);
   window.RANK_POB={}; _byPob.forEach(([u],i)=>RANK_POB[u]=i+1); window.RANK_N_POB=_byPob.length;
   for(const dep in j) for(const prov in j[dep]) for(const o of j[dep][prov]) UBIGEO[o.u]={dep,prov,dist:o.d};
+  buildBenchData();
   poblarSelectores();
   initMapaIdxSelect();
   renderRoadmap();
