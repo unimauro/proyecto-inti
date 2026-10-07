@@ -1,0 +1,79 @@
+{
+ "censo2025": {
+  "url": "https://www.gob.pe/institucion/inei/noticias/1426058-inei-poblacion-de-cusco-registro-1-millon-379-mil-habitantes-segun-resultados-de-los-censos-nacionales-2025",
+  "fecha": "2026-08-04",
+  "mujeres": 50.6,
+  "hombres": 49.4,
+  "edad_0_14": 23.3,
+  "edad_15_59": 62.3,
+  "edad_60mas": 14.5,
+  "viviendas": 639942,
+  "viv_ocupadas": 72.9,
+  "viv_ocasional": 15.3,
+  "viv_desocupadas": 11.8,
+  "paredes_adobe": 55.1,
+  "paredes_ladrillo": 36.0,
+  "techo_calamina": 47.1,
+  "techo_teja": 24.9,
+  "techo_concreto": 24.1,
+  "cocina_hogares_miles": {
+   "Gas (GLP)": 355,
+   "Leña": 213,
+   "Bosta/estiércol": 78,
+   "Carbón": 12,
+   "Electricidad": 7
+  },
+  "tic_alguna": 92.6,
+  "celular": 92.4,
+  "computadora": 25.8,
+  "prov_mayor_crec": {
+   "nombre": "La Convención",
+   "pob": 193000,
+   "crec": 3.5
+  },
+  "prov_decrec": {
+   "nombre": "Acomayo",
+   "crec": -0.6
+  },
+  "dist_mas_poblados": [
+   {
+    "nombre": "San Sebastián",
+    "pob": 124000
+   },
+   {
+    "nombre": "Cusco",
+    "pob": 97000
+   }
+  ],
+  "inmigrantes_origen": {
+   "Lima Metropolitana": 25.7,
+   "Arequipa": 17.0,
+   "Apurímac": 12.5,
+   "Ayacucho": 11.5
+  },
+  "emigrantes_destino": {
+   "Arequipa": 36.3,
+   "Lima Metropolitana": 17.3,
+   "Madre de Dios": 14.1
+  },
+  "educ": {
+   "inicial_3_5": 58.0,
+   "primaria_6_11": 80.9,
+   "secundaria_12_17": 72.6,
+   "sup_univ_18_26": 31.6,
+   "sup_no_univ_18_26": 22.2
+  }
+ },
+ "turismo": [
+  {
+   "dato": "Más de 1,17 millones de visitantes a Machu Picchu entre enero y setiembre de 2025",
+   "fuente": "Agencia Andina (Mincul)",
+   "url": "https://andina.pe/ingles/noticia-peru-over-117-million-tourists-visit-machu-picchu-from-jan-to-sept-2025-1055006.aspx"
+  },
+  {
+   "dato": "Aforo máximo de 5 600 visitantes por día en temporada alta",
+   "fuente": "Ministerio de Cultura vía Forbes Perú",
+   "url": "https://forbes.pe/economia-y-finanzas/2025-11-01/machu-picchu-volvera-a-recibir-hasta-5-600-visitantes-por-dia-en-temporada-alta-a-partir-del-2026"
+  }
+ ]
+}

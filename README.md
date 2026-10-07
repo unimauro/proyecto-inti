@@ -17,6 +17,15 @@ diagnósticos, índices, proyecciones, recomendaciones y **planes municipales au
 - 🔗 **Interconexión territorial** (corredores), 🤖 **Motor de consultas (IA)**.
 - 📄 **Planes descargables (PDF)**: Plan Municipal 2027–2031 y Plan Maestro 2075.
 
+## 🗺️ Carátulas por región (oct-2026)
+Cada una de las 25 regiones tiene su página propia: `/region/<slug>/` (ej. [Cusco](https://unimauro.github.io/proyecto-inti/region/cusco/)),
+con portada, KPIs y tablas de **datos oficiales 2025**: pobreza monetaria 2016–2025 (INEI/ENAHO), anemia, desnutrición, vacunas,
+CRED, hierro, agua, saneamiento y violencia (INEI/ENDES 2025), y viviendas/servicios del **Censo 2025** (notas INEI, donde ya se publicaron).
+Cusco incluye una sección ampliada (vivienda, energía para cocinar, migración, educación, turismo).
+El dashboard acepta enlaces directos: `?region=cusco` o `?u=081301` (ubigeo).
+
+Regenerar: `python3 scripts/build_regiones.py` (lee `data/fuentes/*.json`; parsers en `scripts/parse_*.py`).
+
 ## 📊 Sobre los datos
 **Datos reales** (1,892 distritos): IDH 2019, % de pobreza y pobreza extrema, y población
 estimada 2020 — fuentes **PNUD/INEI** vía [ubigeo-peru-aumentado](https://github.com/jmcastagnetto/ubigeo-peru-aumentado);

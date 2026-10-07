@@ -1,0 +1,159 @@
+{
+ "_meta": {
+  "fuente": "INEI — Censos Nacionales 2025 (notas de prensa departamentales)",
+  "nacional": {
+   "pob": 34157732,
+   "crec": 1.11,
+   "url": "https://www.gob.pe/institucion/inei/noticias/1399446-inei-poblacion-del-peru-totalizo-34-millones-157-mil-732-habitantes-al-2025",
+   "ie": 65.1
+  },
+  "nota": "Población total (censada + omitida). Solo se incluyen departamentos cuyo resultado oficial INEI pudimos verificar; el resto se completará cuando INEI publique su nota."
+ },
+ "Arequipa": {
+  "pob": 1814396,
+  "crec": 2.8,
+  "agua": 71.8,
+  "desague": 69.6,
+  "luz": 92.6,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1420177-censos-nacionales-2025-poblacion-total-de-arequipa-alcanza-1-millon-815-mil-habitantes"
+ },
+ "Piura": {
+  "pob": 2115587,
+  "crec": 1.2,
+  "agua": 61.6,
+  "desague": 52.2,
+  "luz": 88.0,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1421576-inei-entrega-informacion-actualizada-sobre-la-situacion-de-la-poblacion-y-viviendas-de-piura-ante-la-llegada-del-fenomeno-el-nino"
+ },
+ "Cusco": {
+  "pob": 1379000,
+  "crec": 0.6,
+  "agua": 60.8,
+  "desague": 49.1,
+  "luz": 89.9,
+  "internet": 52.8,
+  "ev": 75.0,
+  "ie": 62.7,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1426058-inei-poblacion-de-cusco-registro-1-millon-379-mil-habitantes-segun-resultados-de-los-censos-nacionales-2025"
+ },
+ "Ancash": {
+  "pob": 1206000,
+  "crec": 0.7,
+  "agua": 71.7,
+  "desague": 61.0,
+  "luz": 92.5,
+  "internet": 65.6,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1428276-inei-ancash-muestra-un-envejecimiento-poblacional-por-encima-del-promedio-del-pais"
+ },
+ "La Libertad": {
+  "pob": 2056560,
+  "agua": 74.3,
+  "desague": 69.6,
+  "luz": 93.0,
+  "internet": 70.4,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1429988-inei-la-libertad-supera-los-2-millones-de-habitantes-y-es-el-tercer-departamento-mas-poblado-del-pais"
+ },
+ "Ayacucho": {
+  "pob": 709000,
+  "crec": 1.1,
+  "agua": 60.4,
+  "desague": 47.4,
+  "luz": 88.3,
+  "internet": 46.8,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1432776-inei-poblacion-del-departamento-de-ayacucho-crecio-solo-1-1-en-ocho-anos"
+ },
+ "Puno": {
+  "pob": 1233000,
+  "crec": 0.1,
+  "agua": 39.0,
+  "desague": 31.9,
+  "luz": 82.4,
+  "internet": 38.3,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1434598-inei-puno-registro-el-mayor-envejecimiento-poblacional-del-peru"
+ },
+ "Cajamarca": {
+  "pob": 1491000,
+  "crec": 0.6,
+  "agua": 55.3,
+  "desague": 40.2,
+  "luz": 89.4,
+  "internet": 50.1,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1435492-inei-poblacion-de-cajamarca-vuelve-a-crecer-aunque-de-manera-desigual-entre-sus-provincias"
+ },
+ "Tumbes": {
+  "pob": 257000,
+  "crec": 1.1,
+  "agua": 67.1,
+  "desague": 59.9,
+  "luz": 88.0,
+  "internet": 71.9,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1436605-inei-entrega-cifras-actualizadas-de-poblacion-y-viviendas-de-tumbes-para-reforzar-la-planificacion-ante-el-fenomeno-el-nino"
+ },
+ "Ucayali": {
+  "pob": 623868,
+  "crec": 1.6,
+  "agua": 53.3,
+  "desague": 30.1,
+  "luz": 76.9,
+  "internet": 63.4,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1442239-inei-ucayali-reduce-su-ritmo-de-crecimiento-poblacional-y-encamina-un-cambio-en-su-estructura-demografica"
+ },
+ "Junin": {
+  "pob": 1423000,
+  "crec": 1.0,
+  "agua": 71.9,
+  "desague": 59.2,
+  "luz": 90.9,
+  "internet": 59.5,
+  "ie": 60.8,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1443906-inei-censos-nacionales-2025-evidencian-el-envejecimiento-de-la-poblacion-del-departamento-de-junin"
+ },
+ "Huancavelica": {
+  "pob": 372000,
+  "crec": 0.2,
+  "agua": 48.1,
+  "desague": 33.5,
+  "luz": 85.6,
+  "internet": 47.3,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1444532-censos-nacionales-2025-poblacion-de-huancavelica-registra-leve-incremento-despues-de-ocho-anos"
+ },
+ "Amazonas": {
+  "pob": 468000,
+  "crec": 1.5,
+  "agua": 54.3,
+  "desague": 41.4,
+  "luz": 77.1,
+  "internet": 45.6,
+  "ie": 41,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1447156-poblacion-de-amazonas-destaca-por-su-juventud-segun-los-censos-nacionales-2025"
+ },
+ "San Martin": {
+  "pob": 968000,
+  "crec": 1.5,
+  "agua": 69.2,
+  "desague": 48.5,
+  "luz": 90.1,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1447563-censos-nacionales-2025-san-martin-alcanza-los-968-mil-habitantes-con-mejor-cobertura-de-servicios-en-las-viviendas"
+ },
+ "Madre De Dios": {
+  "pob": 209000,
+  "agua": 59.1,
+  "desague": 31.8,
+  "luz": 84.6,
+  "ie": 27.1,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1448591-poblacion-de-madre-de-dios-es-la-mas-joven-en-todo-el-peru"
+ },
+ "Apurimac": {
+  "pob": 467000,
+  "crec": 1.2,
+  "agua": 55.4,
+  "desague": 39.3,
+  "luz": 90.7,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1452213-poblacion-de-apurimac-vuelve-a-crecer-con-alta-presencia-de-adultos-mayores"
+ },
+ "Lima": {
+  "pob_lima_metropolitana": 10129708,
+  "url": "https://www.gob.pe/institucion/inei/noticias/1399446-inei-poblacion-del-peru-totalizo-34-millones-157-mil-732-habitantes-al-2025",
+  "nota": "Lima Metropolitana (43 distritos). Las 9 provincias de Lima región aún sin nota INEI."
+ }
+}
