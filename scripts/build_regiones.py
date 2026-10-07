@@ -76,6 +76,32 @@ ENDES_IND = [  # clave, etiqueta, unidad, más es mejor?
     ('tgf', 'Tasa global de fecundidad', 'hijos', None),
 ]
 
+# Indicadores comparables entre las 25 regiones (cuadros, rankings y memoria del chatbot)
+def _endes(k): return lambda r: (r['endes'].get(k) or {}).get('y2025')
+RANK_IND = [  # clave, etiqueta corta, getter, ¿más es mejor?, unidad, fuente
+    ('pobreza', 'Pobreza monetaria', lambda r: (r['pobreza_serie'] or [None])[-1], False, '%', 'ENAHO 2025'),
+    ('anemia', 'Anemia 6-35 meses', _endes('anemia'), False, '%', 'ENDES 2025'),
+    ('dci', 'Desnutrición crónica <5', _endes('dci'), False, '%', 'ENDES 2025'),
+    ('vacunas12m', 'Vacunas completas <12m', _endes('vacunas12m'), True, '%', 'ENDES 2025'),
+    ('cred', 'Controles CRED <36m', _endes('cred'), True, '%', 'ENDES 2025'),
+    ('hierro', 'Suplemento de hierro', _endes('hierro'), True, '%', 'ENDES 2025'),
+    ('lactancia', 'Lactancia exclusiva', _endes('lactancia'), True, '%', 'ENDES 2025'),
+    ('saneamiento', 'Saneamiento básico', _endes('saneamiento'), True, '%', 'ENDES 2025'),
+    ('violencia', 'Violencia de pareja (alguna vez)', _endes('violencia'), False, '%', 'ENDES 2025'),
+    ('ingreso', 'Ingreso real per cápita', lambda r: (r['ingreso_real'] or [None])[-1], True, 'S/', 'ENAHO 2025'),
+    ('c_agua', 'Agua red pública en vivienda', lambda r: (r['censo2025'] or {}).get('agua'), True, '%', 'Censo 2025'),
+    ('c_desague', 'Desagüe red pública', lambda r: (r['censo2025'] or {}).get('desague'), True, '%', 'Censo 2025'),
+    ('c_internet', 'Hogares con Internet', lambda r: (r['censo2025'] or {}).get('internet'), True, '%', 'Censo 2025'),
+]
+
+def rankings(regiones):
+    """{clave: [(dep, valor), ...] ordenado de MEJOR a PEOR}"""
+    out = {}
+    for key, _, get, up, *_ in RANK_IND:
+        vals = [(d, get(r)) for d, r in regiones.items() if get(r) is not None]
+        out[key] = sorted(vals, key=lambda x: -x[1] if up else x[1])
+    return out
+
 def build():
     regiones = {}
     ranking_pob = sorted([(k, v[-1]) for k, v in ENAHO['pobreza'].items() if k not in ('Nacional',)], key=lambda x: -x[1])
@@ -169,6 +195,15 @@ footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);f
 .rcard .top{padding:22px 16px 16px;color:#fff;min-height:110px;position:relative}.rcard .top b{font-size:1.5rem;font-weight:900;display:block}
 .rcard .top em{position:absolute;right:12px;top:10px;font-style:normal;font-size:2rem}
 .rcard .bot{padding:12px 16px;font-size:.8rem;color:var(--muted);display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.rkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px}
+.rk{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--muted2);border-radius:14px;padding:12px 14px}
+.rk.top{border-left-color:var(--verde)}.rk.mid{border-left-color:var(--ambar)}.rk.low{border-left-color:var(--rojo)}
+.rk-h{display:flex;justify-content:space-between;gap:8px;font-size:.86rem}.rk-h b{font-size:1.05rem}
+.rk-pos{font-size:.78rem;color:var(--muted);margin:2px 0 10px}.rk-pos small{color:var(--muted2)}
+.strip{position:relative;height:18px;border-radius:99px;background:linear-gradient(90deg,rgba(139,155,196,.12),rgba(139,155,196,.22))}
+.strip i{position:absolute;top:5px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:rgba(139,155,196,.7)}
+.strip i.me{top:1px;width:16px;height:16px;margin-left:-8px;background:var(--h1);border:2px solid #fff;box-shadow:0 0 0 3px rgba(0,0,0,.3);z-index:2}
+.rk-ax{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted2);margin-top:4px}
 @media print{nav.top,.cta,footer .no-print{display:none}body{background:#fff;color:#111}.card,.kpi{background:#fff;border-color:#ddd}}
 """
 
@@ -298,7 +333,8 @@ def page_region(r, nac, regiones):
                    f'<td class="n">{fidh(p["i"])}</td><td class="n">{f1(p["t"])}%</td><td class="n">{f1(p["e"])}%</td></tr>' for p in r['provincias'])
     out.append(f"""<section><h2>🗺️ Provincias</h2><p class="desc">Agregado desde los datos distritales de INTI (promedios ponderados por población). Pobreza distrital = mapa de pobreza INEI (no comparable con ENAHO 2025).</p>
 <div class="card scroll"><table class="tbl"><thead><tr><th>Provincia</th><th>Distritos</th><th>Pob. 2017</th><th>Pob. 2025 est.</th><th>IDH 2019</th><th>Pobreza</th><th>Pob. extrema</th></tr></thead><tbody>{prow}</tbody></table>
-<p class="src">Fuentes: INEI Censo 2017; PNUD IDH 2019; INEI mapa de pobreza distrital (vía ubigeo-peru-aumentado). Población 2025 por distrito = estimación, no Censo 2025.</p></div></section>""")
+<p class="src">Fuentes: INEI Censo 2017; PNUD IDH 2019; INEI mapa de pobreza distrital (vía ubigeo-peru-aumentado). Población 2025 por distrito = estimación, no Censo 2025.</p></div>
+<div class="card" style="margin-top:14px"><h2>📊 Pobreza e IDH por provincia</h2><p class="desc">Barras: pobreza (%) · línea: IDH 2019 (×100). Ordenado de mayor a menor pobreza.</p><div style="position:relative;height:{max(260, 34 * len(r['provincias']))}px"><canvas id="chProv"></canvas></div></div></section>""")
 
     crit = ''.join(f'<tr><td><a href="../../?u={x["u"]}">{esc(x["d"])}</a></td><td>{esc(x["prov"])}</td><td class="n">{f1(x["t"])}%</td><td class="n">{f1(x["e"])}%</td><td class="n">{fidh(x["i"])}</td></tr>' for x in r['criticos'])
     best = ''.join(f'<tr><td><a href="../../?u={x["u"]}">{esc(x["d"])}</a></td><td>{esc(x["prov"])}</td><td class="n">{fidh(x["i"])}</td><td class="n">{f1(x["t"])}%</td></tr>' for x in r['mejores'])
@@ -310,20 +346,85 @@ def page_region(r, nac, regiones):
     for x in r['distritos']: by.setdefault(x['prov'], []).append(x)
     lst = ''.join(f'<details style="margin:8px 0"><summary>{esc(p)} ({len(v)})</summary><div class="chips" style="margin-top:8px">'
                   + ''.join(f'<a href="../../?u={x["u"]}">{esc(x["d"])}</a>' for x in v) + '</div></details>' for p, v in by.items())
+    out.append(ranking_section(r, regiones))
     out.append(f'<section><h2>📍 Todos los distritos</h2><p class="desc">Abre cualquier distrito en el gemelo digital (diagnóstico, prospectiva 2075 y planes descargables).</p><div class="card">{lst}</div></section>')
 
     data = {'years': ENAHO['years'], 'pob': ps, 'pobNac': nac['pobreza_serie'],
             'an': [an.get(f'y{y}') for y in range(2021, 2026)] if an else [],
-            'anNac': [en['anemia'].get(f'y{y}') for y in range(2021, 2026)]}
+            'anNac': [en['anemia'].get(f'y{y}') for y in range(2021, 2026)],
+            'prov': [[p['prov'], p['t'], p['i']] for p in sorted(r['provincias'], key=lambda p: -(p['t'] or 0))]}
     out.append(f"""<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script>
 const D={json.dumps(data)},css=getComputedStyle(document.documentElement),c1=css.getPropertyValue('--h1').trim(),mut='#8b9bc4',grid='rgba(139,155,196,.15)';
 Chart.defaults.color=mut;Chart.defaults.font.family='Inter,system-ui,sans-serif';
 const opt={{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{y:{{grid:{{color:grid}},ticks:{{callback:v=>v+'%'}}}},x:{{grid:{{display:false}}}}}},spanGaps:true}};
 if(D.pob&&D.pob.length)new Chart(document.getElementById('chPob'),{{type:'line',data:{{labels:D.years,datasets:[{{label:{json.dumps(nombre)},data:D.pob,borderColor:c1,backgroundColor:c1,borderWidth:3,tension:.3}},{{label:'Perú',data:D.pobNac,borderColor:mut,borderDash:[5,4],borderWidth:2,pointRadius:0,tension:.3}}]}},options:opt}});
+if(D.prov&&D.prov.length)new Chart(document.getElementById('chProv'),{{data:{{labels:D.prov.map(p=>p[0]),datasets:[{{type:'bar',label:'Pobreza %',data:D.prov.map(p=>p[1]),backgroundColor:c1,borderRadius:5,xAxisID:'x',order:2}},{{type:'line',label:'IDH ×100',data:D.prov.map(p=>p[2]),borderColor:'#93c5fd',backgroundColor:'#93c5fd',showLine:false,pointRadius:6,pointBorderColor:'#0a0f1e',pointBorderWidth:2,xAxisID:'x',order:1}}]}},options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom'}}}},scales:{{x:{{grid:{{color:grid}},beginAtZero:true}},y:{{grid:{{display:false}}}}}}}}}});
 if(D.an&&D.an.length)new Chart(document.getElementById('chAn'),{{type:'bar',data:{{labels:['2021','2022','2023','2024','2025'],datasets:[{{label:{json.dumps(nombre)},data:D.an,backgroundColor:c1,borderRadius:6}},{{label:'Perú',data:D.anNac,backgroundColor:'rgba(139,155,196,.45)',borderRadius:6}}]}},options:opt}});
 </script>""")
     out.append(footer())
     return '\n'.join(out), desc
+
+RANKS = None
+def ranking_section(r, regiones):
+    cards = []
+    for key, lab, get, up, uni, fuente in RANK_IND:
+        lst = RANKS[key]
+        pos = next((i for i, (d, _) in enumerate(lst) if d == r['dep']), None)
+        if pos is None: continue
+        v = lst[pos][1]; n = len(lst)
+        lo, hi = min(x[1] for x in lst), max(x[1] for x in lst)
+        dots = ''.join(f'<i title="{esc(regiones[d]["nombre"])}: {f1(val)}" style="left:{(val - lo) / (hi - lo or 1) * 100:.1f}%"{" class=me" if d == r["dep"] else ""}></i>' for d, val in lst)
+        tercio = 'top' if pos < n / 3 else ('mid' if pos < 2 * n / 3 else 'low')
+        val = f'S/ {fmt(v)}' if uni == 'S/' else f'{f1(v)}%'
+        cards.append(f'<div class="rk {tercio}"><div class="rk-h"><span>{esc(lab)}</span><b>{val}</b></div>'
+                     f'<div class="rk-pos">Puesto <b>{pos + 1}</b> de {n} <small>({"1 = mejor" if True else ""} · {fuente})</small></div>'
+                     f'<div class="strip">{dots}</div><div class="rk-ax"><span>{f1(lo) if uni != "S/" else fmt(lo)}</span><span>{"mejor →" if up else "← mejor"}</span><span>{f1(hi) if uni != "S/" else fmt(hi)}</span></div></div>')
+    return (f'<section><h2>🏆 ¿Cómo se ubica {esc(r["nombre"])} entre las regiones?</h2><p class="desc">Cada punto es una región; el punto grande es {esc(r["nombre"])}. '
+            f'Puesto 1 = mejor situación. Verde: tercio superior · ámbar: medio · rojo: tercio inferior. Lima = Lima Metropolitana.</p>'
+            f'<div class="rkgrid">{"".join(cards)}</div></section>')
+
+def memoria(regiones, nac):
+    """Memoria del chatbot: hechos verificados en texto compacto, por región + nacional + rankings."""
+    def line(r):
+        e = r['endes']; c = r['censo2025'] or {}; ps = r['pobreza_serie'] or []
+        g = lambda k: (e.get(k) or {}).get('y2025')
+        parts = [f"{r['nombre']} ({r['natural']}, capital {r['capital']}, {r['n_prov']} provincias, {r['n_dist']} distritos)"]
+        if c.get('pob'): parts.append(f"población Censo 2025 {fmt(c['pob'])}" + (f" (crec. {f1(c['crec'])}%/año 2017-2025)" if c.get('crec') is not None else ''))
+        elif c.get('pob_lima_metropolitana'): parts.append(f"Lima Metropolitana Censo 2025 {fmt(c['pob_lima_metropolitana'])}")
+        if ps: parts.append(f"pobreza monetaria 2025 {f1(ps[-1])}% (2024 {f1(ps[-2])}%, 2019 {f1(ps[3])}%, 2020 {f1(ps[4])}%)")
+        if r['ingreso_real']: parts.append(f"ingreso real per cápita 2025 S/ {fmt(r['ingreso_real'][-1])}/mes")
+        for k, lab in (('anemia', 'anemia 6-35m'), ('dci', 'desnutrición crónica <5'), ('vacunas12m', 'vacunas completas <12m'),
+                       ('cred', 'CRED <36m'), ('hierro', 'hierro 6-35m'), ('lactancia', 'lactancia exclusiva'), ('saneamiento', 'saneamiento básico'),
+                       ('violencia', 'violencia de pareja alguna vez'), ('tgf', 'fecundidad (hijos/mujer)')):
+            v = e.get(k)
+            if v: parts.append(f"{lab} {f1(v['y2025'])}{'' if k == 'tgf' else '%'} (2024 {f1(v['y2024'])})")
+        for k, lab in (('agua', 'agua red pública en vivienda'), ('desague', 'desagüe red pública'), ('luz', 'electricidad'), ('internet', 'internet')):
+            if c.get(k) is not None: parts.append(f"Censo 2025 {lab} {f1(c[k])}%")
+        parts.append(f"IDH 2019 ponderado {fidh(r['idh2019'])}")
+        if r['criticos']: parts.append('distritos con mayor pobreza: ' + ', '.join(f"{x['d']} ({f1(x['t'])}%)" for x in r['criticos'][:3]))
+        return '; '.join(parts) + '.'
+    reg = {r['dep']: {'nombre': r['nombre'], 'slug': r['slug'], 'texto': line(r)} for r in regiones.values()}
+    reg['Cusco']['texto'] += (' Detalle Censo 2025 Cusco: 639 942 viviendas, 55,1% paredes de adobe; cocinan con leña 213 mil hogares y bosta 78 mil; '
+                              'internet 52,8%; esperanza de vida 75,0 años; La Convención crece 3,5%/año y Acomayo -0,6%; San Sebastián (124 mil) y Cusco (97 mil) son los distritos más poblados; '
+                              'emigran sobre todo a Arequipa (36,3%). Machu Picchu: >1,17 millones de visitantes ene-sep 2025; aforo 5 600/día en temporada alta.')
+    rk = {}
+    for key, lab, get, up, uni, fuente in RANK_IND:
+        lst = RANKS[key]
+        rk[key] = {'etiqueta': lab, 'fuente': fuente, 'mejor_es': 'mayor' if up else 'menor',
+                   'orden_mejor_a_peor': [f"{regiones[d]['nombre']} {('S/ ' + fmt(v)) if uni == 'S/' else f1(v) + '%'}" for d, v in lst]}
+    ne = nac['endes']
+    nac_txt = (f"Perú: población Censo 2025 {fmt(nac['censo2025']['pob'])} (crec. 1,11%/año); pobreza monetaria 2025 {f1(nac['pobreza_serie'][-1])}% "
+               f"(2024 {f1(nac['pobreza_serie'][-2])}%); pobreza extrema 2025 4,7%; ingreso real {fmt(nac['ingreso_real'][-1])} S/ al mes; anemia 6-35m {f1(ne['anemia']['y2025'])}%; "
+               f"desnutrición crónica {f1(ne['dci']['y2025'])}%; vacunas <12m {f1(ne['vacunas12m']['y2025'])}%; CRED {f1(ne['cred']['y2025'])}%; hierro {f1(ne['hierro']['y2025'])}%; "
+               f"violencia de pareja {f1(ne['violencia']['y2025'])}%.")
+    return {'generado': date.today().isoformat(), 'nacional': nac_txt, 'regiones': reg, 'rankings': rk,
+            'reglas': ['Usa SOLO estas cifras como datos reales; si no está, di que no hay dato oficial.',
+                       'ENDES/ENAHO son estimaciones departamentales (no distritales).',
+                       'Anemia según directriz OMS 2024 (RM 251-2024-MINSA).',
+                       'Lima en ENDES/ENAHO = Lima Metropolitana.',
+                       'Índices de seguridad, educación, etc. del distrito son ILUSTRATIVOS.'],
+            'fuentes': ['INEI ENDES 2025 (Programas Presupuestales)', 'INEI Evolución de la Pobreza Monetaria 2016-2025',
+                        'INEI Censos Nacionales 2025 (notas departamentales)', 'PNUD IDH 2019', 'INEI Censo 2017']}
 
 def cusco_section():
     x = CUSCO['censo2025']
@@ -375,10 +476,15 @@ def page_index(regiones, nac):
     return '\n'.join(out)
 
 def main():
+    global RANKS
     regiones, nac = build()
+    RANKS = rankings(regiones)
+    for r in regiones.values():
+        r['ranks'] = {k: next((i + 1 for i, (d, _) in enumerate(lst) if d == r['dep']), None) for k, lst in RANKS.items()}
+    json.dump(memoria(regiones, nac), open(D('data/memoria_chat.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
     # JSON consumido por el dashboard (sin listas pesadas)
     slim = {k: {kk: vv for kk, vv in v.items() if kk not in ('distritos',)} for k, v in regiones.items()}
-    json.dump({'generado': date.today().isoformat(), 'nacional': nac, 'regiones': slim,
+    json.dump({'generado': date.today().isoformat(), 'nacional': nac, 'regiones': slim, 'indicadores': [{'k': k, 'l': l, 'up': up, 'u': u, 'f': f} for k, l, _, up, u, f in RANK_IND],
                'fuentes': {'endes': 'INEI ENDES 2025 — Indicadores de Resultados de los Programas Presupuestales',
                            'enaho': 'INEI — Perú: Evolución de la Pobreza Monetaria 2016-2025',
                            'censo': CENSO['_meta']['fuente']}},

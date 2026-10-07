@@ -22,6 +22,13 @@ Cada una de las 25 regiones tiene su página propia: `/region/<slug>/` (ej. [Cus
 con portada, KPIs y tablas de **datos oficiales 2025**: pobreza monetaria 2016–2025 (INEI/ENAHO), anemia, desnutrición, vacunas,
 CRED, hierro, agua, saneamiento y violencia (INEI/ENDES 2025), y viviendas/servicios del **Censo 2025** (notas INEI, donde ya se publicaron).
 Cusco incluye una sección ampliada (vivienda, energía para cocinar, migración, educación, turismo).
+Cada carátula incluye además un **ranking visual entre las 25 regiones** (13 indicadores) y un gráfico de pobreza/IDH por provincia.
+En el dashboard, la sección **📊 Cuadro de indicadores regionales 2025** muestra ranking por indicador, ficha de la región y tabla comparativa ordenable (descarga CSV).
+
+**Memoria del chatbot:** `data/memoria_chat.json` (generada por el script) contiene los hechos oficiales 2025 de cada región, el nacional y los rankings.
+El motor de IA la inyecta como contexto al LLM (si hay `proxy`/`apiKey` en `config.js`) y, sin LLM, responde directamente rankings, comparaciones
+("Compara Cusco y Puno"), fichas de región e indicadores puntuales con esos datos.
+
 El dashboard acepta enlaces directos: `?region=cusco` o `?u=081301` (ubigeo).
 
 Regenerar: `python3 scripts/build_regiones.py` (lee `data/fuentes/*.json`; parsers en `scripts/parse_*.py`).

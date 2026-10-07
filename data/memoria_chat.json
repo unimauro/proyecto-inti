@@ -1,0 +1,531 @@
+{
+"generado": "2026-10-07",
+"nacional": "Perú: población Censo 2025 34 157 732 (crec. 1,11%/año); pobreza monetaria 2025 25,7% (2024 27,6%); pobreza extrema 2025 4,7%; ingreso real 1 252 S/ al mes; anemia 6-35m 34,9%; desnutrición crónica 12,1%; vacunas <12m 78,0%; CRED 33,6%; hierro 38,7%; violencia de pareja 49,1%.",
+"regiones": {
+"Amazonas": {
+"nombre": "Amazonas",
+"slug": "amazonas",
+"texto": "Amazonas (selva, capital Chachapoyas, 7 provincias, 84 distritos); población Censo 2025 468 000 (crec. 1,5%/año 2017-2025); pobreza monetaria 2025 20,4% (2024 25,7%, 2019 30,5%, 2020 36,1%); ingreso real per cápita 2025 S/ 1 122/mes; anemia 6-35m 43,6% (2024 46,4); desnutrición crónica <5 17,7% (2024 20,4); vacunas completas <12m 75,5% (2024 74,8); CRED <36m 59,4% (2024 43,2); hierro 6-35m 42,1% (2024 31,3); lactancia exclusiva 77,3% (2024 77,9); saneamiento básico 95,1% (2024 95,0); violencia de pareja alguna vez 47,2% (2024 49,5); fecundidad (hijos/mujer) 2,8 (2024 2,9); Censo 2025 agua red pública en vivienda 54,3%; Censo 2025 desagüe red pública 41,4%; Censo 2025 electricidad 77,1%; Censo 2025 internet 45,6%; IDH 2019 ponderado 0,408; distritos con mayor pobreza: El Cenepa (62,9%), Santa Catalina (60,3%), Rio Santiago (59,9%)."
+},
+"Ancash": {
+"nombre": "Áncash",
+"slug": "ancash",
+"texto": "Áncash (sierra, capital Huaraz, 20 provincias, 166 distritos); población Censo 2025 1 206 000 (crec. 0,7%/año 2017-2025); pobreza monetaria 2025 22,9% (2024 22,8%, 2019 17,5%, 2020 29,8%); ingreso real per cápita 2025 S/ 1 203/mes; anemia 6-35m 39,1% (2024 37,5); desnutrición crónica <5 15,1% (2024 13,5); vacunas completas <12m 76,4% (2024 87,5); CRED <36m 65,2% (2024 54,9); hierro 6-35m 49,0% (2024 41,7); lactancia exclusiva 63,3% (2024 74,8); saneamiento básico 94,1% (2024 92,0); violencia de pareja alguna vez 51,7% (2024 53,1); fecundidad (hijos/mujer) 1,8 (2024 2,1); Censo 2025 agua red pública en vivienda 71,7%; Censo 2025 desagüe red pública 61,0%; Censo 2025 electricidad 92,5%; Censo 2025 internet 65,6%; IDH 2019 ponderado 0,498; distritos con mayor pobreza: Huacaschuque (68,2%), Acobamba (64,9%), Fidel Olivas Escudero (64,5%)."
+},
+"Apurimac": {
+"nombre": "Apurímac",
+"slug": "apurimac",
+"texto": "Apurímac (sierra, capital Abancay, 7 provincias, 80 distritos); población Censo 2025 467 000 (crec. 1,2%/año 2017-2025); pobreza monetaria 2025 20,9% (2024 24,0%, 2019 29,1%, 2020 35,5%); ingreso real per cápita 2025 S/ 1 076/mes; anemia 6-35m 40,6% (2024 43,0); desnutrición crónica <5 17,0% (2024 15,7); vacunas completas <12m 88,5% (2024 87,8); CRED <36m 64,8% (2024 63,2); hierro 6-35m 52,8% (2024 45,3); lactancia exclusiva 74,9% (2024 81,7); saneamiento básico 92,9% (2024 93,2); violencia de pareja alguna vez 66,1% (2024 66,4); fecundidad (hijos/mujer) 2,0 (2024 2,2); Censo 2025 agua red pública en vivienda 55,4%; Censo 2025 desagüe red pública 39,3%; Censo 2025 electricidad 90,7%; IDH 2019 ponderado 0,398; distritos con mayor pobreza: Pampachiri (58,2%), Huancaray (58,0%), San Miguel De Chaccrampa (57,2%)."
+},
+"Arequipa": {
+"nombre": "Arequipa",
+"slug": "arequipa",
+"texto": "Arequipa (costa, capital Arequipa, 8 provincias, 109 distritos); población Censo 2025 1 814 396 (crec. 2,8%/año 2017-2025); pobreza monetaria 2025 12,8% (2024 15,8%, 2019 6,0%, 2020 18,6%); ingreso real per cápita 2025 S/ 1 697/mes; anemia 6-35m 40,4% (2024 43,9); desnutrición crónica <5 6,3% (2024 5,6); vacunas completas <12m 73,5% (2024 86,1); CRED <36m 30,0% (2024 23,9); hierro 6-35m 39,2% (2024 32,4); lactancia exclusiva 74,7% (2024 61,3); saneamiento básico 98,0% (2024 96,9); violencia de pareja alguna vez 54,6% (2024 53,2); fecundidad (hijos/mujer) 1,4 (2024 1,6); Censo 2025 agua red pública en vivienda 71,8%; Censo 2025 desagüe red pública 69,6%; Censo 2025 electricidad 92,6%; IDH 2019 ponderado 0,648; distritos con mayor pobreza: Puyca (52,2%), Tisco (47,8%), Alca (46,4%)."
+},
+"Ayacucho": {
+"nombre": "Ayacucho",
+"slug": "ayacucho",
+"texto": "Ayacucho (sierra, capital Ayacucho, 12 provincias, 111 distritos); población Censo 2025 709 000 (crec. 1,1%/año 2017-2025); pobreza monetaria 2025 33,7% (2024 32,8%, 2019 39,4%, 2020 46,4%); ingreso real per cápita 2025 S/ 1 000/mes; anemia 6-35m 44,1% (2024 45,7); desnutrición crónica <5 14,9% (2024 17,0); vacunas completas <12m 79,5% (2024 76,1); CRED <36m 37,6% (2024 30,5); hierro 6-35m 45,1% (2024 38,1); lactancia exclusiva 76,7% (2024 76,5); saneamiento básico 94,5% (2024 92,9); violencia de pareja alguna vez 51,4% (2024 49,0); fecundidad (hijos/mujer) 2,1 (2024 2,2); Censo 2025 agua red pública en vivienda 60,4%; Censo 2025 desagüe red pública 47,4%; Censo 2025 electricidad 88,3%; Censo 2025 internet 46,8%; IDH 2019 ponderado 0,410; distritos con mayor pobreza: Sarhua (70,7%), Morcolla (64,4%), Paras (63,9%)."
+},
+"Cajamarca": {
+"nombre": "Cajamarca",
+"slug": "cajamarca",
+"texto": "Cajamarca (sierra, capital Cajamarca, 13 provincias, 127 distritos); población Censo 2025 1 491 000 (crec. 0,6%/año 2017-2025); pobreza monetaria 2025 41,0% (2024 45,0%, 2019 38,0%, 2020 42,5%); ingreso real per cápita 2025 S/ 940/mes; anemia 6-35m 39,4% (2024 40,6); desnutrición crónica <5 17,4% (2024 20,4); vacunas completas <12m 77,2% (2024 77,9); CRED <36m 46,1% (2024 38,0); hierro 6-35m 49,8% (2024 36,9); lactancia exclusiva 84,6% (2024 83,4); saneamiento básico 95,3% (2024 94,6); violencia de pareja alguna vez 36,8% (2024 35,9); fecundidad (hijos/mujer) 2,3 (2024 2,7); Censo 2025 agua red pública en vivienda 55,3%; Censo 2025 desagüe red pública 40,2%; Censo 2025 electricidad 89,4%; Censo 2025 internet 50,1%; IDH 2019 ponderado 0,404; distritos con mayor pobreza: Oxamarca (81,0%), Anguia (78,7%), Jose Sabogal (77,0%)."
+},
+"Callao": {
+"nombre": "Callao",
+"slug": "callao",
+"texto": "Callao (costa, capital Callao, 1 provincias, 6 distritos); pobreza monetaria 2025 32,1% (2024 33,9%, 2019 14,3%, 2020 35,0%); ingreso real per cápita 2025 S/ 1 207/mes; anemia 6-35m 28,4% (2024 24,5); desnutrición crónica <5 6,5% (2024 6,2); vacunas completas <12m 86,9% (2024 82,7); CRED <36m 22,3% (2024 16,9); hierro 6-35m 37,0% (2024 32,2); lactancia exclusiva 65,0% (2024 68,3); saneamiento básico 99,7% (2024 99,7); violencia de pareja alguna vez 53,8% (2024 57,6); fecundidad (hijos/mujer) 1,5 (2024 1,4); IDH 2019 ponderado 0,653; distritos con mayor pobreza: Ventanilla (26,1%), Callao (14,2%), Carmen De La Legua Reynoso (11,8%)."
+},
+"Cusco": {
+"nombre": "Cusco",
+"slug": "cusco",
+"texto": "Cusco (sierra, capital Cusco, 13 provincias, 108 distritos); población Censo 2025 1 379 000 (crec. 0,6%/año 2017-2025); pobreza monetaria 2025 18,8% (2024 18,5%, 2019 23,0%, 2020 32,1%); ingreso real per cápita 2025 S/ 1 087/mes; anemia 6-35m 42,8% (2024 45,3); desnutrición crónica <5 11,6% (2024 12,1); vacunas completas <12m 84,6% (2024 84,1); CRED <36m 24,6% (2024 14,6); hierro 6-35m 46,6% (2024 35,5); lactancia exclusiva 84,3% (2024 65,8); saneamiento básico 95,9% (2024 95,0); violencia de pareja alguna vez 56,6% (2024 59,3); fecundidad (hijos/mujer) 1,8 (2024 2,0); Censo 2025 agua red pública en vivienda 60,8%; Censo 2025 desagüe red pública 49,1%; Censo 2025 electricidad 89,9%; Censo 2025 internet 52,8%; IDH 2019 ponderado 0,481; distritos con mayor pobreza: Omacha (61,5%), Ccatca (61,4%), Marcapata (57,6%). Detalle Censo 2025 Cusco: 639 942 viviendas, 55,1% paredes de adobe; cocinan con leña 213 mil hogares y bosta 78 mil; internet 52,8%; esperanza de vida 75,0 años; La Convención crece 3,5%/año y Acomayo -0,6%; San Sebastián (124 mil) y Cusco (97 mil) son los distritos más poblados; emigran sobre todo a Arequipa (36,3%). Machu Picchu: >1,17 millones de visitantes ene-sep 2025; aforo 5 600/día en temporada alta."
+},
+"Huancavelica": {
+"nombre": "Huancavelica",
+"slug": "huancavelica",
+"texto": "Huancavelica (sierra, capital Huancavelica, 7 provincias, 94 distritos); población Censo 2025 372 000 (crec. 0,2%/año 2017-2025); pobreza monetaria 2025 34,3% (2024 33,4%, 2019 36,9%, 2020 47,7%); ingreso real per cápita 2025 S/ 822/mes; anemia 6-35m 38,6% (2024 32,9); desnutrición crónica <5 20,3% (2024 24,0); vacunas completas <12m 83,0% (2024 81,9); CRED <36m 50,0% (2024 45,4); hierro 6-35m 44,2% (2024 40,1); lactancia exclusiva 93,2% (2024 78,3); saneamiento básico 88,8% (2024 85,9); violencia de pareja alguna vez 58,3% (2024 56,5); fecundidad (hijos/mujer) 2,0 (2024 2,3); Censo 2025 agua red pública en vivienda 48,1%; Censo 2025 desagüe red pública 33,5%; Censo 2025 electricidad 85,6%; Censo 2025 internet 47,3%; IDH 2019 ponderado 0,344; distritos con mayor pobreza: Huanca-Huanca (66,0%), Anchonga (63,8%), Salcabamba (63,6%)."
+},
+"Huanuco": {
+"nombre": "Huánuco",
+"slug": "huanuco",
+"texto": "Huánuco (sierra, capital Huánuco, 11 provincias, 76 distritos); pobreza monetaria 2025 35,7% (2024 39,0%, 2019 29,4%, 2020 42,6%); ingreso real per cápita 2025 S/ 913/mes; anemia 6-35m 42,0% (2024 41,7); desnutrición crónica <5 15,4% (2024 16,5); vacunas completas <12m 81,1% (2024 87,4); CRED <36m 67,1% (2024 57,7); hierro 6-35m 39,2% (2024 29,1); lactancia exclusiva 75,3% (2024 78,9); saneamiento básico 90,6% (2024 90,3); violencia de pareja alguna vez 44,2% (2024 48,5); fecundidad (hijos/mujer) 2,2 (2024 2,5); IDH 2019 ponderado 0,414; distritos con mayor pobreza: Canchabamba (63,6%), San Buenaventura (59,4%), Colpas (57,1%)."
+},
+"Ica": {
+"nombre": "Ica",
+"slug": "ica",
+"texto": "Ica (costa, capital Ica, 5 provincias, 43 distritos); pobreza monetaria 2025 4,5% (2024 6,0%, 2019 2,6%, 2020 8,5%); ingreso real per cápita 2025 S/ 1 477/mes; anemia 6-35m 25,9% (2024 31,1); desnutrición crónica <5 7,6% (2024 7,6); vacunas completas <12m 81,2% (2024 80,7); CRED <36m 27,1% (2024 18,9); hierro 6-35m 29,1% (2024 21,9); lactancia exclusiva 61,5% (2024 45,8); saneamiento básico 97,6% (2024 96,1); violencia de pareja alguna vez 44,2% (2024 50,9); fecundidad (hijos/mujer) 2,0 (2024 1,9); IDH 2019 ponderado 0,610; distritos con mayor pobreza: Chavin (30,1%), San Juan De Yanac (10,6%), San Pedro De Huacarpana (10,6%)."
+},
+"Junin": {
+"nombre": "Junín",
+"slug": "junin",
+"texto": "Junín (sierra, capital Huancayo, 9 provincias, 123 distritos); población Censo 2025 1 423 000 (crec. 1,0%/año 2017-2025); pobreza monetaria 2025 13,5% (2024 18,5%, 2019 20,7%, 2020 31,4%); ingreso real per cápita 2025 S/ 1 284/mes; anemia 6-35m 39,0% (2024 41,2); desnutrición crónica <5 14,9% (2024 17,8); vacunas completas <12m 79,1% (2024 85,5); CRED <36m 26,1% (2024 44,1); hierro 6-35m 41,9% (2024 38,3); lactancia exclusiva 81,8% (2024 76,6); saneamiento básico 94,9% (2024 94,4); violencia de pareja alguna vez 54,4% (2024 59,2); fecundidad (hijos/mujer) 1,7 (2024 2,1); Censo 2025 agua red pública en vivienda 71,9%; Censo 2025 desagüe red pública 59,2%; Censo 2025 electricidad 90,9%; Censo 2025 internet 59,5%; IDH 2019 ponderado 0,494; distritos con mayor pobreza: Ulcumayo (51,8%), Rio Tambo (51,8%), Pampa Hermosa (48,8%)."
+},
+"La Libertad": {
+"nombre": "La Libertad",
+"slug": "la-libertad",
+"texto": "La Libertad (costa, capital Trujillo, 12 provincias, 83 distritos); población Censo 2025 2 056 560; pobreza monetaria 2025 25,5% (2024 30,2%, 2019 24,7%, 2020 31,9%); ingreso real per cápita 2025 S/ 1 300/mes; anemia 6-35m 26,5% (2024 25,6); desnutrición crónica <5 16,9% (2024 16,8); vacunas completas <12m 83,8% (2024 79,0); CRED <36m 42,2% (2024 30,5); hierro 6-35m 33,5% (2024 31,3); lactancia exclusiva 75,0% (2024 72,8); saneamiento básico 96,6% (2024 96,0); violencia de pareja alguna vez 49,2% (2024 51,6); fecundidad (hijos/mujer) 1,7 (2024 1,7); Censo 2025 agua red pública en vivienda 74,3%; Censo 2025 desagüe red pública 69,6%; Censo 2025 electricidad 93,0%; Censo 2025 internet 70,4%; IDH 2019 ponderado 0,530; distritos con mayor pobreza: Chillia (69,7%), Huayo (69,6%), Chugay (67,2%)."
+},
+"Lambayeque": {
+"nombre": "Lambayeque",
+"slug": "lambayeque",
+"texto": "Lambayeque (costa, capital Chiclayo, 3 provincias, 38 distritos); pobreza monetaria 2025 14,5% (2024 14,0%, 2019 10,2%, 2020 15,8%); ingreso real per cápita 2025 S/ 1 205/mes; anemia 6-35m 30,7% (2024 25,9); desnutrición crónica <5 14,3% (2024 13,1); vacunas completas <12m 82,9% (2024 77,4); CRED <36m 37,7% (2024 29,2); hierro 6-35m 40,9% (2024 35,0); lactancia exclusiva 70,6% (2024 57,3); saneamiento básico 97,0% (2024 95,4); violencia de pareja alguna vez 52,6% (2024 49,6); fecundidad (hijos/mujer) 1,9 (2024 2,1); IDH 2019 ponderado 0,535; distritos con mayor pobreza: Cañaris (62,6%), Incahuasi (53,2%), Salas (44,6%)."
+},
+"Lima": {
+"nombre": "Lima",
+"slug": "lima",
+"texto": "Lima (costa, capital Lima, 10 provincias, 171 distritos); Lima Metropolitana Censo 2025 10 129 708; pobreza monetaria 2025 26,8% (2024 27,6%, 2019 14,2%, 2020 26,6%); ingreso real per cápita 2025 S/ 1 454/mes; anemia 6-35m 25,3% (2024 24,0); desnutrición crónica <5 5,3% (2024 4,3); vacunas completas <12m 73,7% (2024 71,5); CRED <36m 14,4% (2024 12,8); hierro 6-35m 33,2% (2024 32,9); lactancia exclusiva 64,6% (2024 54,1); saneamiento básico 99,6% (2024 99,1); violencia de pareja alguna vez 48,2% (2024 52,5); fecundidad (hijos/mujer) 1,3 (2024 1,2); IDH 2019 ponderado 0,716; distritos con mayor pobreza: Lincha (51,7%), Cochamarca (51,5%), San Andres De Tupicocha (38,9%)."
+},
+"Loreto": {
+"nombre": "Loreto",
+"slug": "loreto",
+"texto": "Loreto (selva, capital Iquitos, 7 provincias, 51 distritos); pobreza monetaria 2025 40,1% (2024 43,0%, 2019 32,2%, 2020 33,1%); ingreso real per cápita 2025 S/ 913/mes; anemia 6-35m 45,6% (2024 50,9); desnutrición crónica <5 20,8% (2024 19,5); vacunas completas <12m 61,8% (2024 70,7); CRED <36m 30,1% (2024 22,0); hierro 6-35m 36,3% (2024 37,6); lactancia exclusiva 74,9% (2024 81,8); saneamiento básico 85,0% (2024 85,0); violencia de pareja alguna vez 40,3% (2024 47,8); fecundidad (hijos/mujer) 2,8 (2024 2,9); IDH 2019 ponderado 0,465; distritos con mayor pobreza: Capelo (56,6%), Emilio San Martin (54,2%), Alto Tapiche (53,8%)."
+},
+"Madre De Dios": {
+"nombre": "Madre de Dios",
+"slug": "madre-de-dios",
+"texto": "Madre de Dios (selva, capital Puerto Maldonado, 3 provincias, 11 distritos); población Censo 2025 209 000; pobreza monetaria 2025 7,3% (2024 11,1%, 2019 9,2%, 2020 11,3%); ingreso real per cápita 2025 S/ 1 292/mes; anemia 6-35m 44,5% (2024 45,5); desnutrición crónica <5 6,8% (2024 8,4); vacunas completas <12m 81,3% (2024 79,3); CRED <36m 42,0% (2024 36,4); hierro 6-35m 25,7% (2024 34,4); lactancia exclusiva 69,7% (2024 58,0); saneamiento básico 98,0% (2024 97,8); violencia de pareja alguna vez 52,6% (2024 57,5); fecundidad (hijos/mujer) 2,0 (2024 2,4); Censo 2025 agua red pública en vivienda 59,1%; Censo 2025 desagüe red pública 31,8%; Censo 2025 electricidad 84,6%; IDH 2019 ponderado 0,615; distritos con mayor pobreza: Fitzcarrald (16,9%), Manu (10,8%), Laberinto (9,9%)."
+},
+"Moquegua": {
+"nombre": "Moquegua",
+"slug": "moquegua",
+"texto": "Moquegua (costa, capital Moquegua, 3 provincias, 20 distritos); pobreza monetaria 2025 7,8% (2024 11,0%, 2019 9,2%, 2020 18,2%); ingreso real per cápita 2025 S/ 1 839/mes; anemia 6-35m 35,4% (2024 38,6); desnutrición crónica <5 2,1% (2024 2,7); vacunas completas <12m 80,6% (2024 81,6); CRED <36m 46,9% (2024 35,3); hierro 6-35m 30,9% (2024 34,9); lactancia exclusiva 47,6% (2024 69,3); saneamiento básico 99,0% (2024 99,0); violencia de pareja alguna vez 51,8% (2024 54,0); fecundidad (hijos/mujer) 1,5 (2024 1,5); IDH 2019 ponderado 0,658; distritos con mayor pobreza: San Cristobal (39,9%), Ichuña (34,4%), Matalaque (30,0%)."
+},
+"Pasco": {
+"nombre": "Pasco",
+"slug": "pasco",
+"texto": "Pasco (sierra, capital Cerro de Pasco, 3 provincias, 28 distritos); pobreza monetaria 2025 36,4% (2024 39,0%, 2019 30,3%, 2020 44,8%); ingreso real per cápita 2025 S/ 991/mes; anemia 6-35m 34,7% (2024 36,2); desnutrición crónica <5 15,7% (2024 14,1); vacunas completas <12m 80,7% (2024 81,1); CRED <36m 38,7% (2024 34,2); hierro 6-35m 31,1% (2024 35,9); lactancia exclusiva 75,5% (2024 88,5); saneamiento básico 91,0% (2024 88,5); violencia de pareja alguna vez 44,9% (2024 50,6); fecundidad (hijos/mujer) 2,1 (2024 2,3); IDH 2019 ponderado 0,464; distritos con mayor pobreza: Santa Ana De Tusi (72,2%), Pallanchacra (55,3%), Ticlacayan (54,6%)."
+},
+"Piura": {
+"nombre": "Piura",
+"slug": "piura",
+"texto": "Piura (costa, capital Piura, 9 provincias, 64 distritos); población Censo 2025 2 115 587 (crec. 1,2%/año 2017-2025); pobreza monetaria 2025 28,1% (2024 31,9%, 2019 24,2%, 2020 35,0%); ingreso real per cápita 2025 S/ 1 130/mes; anemia 6-35m 34,7% (2024 35,4); desnutrición crónica <5 15,2% (2024 14,3); vacunas completas <12m 77,8% (2024 85,8); CRED <36m 45,3% (2024 39,7); hierro 6-35m 52,1% (2024 37,7); lactancia exclusiva 58,2% (2024 67,1); saneamiento básico 87,6% (2024 91,1); violencia de pareja alguna vez 47,8% (2024 48,6); fecundidad (hijos/mujer) 1,8 (2024 2,1); Censo 2025 agua red pública en vivienda 61,6%; Censo 2025 desagüe red pública 52,2%; Censo 2025 electricidad 88,0%; IDH 2019 ponderado 0,487; distritos con mayor pobreza: Lagunas (68,0%), Pacaipampa (67,2%), Sapillica (62,0%)."
+},
+"Puno": {
+"nombre": "Puno",
+"slug": "puno",
+"texto": "Puno (sierra, capital Puno, 13 provincias, 109 distritos); población Censo 2025 1 233 000 (crec. 0,1%/año 2017-2025); pobreza monetaria 2025 37,5% (2024 39,9%, 2019 34,7%, 2020 42,5%); ingreso real per cápita 2025 S/ 926/mes; anemia 6-35m 56,1% (2024 53,1); desnutrición crónica <5 8,5% (2024 11,5); vacunas completas <12m 64,7% (2024 71,8); CRED <36m 18,2% (2024 14,0); hierro 6-35m 28,5% (2024 27,4); lactancia exclusiva 84,5% (2024 82,8); saneamiento básico 91,9% (2024 92,0); violencia de pareja alguna vez 46,0% (2024 59,9); fecundidad (hijos/mujer) 2,0 (2024 2,0); Censo 2025 agua red pública en vivienda 39,0%; Censo 2025 desagüe red pública 31,9%; Censo 2025 electricidad 82,4%; Censo 2025 internet 38,3%; IDH 2019 ponderado 0,420; distritos con mayor pobreza: Corani (67,8%), Coasa (65,6%), Huayrapata (64,3%)."
+},
+"San Martin": {
+"nombre": "San Martín",
+"slug": "san-martin",
+"texto": "San Martín (selva, capital Moyobamba, 10 provincias, 77 distritos); población Censo 2025 968 000 (crec. 1,5%/año 2017-2025); pobreza monetaria 2025 21,3% (2024 22,0%, 2019 25,4%, 2020 26,0%); ingreso real per cápita 2025 S/ 1 256/mes; anemia 6-35m 41,3% (2024 34,6); desnutrición crónica <5 11,1% (2024 10,0); vacunas completas <12m 90,3% (2024 89,7); CRED <36m 53,1% (2024 42,7); hierro 6-35m 38,5% (2024 29,3); lactancia exclusiva 83,6% (2024 70,6); saneamiento básico 96,3% (2024 97,5); violencia de pareja alguna vez 52,0% (2024 53,5); fecundidad (hijos/mujer) 2,1 (2024 2,1); Censo 2025 agua red pública en vivienda 69,2%; Censo 2025 desagüe red pública 48,5%; Censo 2025 electricidad 90,1%; IDH 2019 ponderado 0,471; distritos con mayor pobreza: Chazuta (55,4%), Shamboyacu (49,7%), Huimbayoc (47,3%)."
+},
+"Tacna": {
+"nombre": "Tacna",
+"slug": "tacna",
+"texto": "Tacna (costa, capital Tacna, 4 provincias, 27 distritos); pobreza monetaria 2025 17,4% (2024 24,0%, 2019 13,3%, 2020 23,2%); ingreso real per cápita 2025 S/ 1 312/mes; anemia 6-35m 26,0% (2024 32,9); desnutrición crónica <5 2,0% (2024 2,9); vacunas completas <12m 82,0% (2024 82,7); CRED <36m 30,2% (2024 26,7); hierro 6-35m 39,7% (2024 35,9); lactancia exclusiva 68,1% (2024 62,2); saneamiento básico 97,8% (2024 98,9); violencia de pareja alguna vez 44,2% (2024 39,7); fecundidad (hijos/mujer) 1,4 (2024 1,6); IDH 2019 ponderado 0,599; distritos con mayor pobreza: Tarata (36,6%), Palca (34,2%), Quilahuani (31,5%)."
+},
+"Tumbes": {
+"nombre": "Tumbes",
+"slug": "tumbes",
+"texto": "Tumbes (costa, capital Tumbes, 3 provincias, 13 distritos); población Censo 2025 257 000 (crec. 1,1%/año 2017-2025); pobreza monetaria 2025 28,3% (2024 26,9%, 2019 13,7%, 2020 32,6%); ingreso real per cápita 2025 S/ 1 094/mes; anemia 6-35m 32,3% (2024 34,6); desnutrición crónica <5 9,6% (2024 10,4); vacunas completas <12m 91,6% (2024 88,0); CRED <36m 35,3% (2024 25,1); hierro 6-35m 39,1% (2024 33,3); lactancia exclusiva 43,1% (2024 58,1); saneamiento básico 94,7% (2024 92,2); violencia de pareja alguna vez 57,1% (2024 56,2); fecundidad (hijos/mujer) 2,0 (2024 2,0); Censo 2025 agua red pública en vivienda 67,1%; Censo 2025 desagüe red pública 59,9%; Censo 2025 electricidad 88,0%; Censo 2025 internet 71,9%; IDH 2019 ponderado 0,568; distritos con mayor pobreza: Casitas (19,8%), Corrales (14,8%), San Juan De La Virgen (14,8%)."
+},
+"Ucayali": {
+"nombre": "Ucayali",
+"slug": "ucayali",
+"texto": "Ucayali (selva, capital Pucallpa, 4 provincias, 15 distritos); población Censo 2025 623 868 (crec. 1,6%/año 2017-2025); pobreza monetaria 2025 21,8% (2024 27,1%, 2019 12,3%, 2020 21,2%); ingreso real per cápita 2025 S/ 961/mes; anemia 6-35m 37,5% (2024 42,8); desnutrición crónica <5 18,1% (2024 19,4); vacunas completas <12m 86,9% (2024 77,3); CRED <36m 36,8% (2024 34,7); hierro 6-35m 34,0% (2024 29,1); lactancia exclusiva 82,0% (2024 83,7); saneamiento básico 95,8% (2024 95,1); violencia de pareja alguna vez 37,2% (2024 39,5); fecundidad (hijos/mujer) 2,3 (2024 2,6); Censo 2025 agua red pública en vivienda 53,3%; Censo 2025 desagüe red pública 30,1%; Censo 2025 electricidad 76,9%; Censo 2025 internet 63,4%; IDH 2019 ponderado 0,489; distritos con mayor pobreza: Yurua (52,6%), Iparia (33,7%), Masisea (32,8%)."
+}
+},
+"rankings": {
+"pobreza": {
+"etiqueta": "Pobreza monetaria",
+"fuente": "ENAHO 2025",
+"mejor_es": "menor",
+"orden_mejor_a_peor": [
+"Ica 4,5%",
+"Madre de Dios 7,3%",
+"Moquegua 7,8%",
+"Arequipa 12,8%",
+"Junín 13,5%",
+"Lambayeque 14,5%",
+"Tacna 17,4%",
+"Cusco 18,8%",
+"Amazonas 20,4%",
+"Apurímac 20,9%",
+"San Martín 21,3%",
+"Ucayali 21,8%",
+"Áncash 22,9%",
+"La Libertad 25,5%",
+"Lima 26,8%",
+"Piura 28,1%",
+"Tumbes 28,3%",
+"Callao 32,1%",
+"Ayacucho 33,7%",
+"Huancavelica 34,3%",
+"Huánuco 35,7%",
+"Pasco 36,4%",
+"Puno 37,5%",
+"Loreto 40,1%",
+"Cajamarca 41,0%"
+]
+},
+"anemia": {
+"etiqueta": "Anemia 6-35 meses",
+"fuente": "ENDES 2025",
+"mejor_es": "menor",
+"orden_mejor_a_peor": [
+"Lima 25,3%",
+"Ica 25,9%",
+"Tacna 26,0%",
+"La Libertad 26,5%",
+"Callao 28,4%",
+"Lambayeque 30,7%",
+"Tumbes 32,3%",
+"Pasco 34,7%",
+"Piura 34,7%",
+"Moquegua 35,4%",
+"Ucayali 37,5%",
+"Huancavelica 38,6%",
+"Junín 39,0%",
+"Áncash 39,1%",
+"Cajamarca 39,4%",
+"Arequipa 40,4%",
+"Apurímac 40,6%",
+"San Martín 41,3%",
+"Huánuco 42,0%",
+"Cusco 42,8%",
+"Amazonas 43,6%",
+"Ayacucho 44,1%",
+"Madre de Dios 44,5%",
+"Loreto 45,6%",
+"Puno 56,1%"
+]
+},
+"dci": {
+"etiqueta": "Desnutrición crónica <5",
+"fuente": "ENDES 2025",
+"mejor_es": "menor",
+"orden_mejor_a_peor": [
+"Tacna 2,0%",
+"Moquegua 2,1%",
+"Lima 5,3%",
+"Arequipa 6,3%",
+"Callao 6,5%",
+"Madre de Dios 6,8%",
+"Ica 7,6%",
+"Puno 8,5%",
+"Tumbes 9,6%",
+"San Martín 11,1%",
+"Cusco 11,6%",
+"Lambayeque 14,3%",
+"Ayacucho 14,9%",
+"Junín 14,9%",
+"Áncash 15,1%",
+"Piura 15,2%",
+"Huánuco 15,4%",
+"Pasco 15,7%",
+"La Libertad 16,9%",
+"Apurímac 17,0%",
+"Cajamarca 17,4%",
+"Amazonas 17,7%",
+"Ucayali 18,1%",
+"Huancavelica 20,3%",
+"Loreto 20,8%"
+]
+},
+"vacunas12m": {
+"etiqueta": "Vacunas completas <12m",
+"fuente": "ENDES 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Tumbes 91,6%",
+"San Martín 90,3%",
+"Apurímac 88,5%",
+"Callao 86,9%",
+"Ucayali 86,9%",
+"Cusco 84,6%",
+"La Libertad 83,8%",
+"Huancavelica 83,0%",
+"Lambayeque 82,9%",
+"Tacna 82,0%",
+"Madre de Dios 81,3%",
+"Ica 81,2%",
+"Huánuco 81,1%",
+"Pasco 80,7%",
+"Moquegua 80,6%",
+"Ayacucho 79,5%",
+"Junín 79,1%",
+"Piura 77,8%",
+"Cajamarca 77,2%",
+"Áncash 76,4%",
+"Amazonas 75,5%",
+"Lima 73,7%",
+"Arequipa 73,5%",
+"Puno 64,7%",
+"Loreto 61,8%"
+]
+},
+"cred": {
+"etiqueta": "Controles CRED <36m",
+"fuente": "ENDES 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Huánuco 67,1%",
+"Áncash 65,2%",
+"Apurímac 64,8%",
+"Amazonas 59,4%",
+"San Martín 53,1%",
+"Huancavelica 50,0%",
+"Moquegua 46,9%",
+"Cajamarca 46,1%",
+"Piura 45,3%",
+"La Libertad 42,2%",
+"Madre de Dios 42,0%",
+"Pasco 38,7%",
+"Lambayeque 37,7%",
+"Ayacucho 37,6%",
+"Ucayali 36,8%",
+"Tumbes 35,3%",
+"Tacna 30,2%",
+"Loreto 30,1%",
+"Arequipa 30,0%",
+"Ica 27,1%",
+"Junín 26,1%",
+"Cusco 24,6%",
+"Callao 22,3%",
+"Puno 18,2%",
+"Lima 14,4%"
+]
+},
+"hierro": {
+"etiqueta": "Suplemento de hierro",
+"fuente": "ENDES 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Apurímac 52,8%",
+"Piura 52,1%",
+"Cajamarca 49,8%",
+"Áncash 49,0%",
+"Cusco 46,6%",
+"Ayacucho 45,1%",
+"Huancavelica 44,2%",
+"Amazonas 42,1%",
+"Junín 41,9%",
+"Lambayeque 40,9%",
+"Tacna 39,7%",
+"Arequipa 39,2%",
+"Huánuco 39,2%",
+"Tumbes 39,1%",
+"San Martín 38,5%",
+"Callao 37,0%",
+"Loreto 36,3%",
+"Ucayali 34,0%",
+"La Libertad 33,5%",
+"Lima 33,2%",
+"Pasco 31,1%",
+"Moquegua 30,9%",
+"Ica 29,1%",
+"Puno 28,5%",
+"Madre de Dios 25,7%"
+]
+},
+"lactancia": {
+"etiqueta": "Lactancia exclusiva",
+"fuente": "ENDES 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Huancavelica 93,2%",
+"Cajamarca 84,6%",
+"Puno 84,5%",
+"Cusco 84,3%",
+"San Martín 83,6%",
+"Ucayali 82,0%",
+"Junín 81,8%",
+"Amazonas 77,3%",
+"Ayacucho 76,7%",
+"Pasco 75,5%",
+"Huánuco 75,3%",
+"La Libertad 75,0%",
+"Apurímac 74,9%",
+"Loreto 74,9%",
+"Arequipa 74,7%",
+"Lambayeque 70,6%",
+"Madre de Dios 69,7%",
+"Tacna 68,1%",
+"Callao 65,0%",
+"Lima 64,6%",
+"Áncash 63,3%",
+"Ica 61,5%",
+"Piura 58,2%",
+"Moquegua 47,6%",
+"Tumbes 43,1%"
+]
+},
+"saneamiento": {
+"etiqueta": "Saneamiento básico",
+"fuente": "ENDES 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Callao 99,7%",
+"Lima 99,6%",
+"Moquegua 99,0%",
+"Arequipa 98,0%",
+"Madre de Dios 98,0%",
+"Tacna 97,8%",
+"Ica 97,6%",
+"Lambayeque 97,0%",
+"La Libertad 96,6%",
+"San Martín 96,3%",
+"Cusco 95,9%",
+"Ucayali 95,8%",
+"Cajamarca 95,3%",
+"Amazonas 95,1%",
+"Junín 94,9%",
+"Tumbes 94,7%",
+"Ayacucho 94,5%",
+"Áncash 94,1%",
+"Apurímac 92,9%",
+"Puno 91,9%",
+"Pasco 91,0%",
+"Huánuco 90,6%",
+"Huancavelica 88,8%",
+"Piura 87,6%",
+"Loreto 85,0%"
+]
+},
+"violencia": {
+"etiqueta": "Violencia de pareja (alguna vez)",
+"fuente": "ENDES 2025",
+"mejor_es": "menor",
+"orden_mejor_a_peor": [
+"Cajamarca 36,8%",
+"Ucayali 37,2%",
+"Loreto 40,3%",
+"Huánuco 44,2%",
+"Ica 44,2%",
+"Tacna 44,2%",
+"Pasco 44,9%",
+"Puno 46,0%",
+"Amazonas 47,2%",
+"Piura 47,8%",
+"Lima 48,2%",
+"La Libertad 49,2%",
+"Ayacucho 51,4%",
+"Áncash 51,7%",
+"Moquegua 51,8%",
+"San Martín 52,0%",
+"Lambayeque 52,6%",
+"Madre de Dios 52,6%",
+"Callao 53,8%",
+"Junín 54,4%",
+"Arequipa 54,6%",
+"Cusco 56,6%",
+"Tumbes 57,1%",
+"Huancavelica 58,3%",
+"Apurímac 66,1%"
+]
+},
+"ingreso": {
+"etiqueta": "Ingreso real per cápita",
+"fuente": "ENAHO 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Moquegua S/ 1 839",
+"Arequipa S/ 1 697",
+"Ica S/ 1 477",
+"Lima S/ 1 454",
+"Tacna S/ 1 312",
+"La Libertad S/ 1 300",
+"Madre de Dios S/ 1 292",
+"Junín S/ 1 284",
+"San Martín S/ 1 256",
+"Callao S/ 1 207",
+"Lambayeque S/ 1 205",
+"Áncash S/ 1 203",
+"Piura S/ 1 130",
+"Amazonas S/ 1 122",
+"Tumbes S/ 1 094",
+"Cusco S/ 1 087",
+"Apurímac S/ 1 076",
+"Ayacucho S/ 1 000",
+"Pasco S/ 991",
+"Ucayali S/ 961",
+"Cajamarca S/ 940",
+"Puno S/ 926",
+"Huánuco S/ 913",
+"Loreto S/ 913",
+"Huancavelica S/ 822"
+]
+},
+"c_agua": {
+"etiqueta": "Agua red pública en vivienda",
+"fuente": "Censo 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"La Libertad 74,3%",
+"Junín 71,9%",
+"Arequipa 71,8%",
+"Áncash 71,7%",
+"San Martín 69,2%",
+"Tumbes 67,1%",
+"Piura 61,6%",
+"Cusco 60,8%",
+"Ayacucho 60,4%",
+"Madre de Dios 59,1%",
+"Apurímac 55,4%",
+"Cajamarca 55,3%",
+"Amazonas 54,3%",
+"Ucayali 53,3%",
+"Huancavelica 48,1%",
+"Puno 39,0%"
+]
+},
+"c_desague": {
+"etiqueta": "Desagüe red pública",
+"fuente": "Censo 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Arequipa 69,6%",
+"La Libertad 69,6%",
+"Áncash 61,0%",
+"Tumbes 59,9%",
+"Junín 59,2%",
+"Piura 52,2%",
+"Cusco 49,1%",
+"San Martín 48,5%",
+"Ayacucho 47,4%",
+"Amazonas 41,4%",
+"Cajamarca 40,2%",
+"Apurímac 39,3%",
+"Huancavelica 33,5%",
+"Puno 31,9%",
+"Madre de Dios 31,8%",
+"Ucayali 30,1%"
+]
+},
+"c_internet": {
+"etiqueta": "Hogares con Internet",
+"fuente": "Censo 2025",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Tumbes 71,9%",
+"La Libertad 70,4%",
+"Áncash 65,6%",
+"Ucayali 63,4%",
+"Junín 59,5%",
+"Cusco 52,8%",
+"Cajamarca 50,1%",
+"Huancavelica 47,3%",
+"Ayacucho 46,8%",
+"Amazonas 45,6%",
+"Puno 38,3%"
+]
+}
+},
+"reglas": [
+"Usa SOLO estas cifras como datos reales; si no está, di que no hay dato oficial.",
+"ENDES/ENAHO son estimaciones departamentales (no distritales).",
+"Anemia según directriz OMS 2024 (RM 251-2024-MINSA).",
+"Lima en ENDES/ENAHO = Lima Metropolitana.",
+"Índices de seguridad, educación, etc. del distrito son ILUSTRATIVOS."
+],
+"fuentes": [
+"INEI ENDES 2025 (Programas Presupuestales)",
+"INEI Evolución de la Pobreza Monetaria 2016-2025",
+"INEI Censos Nacionales 2025 (notas departamentales)",
+"PNUD IDH 2019",
+"INEI Censo 2017"
+]
+}

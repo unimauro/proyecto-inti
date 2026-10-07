@@ -83,6 +83,14 @@
   .nav-chips a{flex-shrink:0;white-space:nowrap;background:var(--card);border:1px solid var(--line);color:var(--muted);
     padding:7px 13px;border-radius:999px;font-size:.82rem;font-weight:600;transition:.2s;}
   .nav-chips a:hover{color:var(--txt);border-color:var(--inti);}
+  .rg-tbl{width:100%;border-collapse:collapse;font-size:.8rem;min-width:900px}
+  .rg-tbl th,.rg-tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .rg-tbl th{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card)}
+  .rg-tbl th:first-child,.rg-tbl td:first-child{text-align:left}
+  .rg-tbl tr.me td{background:rgba(245,166,35,.12);font-weight:700}
+  .rg-tbl td.g{color:#86efac}.rg-tbl td.r{color:#fca5a5}
+  .rg-fi{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:.85rem;align-items:center}
+  .rg-fi .k{color:var(--muted)}.rg-fi .p{font-size:.72rem;color:var(--muted2);text-align:right}
 
   /* Secciones */
   section{margin:34px 0;scroll-margin-top:140px;}
@@ -252,8 +260,8 @@
   #benchmark .bm-note{font-size:.78rem;color:var(--muted2);margin-top:6px;}
   #bmSimilares .card{cursor:pointer;}
   /* Correlaciones */
-  #correlaciones .corr-ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
-  #correlaciones .corr-ctrl select{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-family:inherit;font-weight:600;cursor:pointer;}
+  #correlaciones .corr-ctrl,#regiones2025 .corr-ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  #correlaciones .corr-ctrl select,#regiones2025 .corr-ctrl select{max-width:100%;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-family:inherit;font-weight:600;cursor:pointer;}
   #correlaciones .corr-r{margin-top:12px;font-size:.95rem;font-weight:600;color:var(--inti2);}
   #correlaciones .chartbox{height:420px;}
 </style>
@@ -294,6 +302,7 @@
     <div class="nav-chips">
       <a href="region/" style="border-color:var(--inti);color:var(--inti2);font-weight:700">🗺️ Carátulas por región</a>
       <a href="region/cusco/">☀️ Cusco</a>
+      <a href="#regiones2025">📊 Cuadro 2025</a>
       <a href="#faq">¿Qué es?</a>
       <a href="#resumen">Resumen</a>
       <a href="#mapa">Mapa</a>
@@ -457,6 +466,31 @@
     </div>
   </section>
 
+  <!-- CUADROS REGIONALES 2025 -->
+  <section id="regiones2025">
+    <div class="sec-h"><span class="ico">🗺️</span><h2>Cuadro de indicadores regionales 2025</h2></div>
+    <p class="sec-desc">Las 25 regiones con datos <b>oficiales</b> 2025 (INEI: ENAHO, ENDES y Censo 2025). La región seleccionada arriba aparece en <b style="color:var(--inti2)">naranja</b>. Haz clic en un encabezado para ordenar; en el nombre, para abrir su carátula.</p>
+    <div class="grid g-2">
+      <div class="card">
+        <div class="corr-ctrl"><span style="color:var(--muted);font-size:.85rem">Indicador:</span><select id="rgInd"></select></div>
+        <div style="position:relative;height:620px"><canvas id="rgChart"></canvas></div>
+        <div class="bm-note" id="rgNota">—</div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1rem;margin-bottom:8px">📋 Ficha 2025 de <span id="rgNom">—</span></h3>
+        <div id="rgFicha"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <h3 style="font-size:1rem">📊 Cuadro comparativo (25 regiones)</h3>
+        <button onclick="descargarCuadroCSV()" style="background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font:inherit;font-size:.82rem;cursor:pointer">⬇️ Descargar CSV</button>
+      </div>
+      <div style="overflow-x:auto"><table class="rg-tbl" id="rgTabla"></table></div>
+      <div class="bm-note" style="margin-top:8px">Fuentes: INEI — ENAHO 2025 (pobreza, ingreso), ENDES 2025 (salud, directriz OMS 2024 para anemia), Censos Nacionales 2025 (servicios; "—" = INEI aún no publica la nota de esa región). Lima = Lima Metropolitana.</div>
+    </div>
+  </section>
+
   <!-- CORRELACIONES -->
   <section id="correlaciones">
     <div class="sec-h"><span class="ico">🔗</span><h2>Correlación de indicadores</h2></div>
@@ -527,11 +561,11 @@
   <!-- MOTOR IA -->
   <section id="ia">
     <div class="sec-h"><span class="ico">🤖</span><h2>Motor de consultas (IA)</h2></div>
-    <p class="sec-desc">Pregunta sobre el distrito seleccionado y obtén análisis y escenarios.</p>
+    <p class="sec-desc">Pregunta sobre el distrito o <b>cualquier región</b>. El motor tiene <b>memoria con datos oficiales 2025</b> (INEI: ENAHO, ENDES, Censo 2025) de las 25 regiones: rankings, comparaciones y fichas. Si no hay dato oficial, lo dice.</p>
     <div class="ia-box">
       <div class="ia-chips" id="iaChips"></div>
       <div class="ia-input">
-        <input id="iaInput" placeholder="Ej: ¿Cómo reducir la pobreza en este distrito?" />
+        <input id="iaInput" placeholder="Ej: ¿Qué región tiene más anemia? · Compara Cusco y Puno · ¿Cómo está mi región?" onkeydown="if(event.key==='Enter')responderIA()" />
         <button onclick="responderIA()">Analizar</button>
       </div>
       <div class="ia-resp" id="iaResp"></div>
@@ -775,7 +809,7 @@ function cargar(){
   document.getElementById('ubicacion').innerHTML = `${dist}, provincia de ${prov}, región ${reg} · Perú${_ex} · <a href="region/${_sl}/" style="font-weight:700">📘 Carátula de ${_ri?_ri.nombre:reg} →</a>`;
   actualizarURL(_sl, ubigeo);
   if(typeof MAPA!=='undefined'&&MAPA&&D.real&&D.real.la!=null){ MAPA.flyTo([D.real.la,D.real.lo],8,{duration:.8}); }
-  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderBenchmark(); renderCorrelaciones(); renderClima();
+  renderResumen(); renderDiag(); renderFamilia(); renderProspectiva(); renderSimulador(); renderBenchmark(); renderRegiones2025(); renderCorrelaciones(); renderClima();
   renderConflictos(); renderSeguridad(); renderOportunidades(); renderProyectos(); renderCorredores(); renderIAChips();
 }
 
@@ -998,13 +1032,62 @@ function renderCorredores(){
 }
 
 /* ====================== MOTOR IA (demo heurística) ====================== */
-const PREGUNTAS=["¿Cómo reducir la pobreza en este distrito?","¿Cómo duplicar el ingreso promedio en 15 años?","¿Cómo eliminar la anemia?","¿Cómo mejorar la seguridad?","¿Cómo fortalecer a las familias?","¿Qué inversiones son prioritarias?","¿Qué impacto tendría aumentar el presupuesto educativo?"];
+const PREGUNTAS=["¿Cómo está mi región en 2025?","¿Qué región tiene más anemia?","Compara Cusco y Puno","Ranking de pobreza 2025","¿Qué dice el Censo 2025 de Cusco?","¿Cómo reducir la pobreza en este distrito?","¿Cómo duplicar el ingreso promedio en 15 años?","¿Cómo eliminar la anemia?","¿Cómo mejorar la seguridad?","¿Cómo fortalecer a las familias?","¿Qué inversiones son prioritarias?","¿Qué impacto tendría aumentar el presupuesto educativo?"];
 function renderIAChips(){
   document.getElementById('iaChips').innerHTML=PREGUNTAS.map(q=>`<button onclick="document.getElementById('iaInput').value=this.textContent;responderIA()">${q}</button>`).join('');
+}
+/* ====================== MEMORIA DEL CHATBOT (datos oficiales 2025) ====================== */
+window.MEM=null;
+const MEM_KW=[['pobreza',/POBRE/],['anemia',/ANEMI/],['dci',/DESNUTRI/],['vacunas12m',/VACUN|INMUNIZ/],['cred',/CRED|CONTROL(ES)? DE CRECIMIENTO/],['hierro',/HIERRO|SUPLEMENT/],
+  ['lactancia',/LACTAN/],['saneamiento',/SANEAMIENTO/],['violencia',/VIOLEN/],['ingreso',/INGRESO|SUELDO|GANA/],['c_agua',/\bAGUA\b/],['c_desague',/DESAG|ALCANTARILL/],['c_internet',/INTERNET|CONECTIVIDAD/]];
+function memRegiones(q){ const M=window.MEM; if(!M) return []; const Q=' '+normDep(q).replace(/[^A-Z ]/g,' ')+' '; const out=[];
+  for(const dep in M.regiones){ const nm=normDep(M.regiones[dep].nombre); const al=[nm,normDep(dep)]; if(nm==='CUSCO') al.push('CUZCO');
+    if(al.some(a=>Q.includes(' '+a+' '))) out.push(dep); }
+  if(/MI REGION|ESTA REGION|LA REGION|MI DEPARTAMENTO/.test(normDep(q))&&D&&!out.length){ const ri=regInfo(D.region); if(ri) out.push(ri.dep); }
+  return out; }
+function memIndicadores(q){ const Q=normDep(q); return MEM_KW.filter(([,re])=>re.test(Q)).map(([k])=>k); }
+function memContexto(q){
+  const M=window.MEM; if(!M) return '';
+  const regs=memRegiones(q); const ri=D?regInfo(D.region):null; if(ri&&!regs.includes(ri.dep)) regs.unshift(ri.dep);
+  let inds=memIndicadores(q); if(/RANKING|MAYOR|MENOR|PEOR|MEJOR|MAS ALT|MAS BAJ|COMPAR|TOP/.test(normDep(q))&&!inds.length) inds=['pobreza','anemia','dci'];
+  let t='MEMORIA INTI (datos OFICIALES, usa solo estos):\nReglas: '+M.reglas.join(' ')+'\n'+M.nacional+'\n';
+  regs.slice(0,4).forEach(d=>{ t+=M.regiones[d].texto+'\n'; });
+  inds.slice(0,4).forEach(k=>{ const r=M.rankings[k]; if(r) t+=`Ranking ${r.etiqueta} (${r.fuente}, mejor=${r.mejor_es}), de mejor a peor: ${r.orden_mejor_a_peor.join(', ')}.\n`; });
+  return t+'Fuentes: '+M.fuentes.join('; ')+'.';
+}
+function responderMemoria(q){
+  const M=window.MEM, R=window.REG25; if(!M||!R) return null;
+  const Q=normDep(q), regs=memRegiones(q), inds=memIndicadores(q), li=a=>'<ul>'+a.map(x=>`<li>${x}</li>`).join('')+'</ul>';
+  const fuente='<div class="nota">Respuesta desde la <b>memoria de datos oficiales</b> de INTI (INEI: ENAHO 2025, ENDES 2025, Censos Nacionales 2025; PNUD IDH 2019). Datos departamentales, no distritales.</div>';
+  const quiereRank=/RANKING|MAYOR|MENOR|PEOR|MEJOR|MAS ALT|MAS BAJ|TOP|QUE REGION|CUAL REGION|CUALES/.test(Q);
+  // comparar 2+ regiones
+  if(regs.length>=2&&(/COMPAR|VS|VERSUS| O /.test(Q)||regs.length>=2)){
+    const rr=regs.slice(0,4).map(d=>R.regiones[d]);
+    const rows=R.indicadores.map(i=>`<tr><td>${i.l}</td>${rr.map(r=>`<td style="text-align:right"><b>${rgFmt(rgVal(r,i.k),i.u)}</b>${r.ranks&&r.ranks[i.k]?' <small style="color:#8b9bc4">#'+r.ranks[i.k]+'</small>':''}</td>`).join('')}<td style="text-align:right;color:#8b9bc4">${rgFmt(rgNac(i.k),i.u)}</td></tr>`).join('');
+    return `<h4>🤖 ${rr.map(r=>r.nombre).join(' vs ')} — 2025</h4><div style="overflow-x:auto"><table style="width:100%;font-size:.85rem;border-collapse:collapse"><tr><th style="text-align:left">Indicador</th>${rr.map(r=>`<th style="text-align:right">${r.nombre}</th>`).join('')}<th style="text-align:right">Perú</th></tr>${rows}</table></div><p style="margin-top:6px;font-size:.8rem;color:#8b9bc4">#n = puesto entre 25 regiones (1 = mejor).</p>${fuente}`;
+  }
+  // ranking por indicador
+  if(quiereRank&&inds.length&&!regs.length){
+    return inds.slice(0,2).map(k=>{ const r=M.rankings[k]; const o=r.orden_mejor_a_peor; const peor=/MAYOR|MAS ALT|PEOR|QUE REGION|CUAL REGION/.test(Q)&&r.mejor_es==='menor';
+      const peores=o.slice(-5).reverse(), mejores=o.slice(0,5);
+      return `<h4>🤖 ${r.etiqueta} — ranking 2025 (${r.fuente})</h4>`+(peor?`<b>Situación más crítica:</b>${li(peores)}<b>Mejor situación:</b>${li(mejores)}`:`<b>Mejor situación:</b>${li(mejores)}<b>Situación más crítica:</b>${li(peores)}`)+
+        `<p style="font-size:.8rem;color:#8b9bc4">Mejor = ${r.mejor_es} valor. Perú: ${rgFmt(rgNac(k),k==='ingreso'?'S/':'%')}.</p>`; }).join('')+fuente;
+  }
+  // ficha de región (todo o un indicador)
+  if(regs.length===1){
+    const r=R.regiones[regs[0]], txt=M.regiones[regs[0]].texto;
+    if(inds.length){ return `<h4>🤖 ${r.nombre}: ${inds.map(k=>(R.indicadores.find(i=>i.k===k)||{}).l).join(', ')}</h4>`+li(inds.map(k=>{ const i=R.indicadores.find(x=>x.k===k); return `${i.l}: <b>${rgFmt(rgVal(r,k),i.u)}</b> · Perú ${rgFmt(rgNac(k),i.u)} · puesto ${r.ranks[k]||'—'} de 25 (${i.f})`; }))+`<a href="region/${r.slug}/">📘 Carátula de ${r.nombre} →</a>`+fuente; }
+    let partes=txt.split(/; |\. (?=Detalle|Machu)/).filter(Boolean);
+    if(/CENSO/.test(Q)){ const c=partes.filter(x=>/Censo|Detalle|población|Machu/.test(x)); partes=c.length>1?c:['INEI aún no publica la nota del Censo 2025 de '+r.nombre+'; se muestra lo disponible.'].concat(partes.slice(0,4)); }
+    return `<h4>🤖 ${r.nombre} en 2025</h4>`+li(partes)+`<a href="region/${r.slug}/" style="font-weight:700">📘 Ver la carátula completa de ${r.nombre} →</a>`+fuente;
+  }
+  if(quiereRank&&!inds.length){ return responderMemoria('ranking pobreza anemia'); }
+  return null;
 }
 function responderIAHeuristica(){
   const q=(document.getElementById('iaInput').value||'').toLowerCase();
   const el=document.getElementById('iaResp'); el.classList.add('show');
+  const _m=responderMemoria(q); if(_m){ el.innerHTML=_m; return; }
   let titulo="Análisis técnico", cuerpo="";
   const li=arr=>'<ul>'+arr.map(x=>`<li>${x}</li>`).join('')+'</ul>';
   if(q.includes('pobreza')){titulo="Reducir la pobreza";cuerpo=`Pobreza estimada (ilustrativa): <b>${D.dim["Economía"][3].v}/100</b>. Palancas:`+li(["Formalizar microempresas y bajar el costo de cumplimiento.","Empleo intensivo vía proyectos de infraestructura local.","Articular cadenas agro/turismo para elevar productividad.","Transferencias condicionadas ligadas a salud y educación."]);}
@@ -1015,7 +1098,10 @@ function responderIAHeuristica(){
   else if(q.includes('invers')||q.includes('priorit')){titulo="Inversiones prioritarias";cuerpo=`Según el diagnóstico, prioriza:`+li(["Agua y saneamiento (mayor retorno social).","Salud y educación con conectividad.","Resiliencia climática (defensas, siembra de agua).","Seguridad ciudadana integrada."])+`<br>Ver módulo <a href="#proyectos">Proyectos prioritarios</a>.`;}
   else if(q.includes('educ')||q.includes('presupuesto educativo')){titulo="Impacto de más presupuesto educativo";cuerpo=`Educación: <b>${D.idx.edu}/100</b>. Un aumento sostenido podría:`+li(["Subir el rendimiento (ECE) si se invierte en docentes y materiales.","Cerrar la brecha digital escolar.","Reducir el abandono con alimentación y tutoría.","Efecto de largo plazo en empleo e ingresos."]);}
   else{titulo="Análisis general del distrito";cuerpo=`Para <b>${D.distrito}</b>: IDH ${D.idx.idh}, Seguridad ${D.idx.seg}, Educación ${D.idx.edu}, Salud ${D.idx.sal}. `+li(["Atiende primero los índices en rojo/ámbar.","Combina proyectos de alto impacto y bajo costo.","Apóyate en los corredores territoriales para escalar."]);}
-  el.innerHTML=`<h4>🤖 ${titulo}</h4>${cuerpo}<div class="nota">Respuesta generada por reglas heurísticas sobre datos ilustrativos del distrito. En producción, este motor se conecta a un LLM con datos oficiales georreferenciados.</div>`;
+  const _ri=D?regInfo(D.region):null; let _real='';
+  if(_ri){ const k=memIndicadores(q); const ks=(k.length?k:['pobreza','anemia','dci']).slice(0,4); const R=window.REG25;
+    _real=`<div style="margin-top:10px;padding:10px 12px;border:1px solid rgba(34,197,94,.35);border-radius:10px;background:rgba(34,197,94,.07)"><b>📌 Dato oficial 2025 — región ${_ri.nombre}:</b> `+ks.map(kk=>{ const i=R.indicadores.find(x=>x.k===kk); return i?`${i.l} <b>${rgFmt(rgVal(_ri,kk),i.u)}</b> (Perú ${rgFmt(rgNac(kk),i.u)}, puesto ${(_ri.ranks||{})[kk]||'—'}/25)`:''; }).filter(Boolean).join(' · ')+` · <a href="region/${_ri.slug}/">carátula →</a></div>`; }
+  el.innerHTML=`<h4>🤖 ${titulo}</h4>${cuerpo}${_real}<div class="nota">Recomendaciones por reglas heurísticas; los índices 0-100 del distrito son ilustrativos. El recuadro verde es dato oficial (INEI 2025). Conecta un LLM (config.js) para respuestas abiertas con la memoria completa.</div>`;
 }
 
 /* ====================== CHARTS HELPERS ====================== */
@@ -1147,8 +1233,8 @@ async function responderIA(){
     const _headers=usarProxy?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.apiKey};
     const res=await fetch(_url,{method:'POST',headers:_headers,
       body:JSON.stringify({model:cfg.model,messages:[
-        {role:'system',content:'Eres analista de planificación territorial y desarrollo distrital del Perú (Proyecto INTI 2075). Responde en español, conciso, técnico y accionable, con viñetas, escenarios y prioridades. Recuerda que los datos son ilustrativos.'},
-        {role:'user',content:ctx+'\n\nPregunta: '+q}]})});
+        {role:'system',content:'Tienes una MEMORIA con datos oficiales 2025 del INEI por región: úsala como única fuente de cifras reales, cita fuente y año, y si algo no está en la memoria di que no hay dato oficial (nunca inventes cifras). Eres analista de planificación territorial y desarrollo distrital del Perú (Proyecto INTI 2075). Responde en español, conciso, técnico y accionable, con viñetas, escenarios y prioridades. Recuerda que los datos son ilustrativos.'},
+        {role:'user',content:memContexto(q)+'\n\nDISTRITO SELECCIONADO: '+ctx+'\n\nPregunta: '+q}]})});
     const j=await res.json();
     const txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||(j.error&&j.error.message)||'No se obtuvo respuesta.';
     el.innerHTML='<h4>🤖 '+(q||'Análisis')+'</h4>'+mdToHtml(txt)+'<div class="nota">Generado vía OpenRouter ('+cfg.model+') sobre datos ilustrativos del distrito.</div>';
@@ -1179,6 +1265,64 @@ function compartirINTI(m,btn){
   if(m==='wa') window.open(`https://wa.me/?text=${t}%20${u}`,'_blank','noopener');
   else if(m==='tw') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','noopener');
   else { navigator.clipboard.writeText(INTI_URL).then(()=>{ if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,1500);} }).catch(()=>{}); }
+}
+
+/* ====================== CUADROS REGIONALES 2025 ====================== */
+let RG_SORT={k:'pobreza',asc:true};
+function rgVal(r,k){ if(!r) return null;
+  if(k==='pobreza') return r.pobreza_serie?r.pobreza_serie[r.pobreza_serie.length-1]:null;
+  if(k==='ingreso') return r.ingreso_real?r.ingreso_real[r.ingreso_real.length-1]:null;
+  if(k.startsWith('c_')){ const c=r.censo2025||{}; return c[k.slice(2)]!=null?c[k.slice(2)]:null; }
+  const e=r.endes&&r.endes[k]; return e?e.y2025:null; }
+function rgNac(k){ const n=(window.REG25||{}).nacional||{}; if(k==='pobreza') return n.pobreza_serie?n.pobreza_serie[n.pobreza_serie.length-1]:null;
+  if(k==='ingreso') return n.ingreso_real?n.ingreso_real[n.ingreso_real.length-1]:null; if(k.startsWith('c_')) return null; const e=n.endes&&n.endes[k]; return e?e.y2025:null; }
+function rgFmt(v,u){ if(v==null) return '—'; return u==='S/'?'S/ '+Math.round(v).toLocaleString('es-PE'):String(v.toFixed(1)).replace('.',',')+'%'; }
+function renderRegiones2025(){
+  const R=window.REG25; if(!R||!R.regiones) return;
+  const sel=document.getElementById('rgInd'); if(!sel) return;
+  if(!sel.options.length){ sel.innerHTML=R.indicadores.map(i=>`<option value="${i.k}">${i.l} (${i.f})</option>`).join(''); sel.onchange=renderRegiones2025; }
+  const ind=R.indicadores.find(i=>i.k===sel.value)||R.indicadores[0];
+  const cur=D?normDep(D.region):''; const regs=Object.values(R.regiones);
+  const rows=regs.map(r=>[r,rgVal(r,ind.k)]).filter(x=>x[1]!=null).sort((a,b)=>ind.up?b[1]-a[1]:a[1]-b[1]);
+  const nac=rgNac(ind.k);
+  mkChart('rgChart','bar',{labels:rows.map(x=>x[0].nombre),datasets:[{label:ind.l,data:rows.map(x=>x[1]),
+      backgroundColor:rows.map(x=>normDep(x[0].dep)===cur?'#f5a623':'rgba(59,130,246,.55)'),borderRadius:4}]},
+    {indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>rgFmt(c.raw,ind.u)}}},
+     scales:{x:{beginAtZero:true,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},y:{grid:{display:false},ticks:{color:'#c7d2ee',font:{size:11},autoSkip:false}}},
+     onClick:(e,els)=>{ if(els.length){ const r=rows[els[0].index][0]; location.href='region/'+r.slug+'/'; } }});
+  const me=rows.findIndex(x=>normDep(x[0].dep)===cur);
+  document.getElementById('rgNota').innerHTML=`Ordenado de mejor a peor (${ind.up?'más alto':'más bajo'} es mejor). Perú: <b>${rgFmt(nac,ind.u)}</b>`+(me>=0?` · <b style="color:var(--inti2)">${rows[me][0].nombre}</b> está en el puesto <b>${me+1} de ${rows.length}</b>.`:'')+` Fuente: INEI ${ind.f}.`;
+  // ficha de la región actual
+  const ri=D?regInfo(D.region):null;
+  document.getElementById('rgNom').textContent=ri?ri.nombre:'—';
+  document.getElementById('rgFicha').innerHTML=ri?('<div class="rg-fi">'+R.indicadores.map(i=>{ const v=rgVal(ri,i.k), rk=ri.ranks&&ri.ranks[i.k], n=regs.filter(r=>rgVal(r,i.k)!=null).length;
+      const col=rk==null?'':(rk<=n/3?'#86efac':(rk<=2*n/3?'#fcd34d':'#fca5a5'));
+      return `<span class="k">${i.l}</span><b>${rgFmt(v,i.u)}</b><span class="p" style="color:${col}">${rk?('#'+rk+' de '+n):'sin dato'}</span>`; }).join('')+
+      `</div><p style="margin-top:12px"><a href="region/${ri.slug}/" style="font-weight:700">📘 Ver carátula completa de ${ri.nombre} →</a></p>`):'—';
+  renderCuadroTabla();
+}
+function renderCuadroTabla(){
+  const R=window.REG25; const t=document.getElementById('rgTabla'); if(!R||!t) return;
+  const cur=D?normDep(D.region):''; const inds=R.indicadores; const regs=Object.values(R.regiones);
+  const n=k=>regs.filter(r=>rgVal(r,k)!=null).length;
+  const sorted=regs.slice().sort((a,b)=>{ if(RG_SORT.k==='nombre') return (RG_SORT.asc?1:-1)*a.nombre.localeCompare(b.nombre);
+    const va=rgVal(a,RG_SORT.k), vb=rgVal(b,RG_SORT.k); if(va==null) return 1; if(vb==null) return -1; return RG_SORT.asc?va-vb:vb-va; });
+  const arrow=k=>RG_SORT.k===k?(RG_SORT.asc?' ▲':' ▼'):'';
+  let h='<thead><tr><th data-k="nombre">Región'+arrow('nombre')+'</th>'+inds.map(i=>`<th data-k="${i.k}" title="${i.l} — ${i.f}">${i.l.replace('Agua red pública en vivienda','Agua red púb.').replace('Desagüe red pública','Desagüe').replace('Hogares con Internet','Internet')}${arrow(i.k)}</th>`).join('')+'</tr></thead><tbody>';
+  const nac=(window.REG25.nacional);
+  h+='<tr><td><b>🇵🇪 Perú</b></td>'+inds.map(i=>`<td><b>${rgFmt(rgNac(i.k),i.u)}</b></td>`).join('')+'</tr>';
+  sorted.forEach(r=>{ h+=`<tr class="${normDep(r.dep)===cur?'me':''}"><td><a href="region/${r.slug}/">${r.dep==='Cusco'?'☀️ ':''}${r.nombre}</a></td>`+inds.map(i=>{ const rk=r.ranks&&r.ranks[i.k], N=n(i.k);
+      const c=rk==null?'':(rk<=5?'g':(rk>N-5?'r':'')); return `<td class="${c}">${rgFmt(rgVal(r,i.k),i.u)}</td>`; }).join('')+'</tr>'; });
+  t.innerHTML=h+'</tbody>';
+  t.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; RG_SORT={k,asc:RG_SORT.k===k?!RG_SORT.asc:true}; renderCuadroTabla(); });
+}
+function descargarCuadroCSV(){
+  const R=window.REG25; if(!R) return; const inds=R.indicadores;
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  let csv=['region',...inds.map(i=>i.l+' ('+i.f+')')].map(q).join(',')+'\n';
+  csv+=['Perú',...inds.map(i=>rgNac(i.k)??'')].map(q).join(',')+'\n';
+  Object.values(R.regiones).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(r=>{ csv+=[r.nombre,...inds.map(i=>rgVal(r,i.k)??'')].map(q).join(',')+'\n'; });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='inti_indicadores_regionales_2025.csv'; a.click();
 }
 
 /* ====================== CORRELACIONES ====================== */
@@ -1243,7 +1387,7 @@ function renderBenchmark(){
   mkChart('bmChart','bar',{labels:['IDH','Pobreza %','Anemia %','Vulnerab.'],datasets:[
     {label:D.distrito,data:[r1(dIdh),r1(dPob),r1(dAn),r1(dVa)],backgroundColor:'#f5a623'},
     {label:'Región '+dep,data:[r1(ra.i),r1(ra.t),r1(dAn),r1(ra.va)],backgroundColor:'#3b82f6'},
-    {label:'Nacional',data:[r1(na.i),r1(na.t),42.4,r1(na.va)],backgroundColor:'#8b9bc4'}
+    {label:'Nacional',data:[r1(na.i),r1(na.t),r1(rgNac('anemia')??34.9),r1(na.va)],backgroundColor:'#8b9bc4'}
   ]},{scales:{y:{beginAtZero:true,grid:{color:'#243156'},ticks:{color:'#8b9bc4'}},x:{grid:{display:false},ticks:{color:'#8b9bc4'}}},plugins:{legend:{labels:{color:'#8b9bc4',boxWidth:12,font:{size:11}}}}});
   renderSimilares();
 }
@@ -1591,9 +1735,10 @@ window.IND={};
 Promise.all([
   fetch('data/territorio.json').then(r=>r.json()),
   fetch('data/indicadores.json').then(r=>r.json()).catch(()=>({})),
-  fetch('data/regiones.json').then(r=>r.json()).catch(()=>null)
-]).then(([j,ind,reg25])=>{
-  TERRITORIO=j; window.IND=ind||{}; window.REG25=reg25;
+  fetch('data/regiones.json').then(r=>r.json()).catch(()=>null),
+  fetch('data/memoria_chat.json').then(r=>r.json()).catch(()=>null)
+]).then(([j,ind,reg25,mem])=>{
+  TERRITORIO=j; window.IND=ind||{}; window.REG25=reg25; window.MEM=mem;
   if(reg25&&reg25.regiones) for(const k in reg25.regiones) REG_BY_NORM[normDep(k)]=reg25.regiones[k];
   const _arr=Object.entries(window.IND);
   const _byIdh=_arr.filter(([,v])=>v.i!=null).sort((a,b)=>b[1].i-a[1].i);
