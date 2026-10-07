@@ -12,6 +12,8 @@
 //  Si dejas "apiKey" y "proxy" vacíos, el motor usa respuestas heurísticas locales.
 // ============================================================
 window.INTI_IA = {
+  gateway: "https://ai.tunky.net/v1/chat",            // Gateway propio (Tunky). Política del proyecto "proyecto-inti" en el servidor.
+  token:   "",                                         // X-Client-Token público del proyecto (inti_...). Vacío = modo memoria sin LLM.
   apiKey: "",                                          // Opción B: sk-or-v1-...
   proxy:  "",                                          // Opción A: https://tu-proxy.vercel.app/api/inti
   model:  "meta-llama/llama-3.3-70b-instruct:free",    // modelo OpenRouter

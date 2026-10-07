@@ -1,0 +1,221 @@
+{
+"fuente": "INEI — Perú: Estimaciones y Proyecciones de la Población Total por departamento, 1995-2030 (Boletín Especial N° 27)",
+"url": "https://www.inei.gob.pe/media/MenuRecursivo/publicaciones_digitales/Est/Lib1702/libro.pdf",
+"periodos": [
+"2020-2025",
+"2025-2030"
+],
+"nota": "Proyección INEI previa al Censo 2025 (quinquenal). Donde INEI ya publicó el Censo 2025 se muestra también ese valor.",
+"esperanza_vida": {
+"Perú": [
+77.2,
+77.8
+],
+"Prov. Constitucional del Callao": [
+80.3,
+81.1
+],
+"Ica": [
+79.6,
+80.0
+],
+"La Libertad": [
+78.8,
+79.1
+],
+"Lambayeque": [
+79.5,
+79.8
+],
+"Lima": [
+80.3,
+81.1
+],
+"Moquegua": [
+78.9,
+79.3
+],
+"Piura": [
+77.3,
+77.8
+],
+"Tacna": [
+77.8,
+78.3
+],
+"Tumbes": [
+77.4,
+77.9
+],
+"Áncash": [
+77.1,
+77.7
+],
+"Apurímac": [
+74.8,
+75.3
+],
+"Arequipa": [
+79.4,
+79.7
+],
+"Ayacucho": [
+74.5,
+75.1
+],
+"Cajamarca": [
+76.2,
+76.6
+],
+"Cusco": [
+74.6,
+75.4
+],
+"Huancavelica": [
+74.3,
+74.9
+],
+"Huánuco": [
+75.6,
+76.1
+],
+"Junín": [
+75.7,
+76.3
+],
+"Pasco": [
+75.8,
+76.4
+],
+"Puno": [
+74.5,
+75.0
+],
+"Amazonas": [
+74.9,
+75.5
+],
+"Loreto": [
+75.9,
+76.5
+],
+"Madre de Dios": [
+76.4,
+76.9
+],
+"San Martín": [
+75.8,
+76.4
+],
+"Ucayali": [
+75.3,
+76.0
+]
+},
+"mortalidad_infantil_x1000": {
+"Perú": [
+12.4,
+12.1
+],
+"Prov. Const. del Callao": [
+8.3,
+7.7
+],
+"Ica": [
+9.3,
+9.2
+],
+"La Libertad": [
+10.6,
+10.4
+],
+"Lambayeque": [
+12.0,
+11.7
+],
+"Lima": [
+7.6,
+7.1
+],
+"Moquegua": [
+10.6,
+10.4
+],
+"Piura": [
+17.0,
+16.4
+],
+"Tacna": [
+10.6,
+10.4
+],
+"Tumbes": [
+14.3,
+13.8
+],
+"Áncash": [
+13.3,
+13.0
+],
+"Apurímac": [
+16.1,
+15.5
+],
+"Arequipa": [
+11.5,
+11.3
+],
+"Ayacucho": [
+14.3,
+13.8
+],
+"Cajamarca": [
+15.2,
+14.7
+],
+"Cusco": [
+15.2,
+14.7
+],
+"Huancavelica": [
+16.1,
+15.5
+],
+"Huánuco": [
+15.2,
+14.7
+],
+"Junín": [
+13.3,
+13.0
+],
+"Pasco": [
+18.8,
+18.1
+],
+"Puno": [
+22.9,
+22.3
+],
+"Amazonas": [
+14.3,
+13.8
+],
+"Loreto": [
+17.9,
+17.2
+],
+"Madre de Dios": [
+16.5,
+15.9
+],
+"San Martín": [
+18.8,
+18.1
+],
+"Ucayali": [
+17.9,
+17.2
+]
+}
+}
