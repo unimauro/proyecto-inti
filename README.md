@@ -44,6 +44,11 @@ Canon por tipo (minero, gasífero, petrolero, sobrecanon, regalías, FOCAM, hidr
 MEF Presupuesto de Ingresos (~100 MB/año) → `scripts/agg_canon_mef.py` + `scripts/merge_canon_mef.py` → `data/fuentes/mef_canon_departamentos.json`.
 La portada `/region/` incluye los cuadros **💸 Gasto público por persona** y **⛏️ Canon por región y tipo**.
 
+**Provincias:** `region/<region>/<provincia>/` (196 carátulas): indicadores distritales, canon de sus municipalidades,
+Sankey tipo → municipalidad → función → gastado/sin gastar y tabla de distritos (incluye distritos creados después de 2016).
+**Empresas detrás del canon:** `data/fuentes/empresas_canon.json` (15 empresas, solo cifras publicadas con fuente).
+**Navegación:** `assets/nav.js` (menú lateral / "☰ Secciones" en móvil).
+
 **Chat:** usa el gateway propio `ai.tunky.net` si `config.js` tiene `token` (proyecto `proyecto-inti` en el servidor); sin token responde en modo memoria.
 
 Regenerar: `python3 scripts/build_regiones.py` (lee `data/fuentes/*.json`; parsers en `scripts/parse_*.py`).

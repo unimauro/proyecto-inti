@@ -222,6 +222,176 @@
     }
    ],
    "nota": "Antamina no cotiza en bolsa; sus accionistas reportan solo su participación."
+  },
+  {
+   "id": "volcan",
+   "nombre": "Volcan Compañía Minera",
+   "regiones": [
+    "Pasco",
+    "Junin",
+    "Lima"
+   ],
+   "actividad": "Zinc, plata, plomo, cobre",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ventas netas 2025",
+     "v": "US$ 1 181 millones (+23%)",
+     "f": "Energiminas / informe de gerencia 4T 2025",
+     "u": "https://energiminas.com/2026/02/18/ventas-netas-de-volcan-sumaron-us-1181-millones-en-2025-un-crecimiento-interanual-de-23/"
+    },
+    {
+     "k": "EBITDA ajustado 2025",
+     "v": "US$ 450 millones",
+     "f": "Volcan, informe de gerencia 4T 2025",
+     "u": "https://www.latibex.com/docs/Documentos/esp/hechosrelev/2026/2026.02.17_Informe_Discusion_Gerencia_Q4.pdf"
+    },
+    {
+     "k": "Utilidad neta 2025",
+     "v": "≈US$ 205–208 millones (según la fuente)",
+     "f": "Fitch / informe de gerencia",
+     "u": "https://www.latibex.com/docs/Documentos/esp/hechosrelev/2026/2026.06.02_Informe_Fitch.pdf"
+    }
+   ]
+  },
+  {
+   "id": "nexa",
+   "nombre": "Nexa Resources Perú (Cerro Lindo, Atacocha, El Porvenir, Cajamarquilla)",
+   "regiones": [
+    "Ica",
+    "Pasco",
+    "Lima"
+   ],
+   "actividad": "Zinc, cobre, plomo, plata",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ingresos 2025",
+     "v": "US$ 1 064 millones (+21%)",
+     "f": "Forbes Perú",
+     "u": "https://forbes.pe/negocios/2026-02-27/utilidad-neta-de-nexa-resources-peru-alcanzo-los-us264-millones-en-2025/"
+    },
+    {
+     "k": "Utilidad neta 2025",
+     "v": "US$ 264 millones",
+     "f": "Forbes Perú",
+     "u": "https://forbes.pe/negocios/2026-02-27/utilidad-neta-de-nexa-resources-peru-alcanzo-los-us264-millones-en-2025/"
+    }
+   ]
+  },
+  {
+   "id": "minsur",
+   "nombre": "Minsur (San Rafael y B2 en Puno; fundición de Pisco en Ica)",
+   "regiones": [
+    "Puno",
+    "Ica"
+   ],
+   "actividad": "Estaño",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ventas 4.° trimestre 2025",
+     "v": "US$ 408 millones",
+     "f": "Energiminas",
+     "u": "https://energiminas.com/2026/02/17/minsur-produccion-de-estano-refinado-alcanzo-los-8596-toneladas-en-cuarto-trimestre-de-2025/"
+    },
+    {
+     "k": "Utilidad neta 4.° trimestre 2025",
+     "v": "US$ 278 millones",
+     "f": "Energiminas",
+     "u": "https://energiminas.com/2026/02/17/minsur-produccion-de-estano-refinado-alcanzo-los-8596-toneladas-en-cuarto-trimestre-de-2025/"
+    },
+    {
+     "k": "Ventas 3.er trimestre 2025",
+     "v": "US$ 323 millones (+18%)",
+     "f": "Energiminas",
+     "u": "https://energiminas.com/2025/11/14/utilidad-neta-de-minsur-alcanzo-los-us165-3-millones-en-trimestre-julio-setiembre/"
+    }
+   ],
+   "nota": "Cifras trimestrales: no encontramos el total anual 2025 publicado."
+  },
+  {
+   "id": "shougang",
+   "nombre": "Shougang Hierro Perú — Marcona",
+   "regiones": [
+    "Ica"
+   ],
+   "actividad": "Hierro",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Utilidad neta enero–junio 2025",
+     "v": "S/ 430 millones (−68,7% vs 2024 por menores precios y embarques)",
+     "f": "Gestión",
+     "u": "https://gestion.pe/noticias/shougang-hierro-peru/"
+    }
+   ],
+   "nota": "Cifra semestral."
+  },
+  {
+   "id": "yanacocha",
+   "nombre": "Minera Yanacocha (Newmont)",
+   "regiones": [
+    "Cajamarca"
+   ],
+   "actividad": "Oro",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Producción 2025",
+     "v": "515 000 onzas de oro (sobre lo previsto)",
+     "f": "Market Chameleon (Newmont)",
+     "u": "https://marketchameleon.com/articles/b/2026/1/6/newmont-yanacocha-growth-peru-mining-sector"
+    }
+   ],
+   "nota": "Newmont no publica ventas ni utilidades de Yanacocha por separado en las fuentes encontradas. En feb-2026 postergó indefinidamente el proyecto Yanacocha Sulfuros."
+  },
+  {
+   "id": "petrotal",
+   "nombre": "PetroTal — Lote 95 (Bretaña Norte)",
+   "regiones": [
+    "Loreto"
+   ],
+   "actividad": "Petróleo",
+   "recurso": "petrolero",
+   "datos": [
+    {
+     "k": "Ingresos 2025",
+     "v": "US$ 279 millones (−17%)",
+     "f": "PetroTal, resultados 2025",
+     "u": "https://www.barchart.com/story/news/966027/petrotal-announces-q4-and-full-year-2025-results"
+    },
+    {
+     "k": "Utilidad neta 2025",
+     "v": "US$ 44 millones (2024: US$ 112 M)",
+     "f": "PetroTal",
+     "u": "https://www.barchart.com/story/news/966027/petrotal-announces-q4-and-full-year-2025-results"
+    }
+   ]
+  },
+  {
+   "id": "poderosa",
+   "nombre": "Compañía Minera Poderosa — Pataz",
+   "regiones": [
+    "La Libertad"
+   ],
+   "actividad": "Oro",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ingresos 1.er trimestre 2025",
+     "v": "US$ 195,5 millones (+35%)",
+     "f": "Infomercado",
+     "u": "https://infomercado.pe/minera-poderosa-incrementa-inversiones-y-mejora-resultados-por-alza-del-oro/"
+    },
+    {
+     "k": "Utilidad neta 1.er trimestre 2025",
+     "v": "US$ 38,3 millones",
+     "f": "Infomercado",
+     "u": "https://infomercado.pe/minera-poderosa-incrementa-inversiones-y-mejora-resultados-por-alza-del-oro/"
+    }
+   ],
+   "nota": "Cifras trimestrales."
   }
  ]
 }
