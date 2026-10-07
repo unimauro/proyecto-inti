@@ -381,7 +381,10 @@ footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);f
 .ab{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-weight:700;font-size:.84rem;border:1px solid var(--line);background:var(--card2);color:var(--txt)}
 .ab.cafe{background:#ffdd00;color:#1a1206;border-color:#ffdd00}.ab.paypal{background:#0070ba;color:#fff;border-color:#0070ba}.ab.yape{background:#742284;color:#fff;border-color:#742284}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}.faq details p,.faq details ul{margin-top:8px;color:var(--muted)}.faq li{margin:4px 0 4px 18px}
-@media print{nav.top,.cta,footer .no-print{display:none}body{background:#fff;color:#111}.card,.kpi{background:#fff;border-color:#ddd}}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}nav.top,.cta,.no-print,#todos-los-distritos,.inav,.inav-btn,.ichat,.ichat-btn,.apoyo{display:none!important}
+html,body{background:var(--bg)!important}body{padding:7mm 8mm!important}.wrap{padding:0}.card,.kpi,.rk{break-inside:avoid}h2{break-after:avoid}.print-only{display:block!important}.scroll{overflow:visible!important}.tbl{font-size:.66rem!important}.tbl th,.tbl td{padding:4px 5px!important}.grid2{grid-template-columns:1fr!important}@page{size:A4;margin:0}}
+.print-only{display:none}.firma{border:1px solid rgba(245,166,35,.45);border-radius:14px;padding:12px 16px;margin:0 0 20px;background:rgba(245,166,35,.07);font-size:.86rem}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.35);color:#fff;padding:5px 12px;border-radius:999px;font-size:.8rem;font-weight:700}
 """
 
 HUES = {'costa': ('#0ea5e9', '#f59e0b'), 'sierra': ('#b45309', '#7c3aed'), 'selva': ('#059669', '#0d9488')}
@@ -431,12 +434,17 @@ def apoyo_html():
 <a class="ab paypal" href="{APOYO['paypal']}" target="_blank" rel="noopener">💳 PayPal</a>
 <span class="ab yape" title="Yape / Plin">📱 Yape / Plin: <b>{APOYO['yape']}</b></span></div></div>"""
 
-def footer(depth=2):
+FIRMA = "Carlos Mauro Cárdenas Fernández · carlos@cardenas.pe"
+def firma_html(titulo):
+    return f'<div class="print-only firma"><b>{esc(titulo)}</b><br>Informe generado automáticamente por Proyecto INTI con datos oficiales (INEI, MEF, SUNAT/BCRP, MINSA, MINEDU, Perupetro y reportes de empresas).<br>Elaborado por <b>{FIRMA}</b> · {date.today().strftime("%d/%m/%Y")} · {SITE}</div>'
+
+def footer(depth=2, dep=None):
     up = '../' * depth
     return f"""<footer>{apoyo_html()}<div>Proyecto INTI — Gemelo Digital del Perú 2075 · <a href="{up}">Dashboard</a> · <a href="{up}region/">Regiones</a> ·
 <a href="{up}fuentes/">❓ FAQ y fuentes de datos</a> · <a href="https://github.com/unimauro/proyecto-inti">Código y datos</a> · Carlos Cárdenas Fernández (dirección, tecnología y datos)</div>
 <div class="src" style="margin-top:8px">Regla del proyecto: <b>no inventamos cifras</b>. Cada dato indica fuente y año; los datos departamentales de encuestas (ENDES/ENAHO) son estimaciones muestrales con intervalo de confianza.
-Generado el {date.today().isoformat()}.</div></footer></div><script src="{up}assets/nav.js"></script></body></html>"""
+Generado el {date.today().isoformat()}.</div></footer></div><script src="{up}assets/nav.js"></script>
+<script>window.INTI_ROOT='{up}';window.INTI_DEP={json.dumps(dep)};</script><script src="{up}assets/chat.js"></script></body></html>"""
 
 def page_region(r, nac, regiones):
     dep, nombre = r['dep'], r['nombre']
@@ -462,7 +470,7 @@ def page_region(r, nac, regiones):
     out.append(f"""<header class="cover">{pattern}<div class="emb">{emb}</div>
 <div class="kicker">Región {esc(r['natural'] or '')} · Carátula regional 2025</div>
 <h1>{esc(nombre)}</h1><p class="lead">{esc(lead)}</p>
-<div class="meta"><span>🏛️ Capital: {esc(r['capital'] or '—')}</span><span>{r['n_prov']} provincia{'s' if r['n_prov'] != 1 else ''}</span><span>{r['n_dist']} distritos</span>
+<div class="meta"><a class="dl-btn no-print" href="../../informes/{r['slug']}.pdf" download>📄 Descargar informe PDF</a><span>🏛️ Capital: {esc(r['capital'] or '—')}</span><span>{r['n_prov']} provincia{'s' if r['n_prov'] != 1 else ''}</span><span>{r['n_dist']} distritos</span>
 {f'<span>📉 Puesto {r["rank_pobreza"][0]} de {r["rank_pobreza"][1]} en pobreza (1 = más pobre)</span>' if r['rank_pobreza'] else ''}</div></header>""")
     k = []
     k.append(f'<div class="kpi"><div class="l">Población</div><div class="v">{pob_txt}</div><div class="s"><span class="pill {pob_pill}">{pob_sub}</span></div></div>')
@@ -476,6 +484,7 @@ def page_region(r, nac, regiones):
         k.append(f'<div class="kpi"><div class="l">Ingreso real per cápita</div><div class="v">S/ {fmt(r["ingreso_real"][-1])}</div><div class="s">mensual 2025 · Perú S/ {fmt(nac["ingreso_real"][-1])}</div></div>')
     k.append(f'<div class="kpi"><div class="l">IDH (ponderado)</div><div class="v">{fidh(r["idh2019"])}</div><div class="s">PNUD 2019 · promedio de distritos</div></div>')
     out.append(f'<div class="kpis">{"".join(k)}</div>')
+    out.append(firma_html(f'Informe regional: {nombre} — indicadores, dinero público, canon, salud, educación y proyecciones'))
     out.append(f'<p style="margin:-8px 0 26px"><a class="cta" href="../../?region={r["slug"]}">Abrir {esc(nombre)} en el gemelo digital →</a></p>')
 
     # Indicadores ENDES 2025
@@ -546,7 +555,7 @@ def page_region(r, nac, regiones):
     out.append(proyeccion_section(r, nac))
     out.append(debate_section(r, nac, regiones))
     out.append(ranking_section(r, regiones))
-    out.append(f'<section><h2>📍 Todos los distritos</h2><p class="desc">Abre cualquier distrito en el gemelo digital (diagnóstico, prospectiva 2075 y planes descargables).</p><div class="card">{lst}</div></section>')
+    out.append(f'<section id="todos-los-distritos"><h2>📍 Todos los distritos</h2><p class="desc">Abre cualquier distrito en el gemelo digital (diagnóstico, prospectiva 2075 y planes descargables).</p><div class="card">{lst}</div></section>')
 
     X = r['x']; TY = [str(y) for y in range(2015, 2027)]
     data = {'years': ENAHO['years'], 'pob': ps, 'pobNac': nac['pobreza_serie'],
@@ -563,7 +572,7 @@ def page_region(r, nac, regiones):
             'prov': [[p['prov'], p['t'], p['i']] for p in sorted(r['provincias'], key=lambda p: -(p['t'] or 0))]}
     out.append(f"""<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.14.0/dist/chartjs-chart-sankey.min.js"></script><script>
 const D={json.dumps(data)},css=getComputedStyle(document.documentElement),c1=css.getPropertyValue('--h1').trim(),mut='#8b9bc4',grid='rgba(139,155,196,.15)';
-Chart.defaults.color=mut;Chart.defaults.font.family='Inter,system-ui,sans-serif';
+Chart.defaults.color=mut;Chart.defaults.font.family='Inter,system-ui,sans-serif';if(/pdf/.test(location.search))Chart.defaults.animation=false;
 const opt={{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{y:{{grid:{{color:grid}},ticks:{{callback:v=>v+'%'}}}},x:{{grid:{{display:false}}}}}},spanGaps:true}};
 if(D.pob&&D.pob.length)new Chart(document.getElementById('chPob'),{{type:'line',data:{{labels:D.years,datasets:[{{label:{json.dumps(nombre)},data:D.pob,borderColor:c1,backgroundColor:c1,borderWidth:3,tension:.3}},{{label:'Perú',data:D.pobNac,borderColor:mut,borderDash:[5,4],borderWidth:2,pointRadius:0,tension:.3}}]}},options:opt}});
 if(D.prov&&D.prov.length)new Chart(document.getElementById('chProv'),{{data:{{labels:D.prov.map(p=>p[0]),datasets:[{{type:'bar',label:'Pobreza %',data:D.prov.map(p=>p[1]),backgroundColor:c1,borderRadius:5,xAxisID:'x',order:2}},{{type:'line',label:'IDH ×100',data:D.prov.map(p=>p[2]),borderColor:'#93c5fd',backgroundColor:'#93c5fd',showLine:false,pointRadius:6,pointBorderColor:'#0a0f1e',pointBorderWidth:2,xAxisID:'x',order:1}}]}},options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom'}}}},scales:{{x:{{grid:{{color:grid}},beginAtZero:true}},y:{{grid:{{display:false}}}}}}}}}});
@@ -591,7 +600,7 @@ if(el('chVit'))new Chart(el('chVit'),{{type:'line',data:{{labels:D.defY,datasets
 if(el('chEnla'))new Chart(el('chEnla'),{{type:'line',data:{{labels:D.enlaY,datasets:[{{label:'Lectura',data:D.lec,borderColor:c1,backgroundColor:c1,borderWidth:3,tension:.25}},{{label:'Matemática',data:D.mat,borderColor:'#93c5fd',backgroundColor:'#93c5fd',borderWidth:3,tension:.25}}]}},options:ax(v=>v+'%')}});
 if(D.an&&D.an.length)new Chart(document.getElementById('chAn'),{{type:'bar',data:{{labels:['2021','2022','2023','2024','2025'],datasets:[{{label:{json.dumps(nombre)},data:D.an,backgroundColor:c1,borderRadius:6}},{{label:'Perú',data:D.anNac,backgroundColor:'rgba(139,155,196,.45)',borderRadius:6}}]}},options:opt}});
 </script>""")
-    out.append(footer())
+    out.append(footer(dep=dep))
     return '\n'.join(out), desc
 
 RANKS = None
@@ -657,6 +666,11 @@ def memoria(regiones, nac):
         if X['def'].get('2025'): parts.append(f"defunciones SINADEF 2025 {fmt(X['def']['2025'])}, 2026 ene-sep {fmt(X['def'].get('2026') or 0)}")
         en = X.get('enla') or {}
         if en: parts.append(f"ENLA 2024 4.° primaria: lectura satisfactoria {f1((en.get('lectura') or {}).get('satisfactorio'))}%, matemática {f1((en.get('matematica') or {}).get('satisfactorio'))}%")
+        pj = r.get('proy') or {}
+        pt = [f"{v['l']} hoy {f1(v['v0'])} → 2040 inercial {f1(v['inercial'][2040])} / con mejora {f1(v['mejora'][2040])}; 2055 inercial {f1(v['inercial'][2055])} / con mejora {f1(v['mejora'][2055])}" for k, v in pj.items() if k != 'poblacion']
+        if pt: parts.append('proyecciones INTI (no oficiales): ' + ' | '.join(pt))
+        if pj.get('poblacion'): parts.append(f"población proyectada (inercial): 2040 {fmt(pj['poblacion']['inercial'][2040])}, 2055 {fmt(pj['poblacion']['inercial'][2055])}")
+        if X.get('empresas'): parts.append(f"empresas activas (SUNAT, personas jurídicas) {fmt(X['empresas'])} ({f1(X.get('empresas_1k'))} por mil hab.)")
         parts.append(f"IDH 2019 ponderado {fidh(r['idh2019'])}")
         if r['criticos']: parts.append('distritos con mayor pobreza: ' + ', '.join(f"{x['d']} ({f1(x['t'])}%)" for x in r['criticos'][:3]))
         return '; '.join(parts) + '.'
@@ -1038,7 +1052,7 @@ def proyeccion_section(r, nac):
 <p class="desc"><b>Escenario inercial</b>: si las cosas siguen como van, la tendencia de los últimos años continúa (amortiguada). <b>Escenario de mejora</b>: si la región avanzara al ritmo del 25% de regiones que más mejoraron en el mismo periodo. Son escenarios de INTI, no proyecciones oficiales.</p>
 <div class="card scroll"><table class="tbl"><thead><tr><th>Indicador</th><th>Hoy</th><th>2040 inercial</th><th>2055 inercial</th><th>2040 con mejora</th><th>2055 con mejora</th></tr></thead><tbody>{rows}</tbody></table>
 <p class="src" style="margin-top:6px">Verde = mejor que hoy; rojo = peor que hoy. Tendencias: pobreza 2016–2025, salud 2021–2025, lectura 2019–2024.</p></div>
-<div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">🎛️ Simulador: ¿y si mejoramos en este sector?</h3>
+<div class="card no-print" style="margin-top:14px"><h3 style="margin-bottom:8px">🎛️ Simulador: ¿y si mejoramos en este sector?</h3>
 <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px"><select id="pjInd" style="background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font:inherit">{''.join(f'<option value="{k}">{esc(v["l"])}</option>' for k, v in pr.items())}</select>
 <label style="font-size:.85rem;color:var(--muted)">Esfuerzo: <b id="pjLab">50%</b> <input type="range" id="pjEf" min="0" max="100" value="50" style="vertical-align:middle;width:180px"></label>
 <span id="pjOut" style="font-size:.9rem"></span></div>
@@ -1162,7 +1176,7 @@ def page_index(regiones, nac):
     desc = 'Carátula de cada región del Perú con datos oficiales 2025: pobreza (ENAHO), anemia y desnutrición (ENDES), Censo 2025 y brechas por provincia y distrito.'
     out = [head(title, desc, url), nav(regiones, None, depth=1)]
     out.append(f"""<header class="cover" style="min-height:260px">{INCA}<div class="emb">🇵🇪</div><div class="kicker">Proyecto INTI · Regiones</div><h1>Las 25 regiones</h1>
-<p class="lead">Una carátula por región con los indicadores oficiales más recientes. Perú 2025: pobreza {f1(nac['pobreza_serie'][-1])}% · anemia infantil {f1(nac['endes']['anemia']['y2025'])}% · {fmt(nac['censo2025']['pob'])} habitantes (Censo 2025).</p></header>""")
+<p class="lead"><a class="dl-btn no-print" href="../informes/peru.pdf" download>📄 Descargar informe nacional PDF</a><br>Una carátula por región con los indicadores oficiales más recientes. Perú 2025: pobreza {f1(nac['pobreza_serie'][-1])}% · anemia infantil {f1(nac['endes']['anemia']['y2025'])}% · {fmt(nac['censo2025']['pob'])} habitantes (Censo 2025).</p></header>""")
     cards = []
     for r in sorted(regiones.values(), key=lambda r: (r['dep'] != 'Cusco', r['nombre'])):
         h1, h2 = SPECIAL_HUES.get(r['dep'], HUES.get(r['natural'], ('#f5a623', '#ff7a18')))
@@ -1172,9 +1186,11 @@ def page_index(regiones, nac):
                      f'<small style="opacity:.85;font-weight:700;text-transform:uppercase;font-size:.68rem;letter-spacing:1.5px">{esc(r["natural"] or "")}{star}</small><b>{esc(r["nombre"])}</b></div>'
                      f'<div class="bot"><span>Pobreza <b style="color:var(--txt)">{f1(ps[-1])}%</b></span><span>Anemia <b style="color:var(--txt)">{f1(an)}%</b></span>'
                      f'<span>{r["n_prov"]} provincia{"s" if r["n_prov"] != 1 else ""}</span><span>{r["n_dist"]} distritos</span></div></a>')
-    out.append(f'<section><div class="rgrid">{"".join(cards)}</div></section>')
+    out.append(firma_html('Informe nacional: las 25 regiones del Perú — indicadores, dinero público, canon, demografía, proyecciones y análisis adversarial'))
+    out.append(f'<section class="no-print"><div class="rgrid">{"".join(cards)}</div></section>')
     out.append('<p class="src">Pobreza: INEI ENAHO 2025 (Lima = Lima Metropolitana). Anemia 6-35 meses: INEI ENDES 2025 (directriz OMS 2024).</p>')
     out.append(gasto_pc_section(regiones, nac))
+    out.append(nacional_section(regiones, nac))
     out.append(canon_nacional_section(regiones, nac))
     out.append(f"""<section id="empresas"><h2>🏭 Las empresas detrás del canon</h2><p class="desc">{esc(EMP['_meta']['mecanismo'])}</p>
 <div class="grid2">{''.join(_emp_card(e).replace('<h3 style="margin-bottom:4px">', '<h3 style="margin-bottom:4px">' + ' · '.join(f'<a href="{slug(NOMBRE.get(x, x))}/">{esc(NOMBRE.get(x, x))}</a>' for x in e['regiones']) + ' — ') for e in EMP['empresas'])}</div>
@@ -1188,6 +1204,7 @@ FUENTES = [  # tema, fuente, corte, url
     ('Población, viviendas y servicios', 'INEI — Censos Nacionales 2025 (notas departamentales)', '2025 (publicado may–oct 2026)', 'https://censos2025.inei.gob.pe/'),
     ('Recaudación tributaria por región', 'SUNAT vía BCRP — tributos internos según departamento', TAX['corte'], TAX['url']),
     ('Empresas activas por región, provincia y distrito', 'SUNAT — Padrón Reducido RUC (personas jurídicas activas por ubigeo)', (RUC or {}).get('fecha', ''), 'http://www2.sunat.gob.pe/padron_reducido_ruc.zip'),
+    ('Proyecciones 2040 y 2055', 'Cálculo de INTI sobre series oficiales (no oficial)', date.today().isoformat(), 'https://github.com/unimauro/proyecto-inti/blob/main/scripts/build_regiones.py'),
     ('Ventas y utilidades de empresas que generan canon', 'Estados financieros y reportes anuales (Cerro Verde/SMV, Southern Copper, MMG, Hudbay, Teck, Anglo American) y Perupetro', '2024-2025', 'https://www.smv.gob.pe/'),
     ('Canon, sobrecanon, regalías, FOCAM, renta de aduanas, Foncomun', 'MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado por GR y GL)', (CANON or {}).get('corte_2026', ''), 'https://datosabiertos.mef.gob.pe/'),
     ('Gasto público ejecutado en la región', 'MEF — Datos Abiertos, Gasto Devengado (3 niveles de gobierno)', (MEF or {}).get('corte_2026', 'en carga'), 'https://datosabiertos.mef.gob.pe/'),
@@ -1211,6 +1228,9 @@ FAQ = [
     ('¿Qué es la anemia "según OMS 2024"?', 'Desde 2024 el MINSA adoptó la nueva directriz de la OMS (RM 251-2024-MINSA) para el punto de corte de hemoglobina. INEI publica su cifra principal con ese criterio (34,9% nacional en 2025).'),
     ('¿Cómo funciona el chat?', 'El asistente tiene una memoria con todas las cifras oficiales de las 25 regiones y los rankings. Responde rankings, comparaciones ("Compara Cusco y Puno") y fichas. Cuando está conectado al servidor de IA, usa esa misma memoria y tiene prohibido inventar cifras.'),
     ('¿Puedo descargar los datos?', 'Sí: en el dashboard, el Cuadro de indicadores regionales 2025 se descarga en CSV, y todos los archivos están en el repositorio (carpeta data/fuentes).'),
+    ('¿Cómo se calculan las proyecciones a 15 y 30 años?', 'Escenario inercial: se toma la tendencia lineal de los últimos años (pobreza 2016-2025, salud 2021-2025, lectura 2019-2024) y se prolonga amortiguándola 15% por año, con límites físicos. Escenario de mejora: el indicador avanza al ritmo del 25% de regiones que más mejoraron. No son pronósticos oficiales: no anticipan crisis, precios ni cambios de política.'),
+    ('¿Qué es el análisis adversarial?', 'Tres agentes analizan los mismos datos con objetivos opuestos: uno busca lo que funciona, otro las brechas y retrocesos, y un auditor cuestiona la calidad de los datos. Un cuarto sintetiza prioridades. Las reglas son explícitas y cada afirmación sale de una cifra publicada en la página.'),
+    ('¿Puedo descargar un informe?', 'Sí: cada región tiene su informe PDF con gráficos históricos, y hay un informe nacional. Están firmados por Carlos Mauro Cárdenas Fernández (carlos@cardenas.pe) y se regeneran con los datos más recientes.'),
     ('¿Cómo puedo apoyar?', 'Con un café, PayPal o Yape/Plin (abajo). También reportando errores o sugiriendo fuentes en GitHub.'),
 ]
 
@@ -1241,7 +1261,7 @@ Perú: <b>S/ {fmt(npc or 0)}</b> por persona. La parte verde es lo financiado co
 <p class="src" style="margin-top:8px">Fuente: MEF Datos Abiertos (gasto devengado por departamento de la meta, sin transferencias entre entidades ni servicio de la deuda); SUNAT/BCRP (recaudación); INEI (población, pobreza ENAHO 2025).
 Lo que entidades nacionales ejecutan con meta en Lima (pensiones, compras centralizadas) se registra en Lima.</p>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.14.0/dist/chartjs-chart-sankey.min.js"></script><script>
-(function(){{const G={json.dumps(data, ensure_ascii=False)};Chart.defaults.color='#8b9bc4';Chart.defaults.font.family='Inter,system-ui,sans-serif';
+(function(){{const G={json.dumps(data, ensure_ascii=False)};Chart.defaults.color='#8b9bc4';if(/pdf/.test(location.search))Chart.defaults.animation=false;Chart.defaults.font.family='Inter,system-ui,sans-serif';
 new Chart(document.getElementById('chGpc'),{{type:'bar',data:{{labels:G.l,datasets:[{{label:'Gasto por persona (S/)',data:G.v.map((v,i)=>v-G.c[i]),backgroundColor:G.l.map(n=>n==='Cusco'?'#f5a623':'rgba(59,130,246,.65)'),stack:'s',borderRadius:3}},{{label:'de canon/regalías',data:G.c,backgroundColor:'#22c55e',stack:'s',borderRadius:3}}]}},
 options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom'}},tooltip:{{callbacks:{{footer:(it)=>'Total: S/ '+G.v[it[0].dataIndex].toLocaleString('es-PE')}}}}}},scales:{{x:{{stacked:true,grid:{{color:'rgba(139,155,196,.15)'}}}},y:{{stacked:true,grid:{{display:false}},ticks:{{autoSkip:false}}}}}}}}}});}})();
 </script></section>"""
@@ -1390,8 +1410,61 @@ if(e('skP')&&L.length&&Chart.registry.controllers.get('sankey')){{const lb={{}};
 new Chart(e('skP'),{{type:'sankey',data:{{datasets:[{{data:L,labels:lb,colorFrom:c=>col(c.raw.from),colorTo:c=>col(c.raw.to),colorMode:'gradient',color:'#e8edf7',size:'max',padding:8,font:{{size:11}}}}]}},
 options:{{maintainAspectRatio:false,plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:c=>' '+lb[c.raw.from]+' → '+lb[c.raw.to]+': S/ '+c.raw.flow.toLocaleString('es-PE')+' M'}}}}}}}}}});}}
 </script>""")
-    out.append(footer(depth=3))
+    out.append(footer(depth=3, dep=dep))
     return '\n'.join(out)
+
+def nacional_section(regiones, nac):
+    """Análisis nacional: demografía, proyecciones a 2040/2055 y debate adversarial con las 25 regiones."""
+    nx = nac['x']; pr = nac['proy']; vals = nac['vals']
+    ys = [str(y) for y in range(2017, 2027)]
+    births = [dict(zip([str(y) for y in COMP['nacimientos_inscritos']['years']], nx['nac_insc'])).get(y) for y in ys]; births[-1] = nx['cnv2026']
+    deaths = [nx['def'].get(y) for y in ys]
+    P = pr['poblacion']; pop_y = ['2017', '2025'] + [str(y) for y in HORIZ]; pop_v = [29381884, nac['censo2025']['pob']] + [P['inercial'][y] for y in HORIZ]
+    rows = ''.join(f'<tr><td>{esc(v["l"])}</td><td class="n"><b>{f1(v["v0"])}</b></td><td class="n">{f1(v["inercial"][2040])}</td><td class="n">{f1(v["inercial"][2055])}</td><td class="n up">{f1(v["mejora"][2040])}</td><td class="n up">{f1(v["mejora"][2055])}</td></tr>'
+                   for k, v in pr.items() if k != 'poblacion')
+    lab = {k: l for k, l, *_ in RANK_IND}; up = {k: u for k, _, _, u, *_ in RANK_IND}; uni = {k: u for k, _, _, _, u, _ in RANK_IND}
+    def fv(k, v): u = uni.get(k); return '—' if v is None else (f'S/ {fmt(v)}' if u == 'S/' else (f'{f1(v)}%' if u == '%' else f'{f1(v)} {u}'.strip()))
+    brecha = []
+    for k in ('pobreza', 'anemia', 'dci', 'lectura', 'c_desague', 'camas_10k', 'empresas_1k'):
+        lst = RANKS.get(k) or []
+        if len(lst) > 3: brecha.append(f'{lab[k]}: de <b>{fv(k, lst[0][1])}</b> en {regiones[lst[0][0]]["nombre"]} a <b>{fv(k, lst[-1][1])}</b> en {regiones[lst[-1][0]]["nombre"]}.')
+    ne = nac['endes']
+    opt = [f'La pobreza bajó de {f1(nac["pobreza_serie"][-2])}% (2024) a <b>{f1(nac["pobreza_serie"][-1])}%</b> (2025).',
+           f'Vacunas completas en menores de 12 meses: <b>{f1(ne["vacunas12m"]["y2025"])}%</b>; suplemento de hierro subió a {f1(ne["hierro"]["y2025"])}% (+{f1(ne["hierro"]["y2025"] - ne["hierro"]["y2024"])} pp).',
+           f'El canon y las regalías transferidos crecieron a <b>S/ {fmt(nx["canon"]["2025"]["total_canon"] / 1e6)} M</b> en 2025 y ya suman S/ {fmt(nx["canon"]["2026"]["total_canon"] / 1e6)} M en 2026.',
+           f'Lectura satisfactoria en 4.° de primaria: {f1(vals.get("lectura"))}% (ENLA 2024), por encima de 2022 (30,0%).']
+    cri = [f'La pobreza sigue por encima de 2019 ({f1(nac["pobreza_serie"][3])}%): <b>{f1(nac["pobreza_serie"][-1])}%</b> en 2025.',
+           f'Anemia infantil: <b>{f1(ne["anemia"]["y2025"])}%</b> de niñas y niños de 6 a 35 meses; en Puno llega a 56,1%.',
+           f'Si nada cambia, la anemia nacional sería ~{f1(pr["anemia"]["inercial"][2040])}% en 2040 y la pobreza ~{f1(pr["pobreza"]["inercial"][2040])}%.',
+           'Brechas territoriales enormes: ' + ' '.join(brecha[:3])]
+    aud = ['Las encuestas (ENDES, ENAHO) tienen márgenes de error; los cambios de 1–2 puntos en una región pueden no ser significativos.',
+           'La recaudación por región depende del domicilio fiscal; el gasto ejecutado por entidades nacionales con meta en Lima se registra en Lima.',
+           'INEI aún no publica el Censo 2025 de 9 regiones: sus indicadores por habitante usan población estimada.',
+           'SINADEF muestra posibles subregistros de defunciones en varios años y regiones.']
+    sint = ['<b>Anemia y desnutrición</b>: igualar el ritmo de las regiones que más mejoraron llevaría la anemia a ~' + f1(pr['anemia']['mejora'][2040]) + '% en 2040 (vs ' + f1(pr['anemia']['inercial'][2040]) + '% si nada cambia).',
+            '<b>Usar el canon que ya existe</b>: los presupuestos con canon dejan cientos de millones sin gastar cada año; priorizar agua, saneamiento y salud en las zonas productoras.',
+            '<b>Cerrar brechas territoriales</b>: ' + ' '.join(brecha[3:6])]
+    li = lambda xs: '<ul style="margin-left:18px">' + ''.join(f'<li style="margin:5px 0">{x}</li>' for x in xs) + '</ul>'
+    data = {'ys': ys, 'b': births, 'd': deaths, 'py': pop_y, 'pv': pop_v,
+            'pj': {k: {'l': v['l'], 'serie': v['serie'], 'in': {str(y): x for y, x in v['inercial'].items()}, 'me': {str(y): x for y, x in v['mejora'].items()}} for k, v in pr.items() if k != 'poblacion'}}
+    return f"""<section id="nacional"><h2>🇵🇪 Análisis nacional: ¿cómo está el Perú y cómo estará?</h2>
+<p class="desc">Perú: {fmt(nac['censo2025']['pob'])} habitantes (Censo 2025, +1,11% anual). Si sigue ese ritmo (amortiguado) serían ~{fmt(P['inercial'][2040])} en 2040 y ~{fmt(P['inercial'][2055])} en 2055. Proyecciones de INTI, no oficiales.</p>
+<div class="grid2"><div class="card"><h3 style="margin-bottom:6px">Nacimientos y defunciones, Perú</h3><canvas id="chNDem" height="230"></canvas><p class="src">Nacimientos inscritos 2017–2023 (RENIEC/INEI) y CNV 2026 a la fecha; defunciones SINADEF (2026 a setiembre).</p></div>
+<div class="card"><h3 style="margin-bottom:6px">Población 2017–2055</h3><canvas id="chNPop" height="230"></canvas></div></div>
+<div class="card scroll" style="margin-top:14px"><h3 style="margin-bottom:6px">🔮 Perú en 15 y 30 años</h3><table class="tbl"><thead><tr><th>Indicador</th><th>Hoy</th><th>2040 inercial</th><th>2055 inercial</th><th>2040 con mejora</th><th>2055 con mejora</th></tr></thead><tbody>{rows}</tbody></table>
+<p class="src" style="margin-top:6px">Inercial = la tendencia reciente continúa amortiguada. Con mejora = ritmo del 25% de regiones que más mejoraron.</p></div>
+<div class="card" style="margin-top:14px"><canvas id="chNPj" height="200"></canvas></div>
+<h3 style="margin:18px 0 8px">🤖 Análisis adversarial nacional</h3>
+<div class="grid2"><div class="card" style="border-left:4px solid var(--verde)"><h3>🟢 Agente optimista</h3>{li(opt)}</div>
+<div class="card" style="border-left:4px solid var(--rojo)"><h3>🔴 Agente crítico</h3>{li(cri)}</div>
+<div class="card" style="border-left:4px solid var(--ambar)"><h3>⚖️ Agente auditor de datos</h3>{li(aud)}</div>
+<div class="card" style="border-left:4px solid var(--azul)"><h3>🧭 Síntesis</h3>{li(sint)}</div></div>
+<script>(function(){{const N={json.dumps(data, ensure_ascii=False)},g='rgba(139,155,196,.15)';if(/pdf/.test(location.search))Chart.defaults.animation=false;
+const o=(cb)=>({{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{y:{{grid:{{color:g}},ticks:{{callback:cb||(v=>v)}}}},x:{{grid:{{display:false}}}}}},spanGaps:true}});
+new Chart(document.getElementById('chNDem'),{{type:'line',data:{{labels:N.ys.map(y=>y==='2026'?'2026*':y),datasets:[{{label:'Nacimientos',data:N.b,borderColor:'#22c55e',backgroundColor:'#22c55e'}},{{label:'Defunciones',data:N.d,borderColor:'#ef4444',backgroundColor:'#ef4444'}}]}},options:o(v=>v.toLocaleString('es-PE'))}});
+new Chart(document.getElementById('chNPop'),{{type:'line',data:{{labels:N.py,datasets:[{{label:'Población',data:N.pv,borderColor:'#f5a623',backgroundColor:'#f5a623',borderWidth:3,segment:{{borderDash:c=>c.p0DataIndex>=1?[6,4]:undefined}}}}]}},options:o(v=>(v/1e6).toFixed(0)+' M')}});
+const K=Object.keys(N.pj),cols=['#f59e0b','#ef4444','#a855f7','#22c55e','#3b82f6'];const lab=Array.from(new Set([].concat(...K.map(k=>Object.keys(N.pj[k].serie)),['2030','2035','2040','2045','2050','2055']))).sort();
+new Chart(document.getElementById('chNPj'),{{type:'line',data:{{labels:lab,datasets:K.map((k,i)=>({{label:N.pj[k].l+' (histórico + inercial)',data:lab.map(y=>N.pj[k].serie[y]??N.pj[k].in[y]??null),borderColor:cols[i%5],backgroundColor:cols[i%5],segment:{{borderDash:c=>(+lab[c.p0DataIndex]>=2025)?[6,4]:undefined}}}}))}},options:o(v=>v+'%')}});}})();</script></section>"""
 
 def page_fuentes():
     url = f'{SITE}fuentes/'
