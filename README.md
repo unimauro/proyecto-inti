@@ -31,6 +31,17 @@ El motor de IA la inyecta como contexto al LLM (si hay `proxy`/`apiKey` en `conf
 
 El dashboard acepta enlaces directos: `?region=cusco` o `?u=081301` (ubigeo).
 
+**Fiscal, salud y educación (oct-2026):** cada carátula muestra además cuánto recauda la región (SUNAT/BCRP, 2015 → jul-2026) y cuánto gasto público
+se ejecuta en ella (MEF Datos Abiertos, 2019 → set-2026, sin transferencias ni deuda), camas hospitalarias y médicos (Compendio INEI 2025), nacimientos
+(inscritos 2017-2023 y CNV 2026), defunciones (SINADEF a set-2026), esperanza de vida y mortalidad infantil (INEI) y lectura/matemática (ENLA 2024).
+FAQ y tabla de fuentes con fechas de corte: [/fuentes/](https://unimauro.github.io/proyecto-inti/fuentes/).
+
+Gasto MEF (CSV de ~2,5 GB por año, se procesa en streaming):
+`curl -s https://fs.datosabiertos.mef.gob.pe/datastorefiles/2026-Gasto-Devengado-Mensual.csv | python3 scripts/agg_gasto_mef.py 2026 /tmp/gasto_2026.json`
+y luego `python3 scripts/merge_gasto_mef.py /tmp data/fuentes/mef_gasto_departamentos.json`.
+
+**Chat:** usa el gateway propio `ai.tunky.net` si `config.js` tiene `token` (proyecto `proyecto-inti` en el servidor); sin token responde en modo memoria.
+
 Regenerar: `python3 scripts/build_regiones.py` (lee `data/fuentes/*.json`; parsers en `scripts/parse_*.py`).
 
 ## 📊 Sobre los datos

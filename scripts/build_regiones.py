@@ -45,7 +45,7 @@ def pick(dct, dep, alias=None):
     for k, v in dct.items():
         if norm(k) in want: return v
     return None
-CALLAO_AL = ['Prov. Const. del Callao', 'Prov. Constitucional del Callao', 'Callao']
+CALLAO_AL = ['Prov. Const. del Callao', 'Prov. Constitucional del Callao', 'Provincia Constitucional del Callao', 'Callao']
 
 def extra(dep, pob):
     """Indicadores de fuentes adicionales: impuestos, gasto público, salud, nacimientos, defunciones, lectura, EVN."""
@@ -567,7 +567,7 @@ def fiscal_section(r, nac):
                  f'<td class="n">{fmt(cyr) if gy else "—"}</td><td class="n">{fmt((gy.get("foncomun") or 0) / 1e6) if gy else "—"}</td><td class="n">{ratio}</td></tr>')
     lima_note = ' En Lima se suman Lima Metropolitana y Lima Provincias.' if r['dep'] == 'Lima' else ''
     gasto_src = (f' Gasto: <a href="https://datosabiertos.mef.gob.pe/">MEF — Datos Abiertos, Gasto Devengado</a> (devengado por departamento donde se ejecuta la meta, 3 niveles de gobierno, '
-                 f'sin las transferencias entre entidades para no contar doble; 2026 a {MEF["corte_2026"]}).') if MEF else ' Gasto MEF: en proceso de carga.'
+                 f'sin transferencias entre entidades ni servicio de la deuda; 2026 a {MEF["corte_2026"]}).') if MEF else ' Gasto MEF: en proceso de carga.'
     return f"""<section><h2>💰 ¿Cuánto recauda {esc(r['nombre'])} y cuánto regresa?</h2>
 <p class="desc">Barras: tributos internos recaudados por SUNAT en la región. Línea: gasto público total ejecutado en la región (todos los niveles de gobierno). Montos en millones de soles corrientes.</p>
 <div class="kpis" style="margin:0 0 14px;padding:0">{''.join(k)}</div>
@@ -681,7 +681,7 @@ FAQ = [
     ('¿De dónde salen los datos?', 'Solo de fuentes oficiales y públicas (INEI, MINSA, MINEDU, MEF, SUNAT/BCRP, PNUD). Cada cifra muestra su fuente, año y fecha de corte. Abajo está la tabla completa con enlaces.'),
     ('¿Por qué algunos datos son de 2026 y otros de 2024?', 'Cada institución publica con un rezago distinto. Usamos siempre el último corte disponible: recaudación hasta julio 2026, gasto público y nacimientos hasta la fecha de consulta, defunciones hasta setiembre 2026; encuestas (ENAHO/ENDES) 2025; camas y médicos 2024. Los valores de 2026 son parciales y se marcan con *.'),
     ('¿Por qué Lima "recauda" casi todo?', 'SUNAT registra los impuestos según el domicilio fiscal. Muchas mineras, bancos y grandes empresas tienen domicilio en Lima aunque produzcan en regiones; por eso la recaudación regional subestima lo que cada región genera. Para comparar, mira la recaudación por habitante y el gasto que regresa.'),
-    ('¿Qué significa "cuánto regresa"?', 'Es el gasto público devengado (ejecutado) en el departamento por los tres niveles de gobierno: nacional, regional y municipal, según el lugar de la meta. Excluimos las transferencias entre entidades para no contar dos veces el mismo sol. Incluye lo financiado con canon, regalías y Foncomun, que mostramos aparte.'),
+    ('¿Qué significa "cuánto regresa"?', 'Es el gasto público devengado (ejecutado) en el departamento por los tres niveles de gobierno: nacional, regional y municipal, según el lugar de la meta. Excluimos las transferencias entre entidades (para no contar dos veces el mismo sol) y el servicio de la deuda. Ojo: lo que ejecutan entidades nacionales con meta en Lima (por ejemplo pensiones o compras centralizadas) se registra en Lima. Incluye lo financiado con canon, regalías y Foncomun, que mostramos aparte.'),
     ('¿Los datos son por distrito o por región?', 'La mayoría de indicadores 2025 son departamentales (encuestas ENDES/ENAHO, Censo). A nivel distrital usamos Censo 2017, IDH 2019 y el mapa de pobreza INEI. Los índices 0-100 del simulador del distrito son ilustrativos y así se indican.'),
     ('¿Qué es la anemia "según OMS 2024"?', 'Desde 2024 el MINSA adoptó la nueva directriz de la OMS (RM 251-2024-MINSA) para el punto de corte de hemoglobina. INEI publica su cifra principal con ese criterio (34,9% nacional en 2025).'),
     ('¿Cómo funciona el chat?', 'El asistente tiene una memoria con todas las cifras oficiales de las 25 regiones y los rankings. Responde rankings, comparaciones ("Compara Cusco y Puno") y fichas. Cuando está conectado al servidor de IA, usa esa misma memoria y tiene prohibido inventar cifras.'),

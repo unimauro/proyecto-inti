@@ -1,0 +1,555 @@
+{
+"fuente": "MEF — Datos Abiertos, Presupuesto y Ejecución del Gasto (Gasto Devengado), por departamento de la meta",
+"url": "https://datosabiertos.mef.gob.pe/",
+"unidad": "soles corrientes",
+"nota": "Devengado de los tres niveles de gobierno según el departamento donde se ejecuta la meta; excluye las genéricas 2.4 (transferencias entre entidades) y 2.8 (servicio de la deuda). canon = rubro 18 (canon, sobrecanon, regalías, renta de aduanas y participaciones); foncomun = rubro 07.",
+"corte_2026": "setiembre 2026",
+"cortes": {
+"2025": "diciembre",
+"2026": "setiembre"
+},
+"procesado": "2026-10-07",
+"departamentos": {
+"LIMA": {
+"2025": {
+"dev": 82704308524,
+"pim": 88290106008,
+"dev_regional": 2487175598,
+"canon": 930151510,
+"dev_local": 8780537284,
+"foncomun": 1346972288,
+"dev_nacional": 71436595642
+},
+"2026": {
+"dev": 62857452750,
+"pim": 91391049042,
+"dev_regional": 1783846498,
+"canon": 910324980,
+"dev_local": 6379855265,
+"foncomun": 949593356,
+"dev_nacional": 54693750987
+}
+},
+"PROVINCIA CONSTITUCIONAL DEL CALLAO": {
+"2025": {
+"dev": 6106669859,
+"pim": 6582535946,
+"dev_regional": 1573866264,
+"canon": 883051096,
+"dev_local": 1043279206,
+"foncomun": 109032633,
+"dev_nacional": 3489524389
+},
+"2026": {
+"dev": 5114169914,
+"pim": 7549288409,
+"dev_regional": 1205016923,
+"canon": 681904216,
+"dev_local": 781291905,
+"foncomun": 100955689,
+"dev_nacional": 3127861086
+}
+},
+"HUANUCO": {
+"2025": {
+"dev": 5014564424,
+"pim": 5352875874,
+"dev_regional": 2176703228,
+"canon": 111955691,
+"dev_local": 1107192128,
+"foncomun": 347219346,
+"dev_nacional": 1730669068
+},
+"2026": {
+"dev": 3490027625,
+"pim": 5408171010,
+"dev_regional": 1562516397,
+"canon": 50397368,
+"dev_local": 669005308,
+"foncomun": 283416495,
+"dev_nacional": 1258505920
+}
+},
+"UCAYALI": {
+"2025": {
+"dev": 3202387269,
+"pim": 3467513207,
+"dev_regional": 1691166210,
+"canon": 227610151,
+"dev_local": 596453222,
+"foncomun": 292282795,
+"dev_nacional": 914767837
+},
+"2026": {
+"dev": 2594535925,
+"pim": 3932309224,
+"dev_regional": 1462608972,
+"canon": 158397901,
+"dev_local": 484925039,
+"foncomun": 267260188,
+"dev_nacional": 647001913
+}
+},
+"TUMBES": {
+"2025": {
+"dev": 1759611524,
+"pim": 1901174352,
+"dev_regional": 756835368,
+"canon": 141619972,
+"dev_local": 260352231,
+"foncomun": 64129523,
+"dev_nacional": 742423925
+},
+"2026": {
+"dev": 1307962476,
+"pim": 2043543596,
+"dev_regional": 560997217,
+"canon": 63832237,
+"dev_local": 180881812,
+"foncomun": 57866805,
+"dev_nacional": 566083446
+}
+},
+"TACNA": {
+"2025": {
+"dev": 3259856649,
+"pim": 3506173908,
+"dev_regional": 1053278164,
+"canon": 1103104127,
+"dev_local": 1250276373,
+"foncomun": 71781084,
+"dev_nacional": 956302112
+},
+"2026": {
+"dev": 2545951936,
+"pim": 3783393271,
+"dev_regional": 866371902,
+"canon": 828358459,
+"dev_local": 929673554,
+"foncomun": 71740975,
+"dev_nacional": 749906480
+}
+},
+"SAN MARTIN": {
+"2025": {
+"dev": 4903681650,
+"pim": 5226645013,
+"dev_regional": 2574389316,
+"canon": 153944235,
+"dev_local": 945542487,
+"foncomun": 338626583,
+"dev_nacional": 1383749847
+},
+"2026": {
+"dev": 3640179547,
+"pim": 5210142340,
+"dev_regional": 1965391559,
+"canon": 78867993,
+"dev_local": 668114015,
+"foncomun": 314399787,
+"dev_nacional": 1006673973
+}
+},
+"PUNO": {
+"2025": {
+"dev": 7480625706,
+"pim": 7962448019,
+"dev_regional": 3349208841,
+"canon": 528517421,
+"dev_local": 1374887397,
+"foncomun": 553954749,
+"dev_nacional": 2756529468
+},
+"2026": {
+"dev": 5426499339,
+"pim": 8501320692,
+"dev_regional": 2427549803,
+"canon": 344565289,
+"dev_local": 1068695568,
+"foncomun": 487029430,
+"dev_nacional": 1930253969
+}
+},
+"PIURA": {
+"2025": {
+"dev": 9731819272,
+"pim": 10397120821,
+"dev_regional": 4123098418,
+"canon": 743145479,
+"dev_local": 2346624049,
+"foncomun": 713246318,
+"dev_nacional": 3262096805
+},
+"2026": {
+"dev": 7846352974,
+"pim": 11271609802,
+"dev_regional": 3342862041,
+"canon": 362729564,
+"dev_local": 1618070393,
+"foncomun": 631696217,
+"dev_nacional": 2885420540
+}
+},
+"PASCO": {
+"2025": {
+"dev": 2158868859,
+"pim": 2425794789,
+"dev_regional": 1141766529,
+"canon": 156269145,
+"dev_local": 401072611,
+"foncomun": 114891015,
+"dev_nacional": 616029718
+},
+"2026": {
+"dev": 1755008059,
+"pim": 3067827872,
+"dev_regional": 1002825693,
+"canon": 113939342,
+"dev_local": 292886579,
+"foncomun": 101003702,
+"dev_nacional": 459295788
+}
+},
+"MOQUEGUA": {
+"2025": {
+"dev": 2364834259,
+"pim": 2687424049,
+"dev_regional": 874655433,
+"canon": 1099407878,
+"dev_local": 1020514071,
+"foncomun": 40326030,
+"dev_nacional": 469664755
+},
+"2026": {
+"dev": 1721817757,
+"pim": 2880423369,
+"dev_regional": 643666332,
+"canon": 660909045,
+"dev_local": 669844679,
+"foncomun": 35144500,
+"dev_nacional": 408306746
+}
+},
+"MADRE DE DIOS": {
+"2025": {
+"dev": 1226303776,
+"pim": 1393994991,
+"dev_regional": 611344511,
+"canon": 41082115,
+"dev_local": 143289972,
+"foncomun": 65215015,
+"dev_nacional": 471669293
+},
+"2026": {
+"dev": 913150305,
+"pim": 1494130870,
+"dev_regional": 448920432,
+"canon": 21630509,
+"dev_local": 116431137,
+"foncomun": 64646635,
+"dev_nacional": 347798736
+}
+},
+"LORETO": {
+"2025": {
+"dev": 6664356104,
+"pim": 7156056338,
+"dev_regional": 3652945015,
+"canon": 927204828,
+"dev_local": 1413130227,
+"foncomun": 530590249,
+"dev_nacional": 1598280862
+},
+"2026": {
+"dev": 5521673394,
+"pim": 8133989587,
+"dev_regional": 3051300733,
+"canon": 726287202,
+"dev_local": 1186074499,
+"foncomun": 512489793,
+"dev_nacional": 1284298162
+}
+},
+"LAMBAYEQUE": {
+"2025": {
+"dev": 5571170985,
+"pim": 6061133050,
+"dev_regional": 2359156080,
+"canon": 35694730,
+"dev_local": 926526565,
+"foncomun": 331818439,
+"dev_nacional": 2285488340
+},
+"2026": {
+"dev": 4140882571,
+"pim": 6322527387,
+"dev_regional": 1776036974,
+"canon": 15051566,
+"dev_local": 639999605,
+"foncomun": 279199690,
+"dev_nacional": 1724845992
+}
+},
+"LA LIBERTAD": {
+"2025": {
+"dev": 8688370292,
+"pim": 9630188898,
+"dev_regional": 3684019387,
+"canon": 445185911,
+"dev_local": 1900821057,
+"foncomun": 468382997,
+"dev_nacional": 3103529848
+},
+"2026": {
+"dev": 6569789600,
+"pim": 10632037795,
+"dev_regional": 2767995055,
+"canon": 324146282,
+"dev_local": 1410273324,
+"foncomun": 388918885,
+"dev_nacional": 2391521221
+}
+},
+"JUNIN": {
+"2025": {
+"dev": 7405233216,
+"pim": 7963573231,
+"dev_regional": 3544505927,
+"canon": 331236705,
+"dev_local": 1496275488,
+"foncomun": 415704249,
+"dev_nacional": 2364451801
+},
+"2026": {
+"dev": 5428554170,
+"pim": 8422092384,
+"dev_regional": 2884644045,
+"canon": 322302132,
+"dev_local": 962046604,
+"foncomun": 342272844,
+"dev_nacional": 1581863521
+}
+},
+"ICA": {
+"2025": {
+"dev": 5356471483,
+"pim": 6049382136,
+"dev_regional": 2112105596,
+"canon": 1195121593,
+"dev_local": 1458114620,
+"foncomun": 176497812,
+"dev_nacional": 1786251267
+},
+"2026": {
+"dev": 4320675873,
+"pim": 6566286312,
+"dev_regional": 1784994042,
+"canon": 960288695,
+"dev_local": 1335110298,
+"foncomun": 152809560,
+"dev_nacional": 1200571534
+}
+},
+"HUANCAVELICA": {
+"2025": {
+"dev": 3440949680,
+"pim": 3808437703,
+"dev_regional": 1544395560,
+"canon": 264648065,
+"dev_local": 877443957,
+"foncomun": 158640274,
+"dev_nacional": 1019110164
+},
+"2026": {
+"dev": 2389604315,
+"pim": 3903970767,
+"dev_regional": 1106618193,
+"canon": 185407449,
+"dev_local": 610781877,
+"foncomun": 135622253,
+"dev_nacional": 672204244
+}
+},
+"CUSCO": {
+"2025": {
+"dev": 11216716699,
+"pim": 12212547445,
+"dev_regional": 3456699393,
+"canon": 3177775751,
+"dev_local": 3788079423,
+"foncomun": 403745667,
+"dev_nacional": 3971937883
+},
+"2026": {
+"dev": 7586771958,
+"pim": 11817243180,
+"dev_regional": 2700572802,
+"canon": 1996670505,
+"dev_local": 2555340232,
+"foncomun": 328036743,
+"dev_nacional": 2330858923
+}
+},
+"CAJAMARCA": {
+"2025": {
+"dev": 8699338838,
+"pim": 9614553883,
+"dev_regional": 3973905637,
+"canon": 442525499,
+"dev_local": 2198128065,
+"foncomun": 583799225,
+"dev_nacional": 2527305135
+},
+"2026": {
+"dev": 6708174135,
+"pim": 10483771493,
+"dev_regional": 3061262929,
+"canon": 606975354,
+"dev_local": 1785491221,
+"foncomun": 497387909,
+"dev_nacional": 1861419986
+}
+},
+"AYACUCHO": {
+"2025": {
+"dev": 5262935637,
+"pim": 5909115977,
+"dev_regional": 2662177447,
+"canon": 373189288,
+"dev_local": 1165855432,
+"foncomun": 211623837,
+"dev_nacional": 1434902758
+},
+"2026": {
+"dev": 3673559449,
+"pim": 5475841756,
+"dev_regional": 2084088344,
+"canon": 264150940,
+"dev_local": 674195850,
+"foncomun": 184335128,
+"dev_nacional": 915275254
+}
+},
+"AREQUIPA": {
+"2025": {
+"dev": 7779363843,
+"pim": 8503222357,
+"dev_regional": 2888701245,
+"canon": 1504266096,
+"dev_local": 2426358412,
+"foncomun": 281881826,
+"dev_nacional": 2464304186
+},
+"2026": {
+"dev": 6432143739,
+"pim": 9586240139,
+"dev_regional": 2388727237,
+"canon": 1001814606,
+"dev_local": 1833300330,
+"foncomun": 255858635,
+"dev_nacional": 2210116172
+}
+},
+"APURIMAC": {
+"2025": {
+"dev": 4175233554,
+"pim": 4632303597,
+"dev_regional": 1747141978,
+"canon": 716052149,
+"dev_local": 1177380693,
+"foncomun": 147335495,
+"dev_nacional": 1250710883
+},
+"2026": {
+"dev": 3056331315,
+"pim": 5110087344,
+"dev_regional": 1291820739,
+"canon": 690721368,
+"dev_local": 887386703,
+"foncomun": 122205494,
+"dev_nacional": 877123872
+}
+},
+"ANCASH": {
+"2025": {
+"dev": 9067533914,
+"pim": 10631566476,
+"dev_regional": 2682308644,
+"canon": 2324421258,
+"dev_local": 2980293185,
+"foncomun": 309314642,
+"dev_nacional": 3404932085
+},
+"2026": {
+"dev": 6088974630,
+"pim": 10891279579,
+"dev_regional": 2146185948,
+"canon": 1624588397,
+"dev_local": 2099782251,
+"foncomun": 268177437,
+"dev_nacional": 1843006431
+}
+},
+"AMAZONAS": {
+"2025": {
+"dev": 3472220419,
+"pim": 3694936902,
+"dev_regional": 1624941859,
+"canon": 118248075,
+"dev_local": 745719706,
+"foncomun": 207558116,
+"dev_nacional": 1101558854
+},
+"2026": {
+"dev": 2660134885,
+"pim": 3758557346,
+"dev_regional": 1334386376,
+"canon": 40229365,
+"dev_local": 517379054,
+"foncomun": 187494854,
+"dev_nacional": 808369455
+}
+},
+"EXTERIOR": {
+"2025": {
+"dev": 867572533,
+"pim": 880969136,
+"dev_nacional": 867572533
+},
+"2026": {
+"dev": 588995791,
+"pim": 821540160,
+"dev_nacional": 588995791
+}
+},
+"": {
+"2026": {
+"dev": 0,
+"pim": 0,
+"dev_regional": 0,
+"canon": 0,
+"dev_local": 0
+}
+}
+},
+"total": {
+"2025": {
+"dev": 217580998971,
+"pim": 235941794106,
+"dev_regional": 58346491648,
+"canon": 17975428767,
+"dev_local": 41824147864,
+"foncomun": 8284570206,
+"dev_nacional": 117410359459
+},
+"2026": {
+"dev": 164379374430,
+"pim": 248458674726,
+"dev_regional": 45651207184,
+"canon": 13034490764,
+"dev_local": 30356837104,
+"foncomun": 7019563007,
+"dev_nacional": 88371330143
+}
+}
+}
