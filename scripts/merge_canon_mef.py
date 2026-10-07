@@ -25,9 +25,13 @@ def tipo(nombre):
     return 'otros'
 MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','setiembre','octubre','noviembre','diciembre']
 deps, tot, cortes = {}, {}, {}
+ents = {}  # ubigeo|nivel|nombre -> {year: {tipo: monto}}
 for f in sorted(glob.glob(os.path.join(src, 'canon_*.json'))):
     d = json.load(open(f)); y = d['year']
     cortes[y] = MES[max((i for i, v in enumerate(d['meses']) if v > 1e7), default=11)]
+    for key, v in d.get('ent', {}).items():
+        ub, niv, nom, con = key.split('|', 3); t = tipo(con)
+        e = ents.setdefault(f'{ub}|{niv}|{nom}', {}).setdefault(y, {}); e[t] = e.get(t, 0) + v
     for key, v in d['agg'].items():
         dep, niv, con = key.split('|'); t = tipo(con)
         for tgt in (deps.setdefault(dep, {}).setdefault(y, {}), tot.setdefault(y, {})):
@@ -44,4 +48,16 @@ json.dump({'fuente': 'MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso r
            'tipos': [{'k': k, 'l': l} for k, l, _ in TIPOS], 'corte_2026': f'{cortes.get(y26, "")} {y26}', 'cortes': cortes,
            'procesado': datetime.date.today().isoformat(), 'departamentos': {k: R(v) for k, v in deps.items()}, 'total': R(tot)},
           open(out, 'w'), ensure_ascii=False, indent=0)
+# entidades: por departamento (2 primeros dígitos del ubigeo), solo las que reciben canon/regalías
+CK = set(CANON_KEYS); out_e = {}
+for key, ys in ents.items():
+    ub, niv, nom = key.split('|', 2)
+    tot_y = {y: round(sum(v for k, v in tv.items() if k in CK)) for y, tv in ys.items()}
+    if not any(v > 1e5 for v in tot_y.values()): continue
+    det = {y: {k: round(v) for k, v in tv.items() if (k in CK or k == 'foncomun') and v > 1e4} for y, tv in ys.items() if y >= '2024'}
+    out_e.setdefault(ub[:2], []).append({'u': ub, 'v': niv, 'n': nom, 'y': tot_y, 'd': det})
+for k in out_e: out_e[k].sort(key=lambda e: -e['y'].get('2025', 0))
+json.dump({'fuente': 'MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado por entidad)', 'cortes': cortes, 'por_departamento': out_e},
+          open(out.replace('.json', '_entidades.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+print('entidades', sum(len(v) for v in out_e.values()))
 print('cortes', cortes); print({y: round(v['total_canon'] / 1e6) for y, v in tot.items()})

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Agrega (streaming, stdin) el CSV MEF de Ingreso Recaudado: transferencias recibidas por gobiernos regionales
 y locales del rubro 18 (canon, sobrecanon, regalías, renta de aduanas y participaciones) y del rubro 07 (Foncomun),
-por departamento de la entidad receptora x nivel x concepto (específica detallada). Excluye saldos de balance.
+por departamento de la entidad receptora x nivel x concepto, y por entidad receptora (ubigeo) (específica detallada). Excluye saldos de balance.
 Uso: curl -s .../2025-Ingreso-Recaudado-Mensual.csv | python3 scripts/agg_canon_mef.py 2025 out.json"""
 import csv, sys, io, json
 year, out = sys.argv[1], sys.argv[2]
@@ -12,7 +12,7 @@ mi = [ix.get('MONTO_RECAUDADO_' + m) for m in MES]
 def f(x):
     try: return float(x)
     except: return 0.0
-agg = {}; meses = [0.0] * 12; n = 0
+agg = {}; ent = {}; meses = [0.0] * 12; n = 0
 for row in r:
     try:
         rub = row[ix['RUBRO']]
@@ -27,5 +27,8 @@ for row in r:
     n += 1
     for k in range(12): meses[k] += mv[k]
     key = f'{dep}|{niv}|{con}'; agg[key] = agg.get(key, 0.0) + tot
-json.dump({'year': year, 'rows': n, 'meses': meses, 'agg': agg}, open(out, 'w'), ensure_ascii=False)
+    # detalle por entidad receptora (ubigeo de la ejecutora)
+    ub = row[ix['DEPARTAMENTO_EJECUTORA']] + row[ix['PROVINCIA_EJECUTORA']] + row[ix['DISTRITO_EJECUTORA']]
+    ek = f"{ub}|{niv}|{row[ix['EJECUTORA_NOMBRE']].strip()}|{con}"; ent[ek] = ent.get(ek, 0.0) + tot
+json.dump({'year': year, 'rows': n, 'meses': meses, 'agg': agg, 'ent': ent}, open(out, 'w'), ensure_ascii=False)
 print(year, 'rows', n, 'keys', len(agg), file=sys.stderr)

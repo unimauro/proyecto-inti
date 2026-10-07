@@ -38,6 +38,8 @@ SINADEF = load('data/fuentes/sinadef_defunciones_departamentos.json')
 ENLA = load('data/fuentes/enla2024_regiones.json')
 COMP = load('data/fuentes/compendio2025_salud_nacimientos.json')
 CANON = load('data/fuentes/mef_canon_departamentos.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos.json')) else None
+CANON_ENT = load('data/fuentes/mef_canon_departamentos_entidades.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos_entidades.json')) else None
+UBI = {o['u']: (dep, prov, o['d']) for dep, pv in TER.items() for prov, arr in pv.items() for o in arr}
 MEF = load('data/fuentes/mef_gasto_departamentos.json') if os.path.exists(D('data/fuentes/mef_gasto_departamentos.json')) else None
 
 def pick(dct, dep, alias=None):
@@ -441,6 +443,8 @@ def page_region(r, nac, regiones):
                   + ''.join(f'<a href="../../?u={x["u"]}">{esc(x["d"])}</a>' for x in v) + '</div></details>' for p, v in by.items())
     out.append(fiscal_section(r, nac))
     out.append(canon_section(r, nac))
+    out.append(camisea_section(r, nac, regiones))
+    out.append(canon_receptores_section(r))
     out.append(salud_vida_section(r, nac))
     out.append(lectura_section(r, nac))
     out.append(ranking_section(r, regiones))
@@ -467,8 +471,9 @@ if(D.pob&&D.pob.length)new Chart(document.getElementById('chPob'),{{type:'line',
 if(D.prov&&D.prov.length)new Chart(document.getElementById('chProv'),{{data:{{labels:D.prov.map(p=>p[0]),datasets:[{{type:'bar',label:'Pobreza %',data:D.prov.map(p=>p[1]),backgroundColor:c1,borderRadius:5,xAxisID:'x',order:2}},{{type:'line',label:'IDH ×100',data:D.prov.map(p=>p[2]),borderColor:'#93c5fd',backgroundColor:'#93c5fd',showLine:false,pointRadius:6,pointBorderColor:'#0a0f1e',pointBorderWidth:2,xAxisID:'x',order:1}}]}},options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom'}}}},scales:{{x:{{grid:{{color:grid}},beginAtZero:true}},y:{{grid:{{display:false}}}}}}}}}});
 const ax=(cb)=>({{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{y:{{grid:{{color:grid}},beginAtZero:true,ticks:{{callback:cb||(v=>v)}}}},x:{{grid:{{display:false}}}}}},spanGaps:true}});
 const el=id=>document.getElementById(id);
-if(el('chTax'))new Chart(el('chTax'),{{data:{{labels:D.ty.map(y=>y==='2026'?'2026*':y),datasets:[{{type:'bar',label:'Recaudación SUNAT (S/ millones)',data:D.tax,backgroundColor:c1,borderRadius:5,order:2}}].concat(D.gas.length?[{{type:'line',label:'Gasto público ejecutado en la región (S/ millones)',data:D.gas,borderColor:'#22c55e',backgroundColor:'#22c55e',borderWidth:3,tension:.25,order:1}}]:[])}},options:ax(v=>v.toLocaleString('es-PE'))}});
+if(el('chTax'))new Chart(el('chTax'),{{type:'bar',data:{{labels:D.ty.map(y=>y==='2026'?'2026*':y),datasets:[{{type:'bar',label:'Recaudación SUNAT (S/ millones)',data:D.tax,backgroundColor:c1,borderRadius:5,order:2}}].concat(D.gas.length?[{{type:'line',label:'Gasto público ejecutado en la región (S/ millones)',data:D.gas,borderColor:'#22c55e',backgroundColor:'#22c55e',borderWidth:3,tension:.25,order:1}}]:[])}},options:ax(v=>v.toLocaleString('es-PE'))}});
 if(el('chCanon')&&window.__CANON)new Chart(el('chCanon'),{{type:'bar',data:{{labels:__CANON.y.map(y=>y==='2026'?'2026*':y),datasets:__CANON.ds.map(d=>Object.assign({{stack:'c',borderRadius:2}},d))}},options:{{responsive:true,plugins:{{legend:{{position:'bottom',labels:{{boxWidth:12}}}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')}}}}}}}}}});
+if(el('chCamisea')&&window.__CAMISEA)new Chart(el('chCamisea'),{{type:'bar',data:{{labels:__CAMISEA.y.map(y=>y==='2026'?'2026*':y),datasets:[{{label:'Canon gasífero',data:__CAMISEA.gas,backgroundColor:'#ef4444',stack:'c',borderRadius:3}},{{label:'FOCAM',data:__CAMISEA.foc,backgroundColor:'#ec4899',stack:'c',borderRadius:3}}]}},options:{{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')+' M'}}}}}}}}}});
 if(el('chCam')&&D.cam.length)new Chart(el('chCam'),{{type:'bar',data:{{labels:D.camY,datasets:[{{label:'Camas hospitalarias',data:D.cam,backgroundColor:'#3b82f6',borderRadius:4}}]}},options:ax()}});
 if(el('chVit'))new Chart(el('chVit'),{{type:'line',data:{{labels:D.defY,datasets:[{{label:'Defunciones (SINADEF)',data:D.def,borderColor:'#ef4444',backgroundColor:'#ef4444',tension:.25}},{{label:'Nacimientos inscritos (RENIEC/INEI)',data:D.defY.map(y=>{{const i=D.nacY.indexOf(+y);return i>=0?D.nac[i]:null;}}),borderColor:'#22c55e',backgroundColor:'#22c55e',tension:.25}}]}},options:ax(v=>v.toLocaleString('es-PE'))}});
 if(el('chEnla'))new Chart(el('chEnla'),{{type:'line',data:{{labels:D.enlaY,datasets:[{{label:'Lectura',data:D.lec,borderColor:c1,backgroundColor:c1,borderWidth:3,tension:.25}},{{label:'Matemática',data:D.mat,borderColor:'#93c5fd',backgroundColor:'#93c5fd',borderWidth:3,tension:.25}}]}},options:ax(v=>v+'%')}});
@@ -522,6 +527,10 @@ def memoria(regiones, nac):
         if cn.get('total_canon'):
             det = ', '.join(f"{t['l']} S/ {fmt(cn[t['k']] / 1e6)} M" for t in CANON['tipos'] if t['k'] not in ('foncomun',) and cn.get(t['k'], 0) > 1e6)
             parts.append(f"canon, sobrecanon y regalías recibidos 2025 S/ {fmt(cn['total_canon'] / 1e6)} millones (S/ {fmt(X.get('canon_pc') or 0)} por habitante): {det}; Foncomun S/ {fmt((cn.get('foncomun') or 0) / 1e6)} M")
+            tops = [e for e in _entidades(r) if e['y'].get('2025', 0) > 0][:3]
+            if tops: parts.append('principales receptores de canon 2025: ' + ', '.join(f"{e['n'].title()} S/ {fmt(e['y']['2025'] / 1e6)} M" for e in tops))
+            gas_f = (cn.get('gasifero') or 0) + (cn.get('focam') or 0)
+            if gas_f > 1e6: parts.append(f"dinero de Camisea 2025 (canon gasífero + FOCAM) S/ {fmt(gas_f / 1e6)} M")
             c26 = (X['canon'].get('2026') or {}).get('total_canon')
             if c26: parts.append(f"canon y regalías 2026 a {CANON['corte_2026']} S/ {fmt(c26 / 1e6)} M")
         if X.get('camas'): parts.append(f"camas hospitalarias 2024 {fmt(X['camas'][-1])} ({f1(X.get('camas_10k'))} por 10 mil hab.)")
@@ -623,6 +632,81 @@ def canon_section(r, nac):
 <div class="card scroll"><table class="tbl"><thead><tr><th>Concepto (S/ millones)</th>{''.join(f'<th>{y}{"*" if y == "2026" else ""}</th>' for y in ys[-4:])}</tr></thead><tbody>{rows}</tbody></table></div></div>
 <p class="src" style="margin-top:8px">Fuente: <a href="{CANON['url']}">MEF — Datos Abiertos, Presupuesto de Ingresos</a> (ingreso recaudado por gobiernos regionales, municipalidades y universidades del departamento; rubro 18 por específica de ingreso; Foncomun = rubro 07).</p>
 <script>window.__CANON={json.dumps(data, ensure_ascii=False)};</script></section>"""
+
+NIVEL_LAB = {'R': 'Gobierno regional', 'M': 'Municipalidad', 'E': 'Universidad / entidad nacional'}
+
+def _entidades(r):
+    if not CANON_ENT: return []
+    code = r['distritos'][0]['u'][:2] if r['distritos'] else None
+    out, gr = [], None
+    for e in CANON_ENT['por_departamento'].get(code, []):
+        if e['v'] != 'R': out.append(e); continue
+        if gr is None: gr = {'u': '', 'v': 'R', 'n': f"Gobierno Regional de {r['nombre']} (todas sus unidades)", 'y': {}, 'd': {}}
+        for y, v in e['y'].items(): gr['y'][y] = gr['y'].get(y, 0) + v
+        for y, dv in e['d'].items():
+            t = gr['d'].setdefault(y, {})
+            for k, v in dv.items(): t[k] = t.get(k, 0) + v
+    if gr: out.append(gr)
+    return sorted(out, key=lambda e: -e['y'].get('2025', 0))
+
+def canon_receptores_section(r):
+    ents = _entidades(r)
+    if not ents: return ''
+    tlab = {t['k']: t['l'].split(' (')[0] for t in CANON['tipos']}
+    rows = ''
+    for e in ents[:15]:
+        t25 = e['y'].get('2025', 0)
+        if t25 <= 0: continue
+        d = (e['d'].get('2025') or {}); ppal = max((k for k in d if k != 'foncomun'), key=lambda k: d[k], default=None)
+        dist = UBI.get(e['u']); ind = IND.get(e['u'], {}) if e['u'] else {}
+        pob = ind.get('p25') or ind.get('p'); lugar = f'{dist[2]} ({dist[1]})' if dist else ''
+        pc = f'S/ {fmt(t25 / pob)}' if (pob and e['v'] == 'M') else '—'
+        nom = e['n'] if e['v'] == 'R' else e['n'].title()
+        rows += (f'<tr><td>{esc(nom)}<br><small style="color:var(--muted2)">{esc(NIVEL_LAB.get(e["v"], e["v"]))}{" · " + esc(lugar) if lugar else ""}</small></td>'
+                 f'<td class="n"><b>{fmt(t25 / 1e6)}</b></td><td class="n">{fmt(e["y"].get("2026", 0) / 1e6)}</td><td>{esc(tlab.get(ppal, "—"))}</td><td class="n">{pc}</td>'
+                 f'<td class="n">{fmt(sum(e["y"].values()) / 1e6)}</td></tr>')
+    # por provincia (solo municipalidades)
+    prov = {}
+    for e in ents:
+        if e['v'] != 'M': continue
+        dist = UBI.get(e['u'])
+        if dist: prov[dist[1]] = prov.get(dist[1], 0) + e['y'].get('2025', 0)
+    tot = sum(prov.values()) or 1
+    pbars = ''.join(f'<div style="margin:7px 0"><div style="display:flex;justify-content:space-between"><span>{esc(k)}</span><b>S/ {fmt(v / 1e6)} M · {f1(v / tot * 100)}%</b></div><div class="bar"><i style="width:{v / max(prov.values()) * 100:.0f}%"></i></div></div>'
+                    for k, v in sorted(prov.items(), key=lambda x: -x[1]) if v > 0)
+    return f"""<section><h2>📍 ¿Quién recibe el canon dentro de {esc(r['nombre'])}?</h2>
+<p class="desc">Entidades de la región que más canon, sobrecanon y regalías recibieron en 2025 (millones de soles). Por ley, la mayor parte va a las municipalidades de la zona productora; el canon por habitante muestra cuánto le toca a cada vecino.</p>
+<div class="grid2"><div class="card scroll"><table class="tbl"><thead><tr><th>Entidad</th><th>2025</th><th>2026*</th><th>Principal fuente</th><th>Por habitante</th><th>Acum. 2019-26</th></tr></thead><tbody>{rows}</tbody></table>
+<p class="src" style="margin-top:6px">* 2026 a {CANON['corte_2026']}. Por habitante: municipalidades distritales, con población estimada 2025 del distrito.</p></div>
+<div class="card"><h3 style="margin-bottom:6px">Municipalidades por provincia, 2025</h3>{pbars}</div></div>
+<p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado de cada entidad, rubro 18).</p></section>"""
+
+def camisea_section(r, nac, regiones):
+    cn = r['x'].get('canon') or {}
+    ys = [str(y) for y in range(2019, 2027)]
+    gas = {y: (cn.get(y) or {}).get('gasifero', 0) for y in ys}; foc = {y: (cn.get(y) or {}).get('focam', 0) for y in ys}
+    if sum(gas.values()) + sum(foc.values()) < 1e6: return ''
+    acum = sum(gas.values()) + sum(foc.values())
+    nat = {d: sum(((rr['x'].get('canon') or {}).get(y) or {}).get('gasifero', 0) + ((rr['x'].get('canon') or {}).get(y) or {}).get('focam', 0) for y in ys) for d, rr in regiones.items()}
+    natot = sum(nat.values()) or 1
+    reparto = ' · '.join(f"{regiones[d]['nombre']} {f1(v / natot * 100)}%" for d, v in sorted(nat.items(), key=lambda x: -x[1]) if v / natot > 0.005)
+    ents = [e for e in _entidades(r) if any((e['d'].get(y) or {}).get('gasifero', 0) + (e['d'].get(y) or {}).get('focam', 0) > 0 for y in ('2024', '2025', '2026'))]
+    ents.sort(key=lambda e: -((e['d'].get('2025') or {}).get('gasifero', 0) + (e['d'].get('2025') or {}).get('focam', 0)))
+    top = ''
+    for e in ents[:8]:
+        d25 = e['d'].get('2025') or {}; v = d25.get('gasifero', 0) + d25.get('focam', 0)
+        dist = UBI.get(e['u']); ind = IND.get(e['u'], {}) if e['u'] else {}; pob = ind.get('p25') or ind.get('p')
+        pc = f' · S/ {fmt(v / pob)} por habitante' if (pob and e['v'] == 'M') else ''
+        top += f'<li><b>{esc(e["n"] if e["v"] == "R" else e["n"].title())}</b>{" (" + esc(dist[1]) + ")" if dist else ""}: S/ {fmt(v / 1e6)} M en 2025{pc}</li>'
+    tipo_txt = ('canon gasífero (es la región productora: los lotes de Camisea están en La Convención)' if sum(gas.values()) > sum(foc.values())
+                else 'FOCAM, el fondo que comparte las regalías de Camisea con las regiones por donde pasa el ducto')
+    data = {'y': ys, 'gas': [round(gas[y] / 1e6, 1) for y in ys], 'foc': [round(foc[y] / 1e6, 1) for y in ys]}
+    return f"""<section class="card special"><h2>🔥 Camisea en {esc(r['nombre'])}</h2>
+<p class="desc">{esc(r['nombre'])} recibe dinero del gas de Camisea vía {tipo_txt}. Acumulado 2019–2026: <b>S/ {fmt(acum / 1e6)} millones</b>.
+Reparto nacional del dinero de Camisea (canon gasífero + FOCAM, 2019-2026): {esc(reparto)}.</p>
+<div class="grid2"><div><canvas id="chCamisea" height="230"></canvas></div><div><h3 style="margin-bottom:6px">Quién lo recibe (2025)</h3><ul style="margin-left:18px">{top}</ul></div></div>
+<p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Presupuesto de Ingresos (específicas canon gasífero y regalías FOCAM). 2026 a {CANON['corte_2026']}.</p>
+<script>window.__CAMISEA={json.dumps(data)};</script></section>"""
 
 def salud_vida_section(r, nac):
     X = r['x']; nx = nac['x']; c = r['censo2025'] or {}
