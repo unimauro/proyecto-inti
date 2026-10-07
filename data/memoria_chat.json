@@ -577,6 +577,38 @@
 "Loreto 6,3%"
 ]
 },
+"empresas_1k": {
+"etiqueta": "Empresas activas x mil hab.",
+"fuente": "SUNAT padrón RUC 2026",
+"mejor_es": "mayor",
+"orden_mejor_a_peor": [
+"Lima 38,7",
+"Moquegua 35,3",
+"Arequipa 28,8",
+"Tacna 26,9",
+"Madre de Dios 25,7",
+"La Libertad 21,4",
+"Callao 21,0",
+"Cusco 20,9",
+"Apurímac 20,7",
+"Ucayali 20,5",
+"Pasco 20,4",
+"Áncash 20,2",
+"San Martín 20,0",
+"Puno 19,3",
+"Huánuco 18,8",
+"Junín 18,4",
+"Ica 17,9",
+"Cajamarca 16,8",
+"Lambayeque 16,5",
+"Amazonas 15,2",
+"Ayacucho 14,8",
+"Loreto 13,7",
+"Tumbes 12,7",
+"Piura 12,6",
+"Huancavelica 10,2"
+]
+},
 "camas_10k": {
 "etiqueta": "Camas hospitalarias x 10 mil hab.",
 "fuente": "MINSA 2024",

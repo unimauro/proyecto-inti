@@ -39,6 +39,8 @@ ENLA = load('data/fuentes/enla2024_regiones.json')
 COMP = load('data/fuentes/compendio2025_salud_nacimientos.json')
 CANON = load('data/fuentes/mef_canon_departamentos.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos.json')) else None
 EMP = load('data/fuentes/empresas_canon.json')
+RUC = load('data/fuentes/sunat_padron_ruc_ubigeo.json') if os.path.exists(D('data/fuentes/sunat_padron_ruc_ubigeo.json')) else None
+def ruc_count(prefix): return sum(v['pj'] for k, v in RUC['ubigeo'].items() if k.startswith(prefix)) if RUC else 0
 CANON_ENT = load('data/fuentes/mef_canon_departamentos_entidades.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos_entidades.json')) else None
 DET = load('data/fuentes/mef_gasto_detalle.json') if os.path.exists(D('data/fuentes/mef_gasto_detalle.json')) else None
 PROV_BY4 = {o['u'][:4]: prov for dep, pv in TER.items() for prov, arr in pv.items() for o in arr}
@@ -52,6 +54,11 @@ def pick(dct, dep, alias=None):
         if norm(k) in want: return v
     return None
 CALLAO_AL = ['Prov. Const. del Callao', 'Prov. Constitucional del Callao', 'Provincia Constitucional del Callao', 'Callao']
+
+def r_code(dep):
+    for prov, arr in TER.get(dep, {}).items():
+        for o in arr: return o['u'][:2]
+    return None
 
 def extra(dep, pob):
     """Indicadores de fuentes adicionales: impuestos, gasto público, salud, nacimientos, defunciones, lectura, EVN."""
@@ -80,6 +87,9 @@ def extra(dep, pob):
     en = ENLA['v']
     x['enla'] = pick(en, 'LIMA METROPOLITANA' if dep == 'Lima' else dep, al)
     cv = COMP
+    if RUC and r_code(dep):
+        x['empresas'] = ruc_count(r_code(dep))
+        if pob: x['empresas_1k'] = round(x['empresas'] / pob * 1000, 1)
     x['camas'] = pick(cv['camas']['v'], dep, al); x['medicos'] = pick(cv['medicos']['v'], dep, al)
     x['hab_medico'] = pick(cv['hab_por_medico']['v'], dep, al); x['nac_insc'] = pick(cv['nacimientos_inscritos']['v'], dep, al)
     if x['camas'] and pob: x['camas_10k'] = round(x['camas'][-1] / pob * 10000, 1)
@@ -151,6 +161,7 @@ RANK_IND = [  # clave, etiqueta corta, getter, ¿más es mejor?, unidad, fuente
     ('c_internet', 'Hogares con Internet', lambda r: (r['censo2025'] or {}).get('internet'), True, '%', 'Censo 2025'),
     ('lectura', 'Lectura satisfactoria (4.° prim.)', lambda r: ((r['x'].get('enla') or {}).get('lectura') or {}).get('satisfactorio'), True, '%', 'ENLA 2024'),
     ('matematica', 'Matemática satisfactoria (4.° prim.)', lambda r: ((r['x'].get('enla') or {}).get('matematica') or {}).get('satisfactorio'), True, '%', 'ENLA 2024'),
+    ('empresas_1k', 'Empresas activas x mil hab.', lambda r: r['x'].get('empresas_1k'), True, '', 'SUNAT padrón RUC 2026'),
     ('camas_10k', 'Camas hospitalarias x 10 mil hab.', lambda r: r['x'].get('camas_10k'), True, '', 'MINSA 2024'),
     ('hab_medico', 'Habitantes por médico', lambda r: (r['x'].get('hab_medico') or [None])[-1], False, '', 'CMP/INEI 2024'),
     ('evn', 'Esperanza de vida al nacer', lambda r: (r['x'].get('evn') or [None])[0], True, 'años', 'INEI 2020-25'),
@@ -160,6 +171,81 @@ RANK_IND = [  # clave, etiqueta corta, getter, ¿más es mejor?, unidad, fuente
     ('gasto_pc', 'Gasto público por habitante', lambda r: r['x'].get('gasto_pc'), None, 'S/', 'MEF 2025'),
     ('retorno', 'Gasto público / recaudación', lambda r: r['x'].get('retorno'), None, 'x', 'MEF y SUNAT 2025'),
 ]
+
+# ---------------------------------------------------------------- PROYECCIONES
+# Escenario INERCIAL: la tendencia observada continúa pero se amortigua (factor 0,85 por año), con límites físicos.
+# Escenario MEJORA: el indicador avanza al ritmo del 25% de regiones que más mejoraron en el mismo periodo.
+PROY_IND = [  # clave, etiqueta, serie(r) -> {año: valor}, más es mejor, piso, techo
+    ('pobreza', 'Pobreza monetaria (%)', lambda r: dict(zip(range(2016, 2026), r['pobreza_serie'] or [])), False, 1.0, 90.0),
+    ('anemia', 'Anemia 6-35 meses (%)', lambda r: {y: (r['endes'].get('anemia') or {}).get(f'y{y}') for y in range(2021, 2026)}, False, 8.0, 90.0),
+    ('dci', 'Desnutrición crónica <5 (%)', lambda r: {y: (r['endes'].get('dci') or {}).get(f'y{y}') for y in range(2021, 2026)}, False, 2.0, 60.0),
+    ('vacunas12m', 'Vacunas completas <12m (%)', lambda r: {y: (r['endes'].get('vacunas12m') or {}).get(f'y{y}') for y in range(2021, 2026)}, True, 0.0, 98.0),
+    ('lectura', 'Lectura satisfactoria 4.° prim. (%)', lambda r: {int(y): v for y, v in ((((r['x'].get('enla') or {}).get('lectura') or {}).get('historico')) or {}).items() if int(y) >= 2019}, True, 0.0, 95.0),
+]
+HORIZ = [2030, 2035, 2040, 2045, 2050, 2055]
+
+def _slope(series):
+    pts = [(y, v) for y, v in series.items() if v is not None]
+    if len(pts) < 3: return None, None, None
+    pts.sort(); n = len(pts); mx = sum(p[0] for p in pts) / n; my = sum(p[1] for p in pts) / n
+    den = sum((p[0] - mx) ** 2 for p in pts)
+    if not den: return None, None, None
+    b = sum((p[0] - mx) * (p[1] - my) for p in pts) / den
+    return b, pts[-1][0], pts[-1][1]
+
+def _proj(v0, y0, slope, floor, cap, damp=0.85, years=HORIZ):
+    out = {}
+    for Y in years:
+        t = Y - y0; tot = sum(slope * damp ** k for k in range(1, t + 1))
+        out[Y] = round(max(floor, min(cap, v0 + tot)), 1)
+    return out
+
+def proyecciones(regiones, nac):
+    """Agrega r['proy'] y nac['proy'] con escenario inercial y de mejora por indicador + población."""
+    # ritmo de mejora del cuartil superior (pp/año, con signo 'bueno')
+    best = {}
+    for k, lab, get, up, fl, cap in PROY_IND:
+        sl = []
+        for r in regiones.values():
+            b, _, _ = _slope(get(r))
+            if b is not None: sl.append(b if up else -b)
+        sl.sort()
+        best[k] = sl[int(len(sl) * 0.75)] if sl else 0
+    def one(series_fn, obj, is_nac=False):
+        res = {}
+        for k, lab, get, up, fl, cap in PROY_IND:
+            ser = series_fn(k, get)
+            b, y0, v0 = _slope(ser)
+            if b is None: continue
+            mej_rate = max(best[k], 0.3)  # pp/año de mejora (al menos 0,3)
+            res[k] = {'l': lab, 'up': up, 'serie': {str(y): v for y, v in sorted(ser.items()) if v is not None}, 'y0': y0, 'v0': v0,
+                      'slope': round(b, 2), 'mejora_pp': round(mej_rate, 2),
+                      'inercial': _proj(v0, y0, b, fl, cap),
+                      'mejora': _proj(v0, y0, mej_rate if up else -mej_rate, fl, cap, damp=0.97),
+                      'floor': fl, 'cap': cap}
+        return res
+    for r in regiones.values():
+        r['proy'] = one(lambda k, get: get(r), r)
+        # población: tasa intercensal 2017-2025 amortiguada
+        p0 = r['pob_ref']; p17 = r['pob2017'] or p0
+        g = (p0 / p17) ** (1 / 8) - 1 if p17 else 0
+        if (r['censo2025'] or {}).get('crec') is not None: g = r['censo2025']['crec'] / 100
+        pp = {}; val = p0
+        for y in range(2026, 2056):
+            val *= 1 + g * max(0.25, 1 - (y - 2025) / 40); 
+            if y in HORIZ: pp[y] = round(val)
+        r['proy']['poblacion'] = {'l': 'Población', 'g': round(g * 100, 2), 'v0': p0, 'y0': 2025, 'inercial': pp}
+    # nacional
+    nser = {'pobreza': dict(zip(range(2016, 2026), nac['pobreza_serie'])),
+            **{k: {y: (nac['endes'].get(k) or {}).get(f'y{y}') for y in range(2021, 2026)} for k in ('anemia', 'dci', 'vacunas12m')},
+            'lectura': {int(y): v for y, v in (((nac['x'].get('enla') or {}).get('lectura') or {}).get('historico') or {}).items() if int(y) >= 2019}}
+    nac['proy'] = one(lambda k, get: nser.get(k, {}), nac, True)
+    p0 = nac['censo2025']['pob']; g = nac['censo2025']['crec'] / 100; pp = {}; val = p0
+    for y in range(2026, 2056):
+        val *= 1 + g * max(0.25, 1 - (y - 2025) / 40)
+        if y in HORIZ: pp[y] = round(val)
+    nac['proy']['poblacion'] = {'l': 'Población', 'g': round(g * 100, 2), 'v0': p0, 'y0': 2025, 'inercial': pp}
+    return best
 
 def rankings(regiones):
     """{clave: [(dep, valor), ...] ordenado de MEJOR a PEOR}"""
@@ -222,6 +308,7 @@ def build():
           'hab_medico': COMP['hab_por_medico']['v'].get('Total'), 'nac_insc': COMP['nacimientos_inscritos']['v'].get('Total'),
           'cnv2026': sum(CNV['v'].values()), 'def': {y: sum(v.values()) for y, v in SINADEF['v'].items()}}
     nx['camas_10k'] = round(nx['camas'][-1] / npob * 10000, 1)
+    if RUC: nx['empresas'] = sum(v['pj'] for v in RUC['ubigeo'].values()); nx['empresas_1k'] = round(nx['empresas'] / npob * 1000, 1)
     nx['tax_pc'] = round(nx['tax']['2025'] * 1e6 / npob)
     if MEF:
         nx['gasto'] = MEF['total']; nx['gasto_pc'] = round(MEF['total']['2025']['dev'] / npob) if MEF['total'].get('2025') else None
@@ -446,6 +533,7 @@ def page_region(r, nac, regiones):
                   + ''.join(f'<a href="../../?u={x["u"]}">{esc(x["d"])}</a>' for x in v) + '</div></details>' for p, v in by.items())
     out.append(fiscal_section(r, nac))
     out.append(fuentes_fin_section(r, nac))
+    out.append(empresas_formales_section(r, nac))
     out.append(canon_section(r, nac))
     out.append(camisea_section(r, nac, regiones))
     out.append(empresas_section(r))
@@ -454,6 +542,9 @@ def page_region(r, nac, regiones):
     out.append(gasto_en_que_section(r))
     out.append(salud_vida_section(r, nac))
     out.append(lectura_section(r, nac))
+    out.append(demografia_section(r, nac))
+    out.append(proyeccion_section(r, nac))
+    out.append(debate_section(r, nac, regiones))
     out.append(ranking_section(r, regiones))
     out.append(f'<section><h2>📍 Todos los distritos</h2><p class="desc">Abre cualquier distrito en el gemelo digital (diagnóstico, prospectiva 2075 y planes descargables).</p><div class="card">{lst}</div></section>')
 
@@ -486,6 +577,14 @@ new Chart(el(id),{{type:'sankey',data:{{datasets:[{{data:links,labels,colorFrom:
 options:{{maintainAspectRatio:false,plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:c=>' '+labels[c.raw.from]+' → '+labels[c.raw.to]+': S/ '+c.raw.flow.toLocaleString('es-PE')+' M'}}}}}}}}}});}}
 if(window.__SK&&window.Chart&&Chart.registry.controllers.get('sankey')){{skDraw('skA',__SK.L1);skDraw('skB',__SK.L2);}}
 if(el('chFF')&&window.__FF)new Chart(el('chFF'),{{type:'bar',data:{{labels:__FF.y.map(y=>y==='2026'?'2026*':y),datasets:__FF.ds.map(d=>Object.assign({{stack:'f'}},d))}},options:{{responsive:true,plugins:{{legend:{{position:'bottom',labels:{{boxWidth:10,font:{{size:10}}}}}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')}}}}}}}}}});
+if(el('chDem')&&window.__DEM){{const M=__DEM;new Chart(el('chDem'),{{type:'line',data:{{labels:M.ys.map(y=>y==='2026'?'2026*':y),datasets:[{{label:'Nacimientos',data:M.b,borderColor:'#22c55e',backgroundColor:'#22c55e',tension:.25}},{{label:'Defunciones',data:M.d,borderColor:'#ef4444',backgroundColor:'#ef4444',tension:.25}},{{type:'bar',label:'Crecimiento natural',data:M.bal,backgroundColor:'rgba(59,130,246,.35)'}}]}},options:ax(v=>v.toLocaleString('es-PE'))}});
+new Chart(el('chPop'),{{type:'line',data:{{labels:M.py,datasets:[{{label:'Población',data:M.pv,borderColor:c1,backgroundColor:c1,borderWidth:3,segment:{{borderDash:ctx=>ctx.p0DataIndex>=1?[6,4]:undefined}}}}]}},options:Object.assign(ax(v=>(v/1e6).toLocaleString('es-PE',{{maximumFractionDigits:2}})+' M'),{{plugins:{{legend:{{display:false}}}}}})}});}}
+if(el('chPj')&&window.__PJ){{let pj=null;const draw=()=>{{const k=el('pjInd').value,ef=+el('pjEf').value/100,I=__PJ[k];el('pjLab').textContent=Math.round(ef*100)+'%';
+const hy=Object.keys(I.serie),fy=Object.keys(I.in),lab=hy.concat(fy);const mix=fy.map(y=>+(I.in[y]+(I.me[y]-I.in[y])*ef).toFixed(1));
+const hist=lab.map(y=>I.serie[y]??null),inn=lab.map(y=>y===hy[hy.length-1]?I.serie[y]:(I.in[y]??null)),sc=lab.map(y=>y===hy[hy.length-1]?I.serie[y]:(fy.includes(y)?mix[fy.indexOf(y)]:null));
+const v40=mix[fy.indexOf('2040')],v55=mix[fy.indexOf('2055')];el('pjOut').innerHTML=`Con ${{Math.round(ef*100)}}% de esfuerzo: <b>${{String(v40).replace('.',',')}}</b> en 2040 y <b>${{String(v55).replace('.',',')}}</b> en 2055 (inercial: ${{String(I.in['2040']).replace('.',',')}} / ${{String(I.in['2055']).replace('.',',')}}).`;
+pj&&pj.destroy();pj=new Chart(el('chPj'),{{type:'line',data:{{labels:lab,datasets:[{{label:'Histórico',data:hist,borderColor:'#e8edf7',backgroundColor:'#e8edf7',borderWidth:3}},{{label:'Inercial (todo sigue igual)',data:inn,borderColor:'#ef4444',borderDash:[6,4],pointRadius:0}},{{label:'Con el esfuerzo elegido',data:sc,borderColor:'#22c55e',backgroundColor:'#22c55e',borderWidth:3}}]}},options:Object.assign(ax(),{{maintainAspectRatio:false,animation:false}})}});}};
+el('pjInd').onchange=draw;el('pjEf').oninput=draw;draw();}}
 if(el('chCamisea')&&window.__CAMISEA)new Chart(el('chCamisea'),{{type:'bar',data:{{labels:__CAMISEA.y.map(y=>y==='2026'?'2026*':y),datasets:[{{label:'Canon gasífero',data:__CAMISEA.gas,backgroundColor:'#ef4444',stack:'c',borderRadius:3}},{{label:'FOCAM',data:__CAMISEA.foc,backgroundColor:'#ec4899',stack:'c',borderRadius:3}}]}},options:{{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')+' M'}}}}}}}}}});
 if(el('chCam')&&D.cam.length)new Chart(el('chCam'),{{type:'bar',data:{{labels:D.camY,datasets:[{{label:'Camas hospitalarias',data:D.cam,backgroundColor:'#3b82f6',borderRadius:4}}]}},options:ax()}});
 if(el('chVit'))new Chart(el('chVit'),{{type:'line',data:{{labels:D.defY,datasets:[{{label:'Defunciones (SINADEF)',data:D.def,borderColor:'#ef4444',backgroundColor:'#ef4444',tension:.25}},{{label:'Nacimientos inscritos (RENIEC/INEI)',data:D.defY.map(y=>{{const i=D.nacY.indexOf(+y);return i>=0?D.nac[i]:null;}}),borderColor:'#22c55e',backgroundColor:'#22c55e',tension:.25}}]}},options:ax(v=>v.toLocaleString('es-PE'))}});
@@ -645,6 +744,30 @@ El resto, S/ {fmt((tot - can) / 1e6)} M, vino de otras fuentes. La mayor parte d
 <div class="card"><h3 style="margin-bottom:6px">Evolución 2019–2026* (S/ millones)</h3><canvas id="chFF" height="240"></canvas></div></div>
 <p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Gasto Devengado por rubro de financiamiento (3 niveles de gobierno, meta en el departamento, sin transferencias ni deuda). * 2026 a {MEF['corte_2026']}.</p>
 <script>window.__FF={json.dumps({'y': ys, 'ds': ds}, ensure_ascii=False)};</script></section>"""
+
+def empresas_formales_section(r, nac):
+    if not RUC or not r['x'].get('empresas'): return ''
+    X = r['x']; code = r_code(r['dep'])
+    provs = []
+    for pv in r['provincias']:
+        dd = [x for x in r['distritos'] if x['prov'] == pv['prov']]
+        if not dd: continue
+        c = ruc_count(dd[0]['u'][:4]); pob = pv['p25'] or pv['p'] or 1
+        provs.append((pv['prov'], c, c / pob * 1000))
+    provs.sort(key=lambda x: -x[2])
+    mx = max(p[2] for p in provs) if provs else 1
+    pbars = ''.join(f'<div style="margin:7px 0"><div style="display:flex;justify-content:space-between;gap:8px"><a href="{slug(n)}/">{esc(n)}</a><b>{f1(t)} por mil · {fmt(c)} empresas</b></div><div class="bar"><i style="width:{t / mx * 100:.0f}%"></i></div></div>' for n, c, t in provs)
+    dist = []
+    for x in r['distritos']:
+        c = (RUC['ubigeo'].get(x['u']) or {}).get('pj', 0); pob = x['p25'] or x['p']
+        if c and pob: dist.append((x, c, c / pob * 1000))
+    top = sorted(dist, key=lambda z: -z[1])[:10]
+    trows = ''.join(f'<tr><td><a href="../../?u={x["u"]}">{esc(x["d"])}</a> <small style="color:var(--muted2)">{esc(x["prov"])}</small></td><td class="n">{fmt(c)}</td><td class="n">{f1(t)}</td><td class="n">{f1(x["t"])}%</td></tr>' for x, c, t in top)
+    return f"""<section id="empresas-formales"><h2>🏢 Empresas formales en {esc(r['nombre'])}</h2>
+<p class="desc"><b>{fmt(X['empresas'])} empresas activas</b> (personas jurídicas con RUC) tienen domicilio fiscal en la región: <b>{f1(X.get('empresas_1k'))} por cada mil habitantes</b> (Perú: {f1(nac['x'].get('empresas_1k'))}; puesto {r.get('ranks', {}).get('empresas_1k', '—')} de 25). Es un indicador de formalidad y tejido empresarial.</p>
+<div class="grid2"><div class="card"><h3 style="margin-bottom:6px">Por provincia (empresas por mil habitantes)</h3>{pbars}</div>
+<div class="card scroll"><h3 style="margin-bottom:6px">Distritos con más empresas</h3><table class="tbl"><thead><tr><th>Distrito</th><th>Empresas</th><th>Por mil hab.</th><th>Pobreza</th></tr></thead><tbody>{trows}</tbody></table></div></div>
+<p class="src" style="margin-top:8px">Fuente: <a href="{RUC['url']}">SUNAT — Padrón Reducido RUC</a> (descargado el {RUC['fecha']}), contribuyentes con estado ACTIVO y RUC 20, según el ubigeo del domicilio fiscal. Población: INEI (Censo 2025 o estimación 2025).</p></section>"""
 
 def canon_section(r, nac):
     cn = r['x'].get('canon')
@@ -873,6 +996,101 @@ def empresas_section(r):
 <div class="grid2">{''.join(_emp_card(e) for e in es)}</div>
 <p class="src" style="margin-top:8px">{esc(EMP['_meta']['nota'])} No convertimos a soles para no introducir supuestos de tipo de cambio.</p></section>"""
 
+def anomalias_def(r):
+    d = r['x']['def']; full = [d.get(str(y)) for y in range(2017, 2026) if d.get(str(y))]
+    if len(full) < 4: return []
+    med = sorted(full)[len(full) // 2]
+    return [y for y in [str(y) for y in range(2017, 2026)] if d.get(y) and d[y] < 0.7 * med]
+
+def demografia_section(r, nac):
+    X = r['x']; P = r['proy']['poblacion']
+    ys = [str(y) for y in range(2017, 2027)]
+    nac_i = dict(zip([str(y) for y in COMP['nacimientos_inscritos']['years']], X.get('nac_insc') or []))
+    births = [nac_i.get(y) for y in ys]; births[-1] = X.get('cnv2026')
+    deaths = [X['def'].get(y) for y in ys]
+    bal = [(b - d) if (b and d and y <= '2023') else None for y, b, d in zip(ys, births, deaths)]
+    pop_y = ['2017', '2025'] + [str(y) for y in HORIZ]; pop_v = [r['pob2017'], r['pob_ref']] + [P['inercial'][y] for y in HORIZ]
+    data = {'ys': ys, 'b': births, 'd': deaths, 'bal': bal, 'py': pop_y, 'pv': pop_v}
+    anom = anomalias_def(r)
+    bal = [None if y in anom else b for y, b in zip(ys, bal)]
+    last_bal = next((b for b in reversed(bal) if b is not None), None)
+    return f"""<section><h2>📈 Demografía: nacimientos, defunciones y población de {esc(r['nombre'])}</h2>
+<p class="desc">Nacimientos inscritos (RENIEC/INEI, 2017–2023) y nacidos vivos 2026 (CNV, año en curso); defunciones (SINADEF, 2026 a setiembre).
+{f"⚠️ Posible subregistro de defunciones en SINADEF en {', '.join(anom)} (valor anómalamente bajo); no calculamos el crecimiento natural de ese año. " if anom else ""}{f"Crecimiento natural (nacimientos − defunciones) del último año confiable: <b>{fmt(last_bal)}</b> personas." if last_bal is not None else ""}
+Población: {fmt(r['pob2017'])} (Censo 2017) → {fmt(r['pob_ref'])} ({r['pob_ref_fuente']}); si sigue el ritmo actual ({f1(P['g'])}% anual, amortiguado) sería <b>{fmt(P['inercial'][2040])}</b> en 2040 y <b>{fmt(P['inercial'][2055])}</b> en 2055.</p>
+<div class="grid2"><div class="card"><h3 style="margin-bottom:6px">Nacimientos, defunciones y crecimiento natural</h3><canvas id="chDem" height="240"></canvas><p class="src">2026: CNV y SINADEF parciales.</p></div>
+<div class="card"><h3 style="margin-bottom:6px">Población 2017–2055 (proyección inercial INTI)</h3><canvas id="chPop" height="240"></canvas><p class="src">2017 y 2025: Censo/estimación. 2030+: proyección de INTI, no oficial.</p></div></div>
+<script>window.__DEM={json.dumps(data)};</script></section>"""
+
+def proyeccion_section(r, nac):
+    pr = {k: v for k, v in r['proy'].items() if k != 'poblacion'}
+    if not pr: return ''
+    rows = ''
+    for k, v in pr.items():
+        def cls(a, b):
+            d = (a - b) if v['up'] else (b - a)
+            return 'up' if d > 0.05 else ('down' if d < -0.05 else 'flat')
+        rows += (f'<tr><td>{esc(v["l"])}</td><td class="n"><b>{f1(v["v0"])}</b> <small>({v["y0"]})</small></td>'
+                 f'<td class="n {cls(v["inercial"][2040], v["v0"])}">{f1(v["inercial"][2040])}</td><td class="n {cls(v["inercial"][2055], v["v0"])}">{f1(v["inercial"][2055])}</td>'
+                 f'<td class="n up">{f1(v["mejora"][2040])}</td><td class="n up">{f1(v["mejora"][2055])}</td></tr>')
+    data = {k: {'l': v['l'], 'up': v['up'], 'serie': v['serie'], 'in': {str(y): x for y, x in v['inercial'].items()}, 'me': {str(y): x for y, x in v['mejora'].items()}} for k, v in pr.items()}
+    return f"""<section id="proyeccion"><h2>🔮 ¿Cómo estará {esc(r['nombre'])} en 15 y 30 años?</h2>
+<p class="desc"><b>Escenario inercial</b>: si las cosas siguen como van, la tendencia de los últimos años continúa (amortiguada). <b>Escenario de mejora</b>: si la región avanzara al ritmo del 25% de regiones que más mejoraron en el mismo periodo. Son escenarios de INTI, no proyecciones oficiales.</p>
+<div class="card scroll"><table class="tbl"><thead><tr><th>Indicador</th><th>Hoy</th><th>2040 inercial</th><th>2055 inercial</th><th>2040 con mejora</th><th>2055 con mejora</th></tr></thead><tbody>{rows}</tbody></table>
+<p class="src" style="margin-top:6px">Verde = mejor que hoy; rojo = peor que hoy. Tendencias: pobreza 2016–2025, salud 2021–2025, lectura 2019–2024.</p></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">🎛️ Simulador: ¿y si mejoramos en este sector?</h3>
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px"><select id="pjInd" style="background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font:inherit">{''.join(f'<option value="{k}">{esc(v["l"])}</option>' for k, v in pr.items())}</select>
+<label style="font-size:.85rem;color:var(--muted)">Esfuerzo: <b id="pjLab">50%</b> <input type="range" id="pjEf" min="0" max="100" value="50" style="vertical-align:middle;width:180px"></label>
+<span id="pjOut" style="font-size:.9rem"></span></div>
+<div style="position:relative;height:300px"><canvas id="chPj"></canvas></div>
+<p class="src">0% = todo sigue igual (inercial) · 100% = ritmo de las regiones que más mejoraron. Ejemplos de palancas: anemia ↔ cobertura de hierro, agua segura y CRED; desnutrición ↔ saneamiento y controles; lectura ↔ docentes y materiales; pobreza ↔ empleo formal y conectividad.</p></div>
+<script>window.__PJ={json.dumps(data, ensure_ascii=False)};</script></section>"""
+
+def debate_section(r, nac, regiones):
+    """Análisis adversarial determinístico: tres agentes con reglas explícitas sobre los datos + síntesis."""
+    nombre = r['nombre']; rk = r.get('ranks', {}); vals = r.get('vals', {}); nv = nac.get('vals', {})
+    lab = {k: l for k, l, *_ in RANK_IND}; uni = {k: u for k, _, _, _, u, _ in RANK_IND}; up = {k: u for k, _, _, u, *_ in RANK_IND}
+    def fv(k): v = vals.get(k); u = uni.get(k); return '—' if v is None else (f'S/ {fmt(v)}' if u == 'S/' else (f'{f1(v)}%' if u == '%' else f'{f1(v)} {u}'.strip()))
+    buenos = sorted([k for k in rk if up.get(k) is not None and rk[k] and rk[k] <= 6], key=lambda k: rk[k])
+    malos = sorted([k for k in rk if up.get(k) is not None and rk[k] and rk[k] >= 19], key=lambda k: -rk[k])
+    e = r['endes']; mejoran = [k for k in ('anemia', 'dci', 'vacunas12m', 'cred', 'hierro') if e.get(k) and ((e[k]['y2025'] - e[k]['y2024']) * (1 if up.get(k) else -1)) > 1]
+    empeoran = [k for k in ('anemia', 'dci', 'vacunas12m', 'cred', 'hierro') if e.get(k) and ((e[k]['y2025'] - e[k]['y2024']) * (1 if up.get(k) else -1)) < -1]
+    X = r['x']; g = (X.get('gasto') or {}).get('2025') or {}
+    opt = [f'Está en el <b>puesto {rk[k]} de 25</b> en {lab[k].lower()} ({fv(k)}; Perú {("S/ " + fmt(nv[k])) if uni.get(k) == "S/" else f1(nv.get(k))}).' for k in buenos[:4]]
+    opt += [f'Mejoró en {lab[k].lower()} entre 2024 y 2025 ({f1(e[k]["y2024"])} → {f1(e[k]["y2025"])}).' for k in mejoran[:2]]
+    if X.get('retorno') and X['retorno'] > 1: opt.append(f'Recibe en gasto público <b>S/ {f1(X["retorno"])} por cada S/ 1</b> que SUNAT recauda en la región.')
+    cri = [f'Está en el <b>puesto {rk[k]} de 25</b> en {lab[k].lower()} ({fv(k)}).' for k in malos[:4]]
+    cri += [f'Empeoró en {lab[k].lower()} entre 2024 y 2025 ({f1(e[k]["y2024"])} → {f1(e[k]["y2025"])}).' for k in empeoran[:2]]
+    dd = _det_dep(r) or {}; fc = ((dd.get('2025') or {}).get('fun_canon')) or {}
+    tp = sum(v[1] for v in fc.values()); td = sum(v[0] for v in fc.values())
+    if tp and tp - td > 5e6: cri.append(f'Dejó <b>S/ {fmt((tp - td) / 1e6)} M del presupuesto con canon sin gastar</b> en 2025 ({f1(100 - td / tp * 100)}%).')
+    if g.get('dev') and g.get('rub_18', 0) / g['dev'] > 0.2: cri.append(f'Depende del canon: financia el {f1(g["rub_18"] / g["dev"] * 100)}% de su gasto, y el canon sube y baja con los precios de los metales y del gas.')
+    pin = r['proy'].get('anemia') or {}
+    if pin and pin['inercial'][2040] > pin['v0'] + 1: cri.append(f'Si la tendencia sigue, la anemia infantil llegaría a ~{f1(pin["inercial"][2040])}% en 2040.')
+    aud = ['ENDES y ENAHO son <b>encuestas</b>: los valores regionales tienen márgenes de error de ±3 a ±7 puntos; un cambio de 1–2 puntos puede no ser real.',
+           'La recaudación SUNAT se registra por <b>domicilio fiscal</b> (Lima), así que subestima lo que la región genera.']
+    an = anomalias_def(r)
+    if an: aud.append(f'SINADEF muestra defunciones anómalamente bajas en {", ".join(an)} (posible subregistro): cuidado con conclusiones demográficas de ese año.')
+    if r['pob_ref_fuente'] != 'Censo 2025': aud.append('La población es una <b>estimación</b>: INEI aún no publica el Censo 2025 de la región, lo que afecta los indicadores por habitante.')
+    aud.append('Las proyecciones son escenarios simples de tendencia, <b>no pronósticos</b>: no anticipan crisis, precios de metales ni cambios de política.')
+    if not any(norm(r['dep']) in {norm(x) for x in em['regiones']} for em in EMP['empresas']): aud.append('No encontramos estados financieros públicos de las empresas que generan su canon.')
+    prio = []
+    for k in malos[:3]:
+        palanca = {'anemia': 'suplementación con hierro, agua segura y controles CRED', 'dci': 'saneamiento, CRED y lactancia', 'cred': 'personal de salud y seguimiento nominal de niños',
+                   'hierro': 'distribución y adherencia del suplemento', 'vacunas12m': 'brigadas y seguimiento nominal', 'pobreza': 'empleo formal, productividad agraria y conectividad',
+                   'lectura': 'acompañamiento docente y materiales', 'matematica': 'acompañamiento docente y materiales', 'c_agua': 'proyectos de agua y saneamiento con canon',
+                   'c_desague': 'proyectos de saneamiento', 'c_internet': 'conectividad rural', 'camas_10k': 'cierre de brecha hospitalaria', 'hab_medico': 'atracción de médicos a zonas alejadas',
+                   'violencia': 'prevención y atención a víctimas', 'saneamiento': 'saneamiento básico', 'lactancia': 'consejería a madres', 'evn': 'atención primaria', 'tmi': 'atención materno-neonatal',
+                   'ingreso': 'empleo formal y productividad'}.get(k, 'política focalizada')
+        prio.append(f'<b>{lab[k]}</b> ({fv(k)}, puesto {rk[k]}): {palanca}.')
+    li = lambda xs: '<ul style="margin-left:18px">' + ''.join(f'<li style="margin:5px 0">{x}</li>' for x in xs) + '</ul>' if xs else '<p class="src">Sin hallazgos destacados con las reglas actuales.</p>'
+    return f"""<section id="debate"><h2>🤖 Análisis adversarial: tres agentes discuten {esc(nombre)}</h2>
+<p class="desc">Tres agentes analizan los mismos datos con objetivos opuestos; un cuarto sintetiza. Las reglas son explícitas y reproducibles (no hay IA generativa: cada afirmación sale de una cifra de esta página).</p>
+<div class="grid2"><div class="card" style="border-left:4px solid var(--verde)"><h3>🟢 Agente optimista</h3><p class="src">Busca lo que funciona.</p>{li(opt)}</div>
+<div class="card" style="border-left:4px solid var(--rojo)"><h3>🔴 Agente crítico</h3><p class="src">Busca brechas, retrocesos y riesgos.</p>{li(cri)}</div>
+<div class="card" style="border-left:4px solid var(--ambar)"><h3>⚖️ Agente auditor de datos</h3><p class="src">Cuestiona a los otros dos: ¿qué tan confiables son las cifras?</p>{li(aud)}</div>
+<div class="card" style="border-left:4px solid var(--azul)"><h3>🧭 Síntesis: 3 prioridades</h3><p class="src">Donde la región está peor posicionada, con palancas de política conocidas.</p>{li(prio)}</div></div></section>"""
+
 def salud_vida_section(r, nac):
     X = r['x']; nx = nac['x']; c = r['censo2025'] or {}
     k = []
@@ -969,6 +1187,7 @@ FUENTES = [  # tema, fuente, corte, url
     ('Anemia, desnutrición, vacunas, CRED, hierro, lactancia, agua, saneamiento, violencia, fecundidad', 'INEI — ENDES 2025, Indicadores de Programas Presupuestales', '2025 (publicado may-2026)', 'https://proyectos.inei.gob.pe/endes/2025/ppr/Informe_Indicadores_de_Resultados_de_los_Programas_Presupuestales_ENDES_2025.pdf'),
     ('Población, viviendas y servicios', 'INEI — Censos Nacionales 2025 (notas departamentales)', '2025 (publicado may–oct 2026)', 'https://censos2025.inei.gob.pe/'),
     ('Recaudación tributaria por región', 'SUNAT vía BCRP — tributos internos según departamento', TAX['corte'], TAX['url']),
+    ('Empresas activas por región, provincia y distrito', 'SUNAT — Padrón Reducido RUC (personas jurídicas activas por ubigeo)', (RUC or {}).get('fecha', ''), 'http://www2.sunat.gob.pe/padron_reducido_ruc.zip'),
     ('Ventas y utilidades de empresas que generan canon', 'Estados financieros y reportes anuales (Cerro Verde/SMV, Southern Copper, MMG, Hudbay, Teck, Anglo American) y Perupetro', '2024-2025', 'https://www.smv.gob.pe/'),
     ('Canon, sobrecanon, regalías, FOCAM, renta de aduanas, Foncomun', 'MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado por GR y GL)', (CANON or {}).get('corte_2026', ''), 'https://datosabiertos.mef.gob.pe/'),
     ('Gasto público ejecutado en la región', 'MEF — Datos Abiertos, Gasto Devengado (3 niveles de gobierno)', (MEF or {}).get('corte_2026', 'en carga'), 'https://datosabiertos.mef.gob.pe/'),
@@ -1084,7 +1303,9 @@ def page_provincia(r, pv, regiones, nac):
 <div class="kicker"><a href="../" style="color:#fff">Región {esc(nombre)}</a> · Carátula provincial</div><h1>{esc(prov.title() if prov.isupper() else prov)}</h1>
 <p class="lead">Provincia de la región {esc(nombre)}: {len(dists)} distritos. Indicadores sociales, canon que reciben sus municipalidades y en qué se gasta.</p>
 <div class="meta"><span>{len(dists)} distritos</span><span>👥 {fmt(pv['p25'])} hab. (est. 2025)</span><span>⬅️ <a href="../" style="color:#fff">Volver a {esc(nombre)}</a></span></div></header>""")
+    pemp = ruc_count(code4) if RUC else 0
     k = [_kpi('Población 2017 (Censo)', fmt(pv['p']), f'estimación 2025: {fmt(pv["p25"])}'),
+         _kpi('Empresas activas', fmt(pemp), f'{f1(pemp / pob25 * 1000)} por mil hab. · región {f1(r["x"].get("empresas_1k"))}'),
          _kpi('IDH (ponderado)', fidh(pv['i']), f'región {fidh(r["idh2019"])} · PNUD 2019'),
          _kpi('Pobreza (mapa INEI)', f'{f1(pv["t"])}%', f'extrema {f1(pv["e"])}% · región {f1(r["pobreza_distr"])}%')]
     if tot25:
@@ -1145,17 +1366,19 @@ def page_provincia(r, pv, regiones, nac):
     drows = ''
     for x in sorted(dists, key=lambda x: -(em.get(x['u'], {}).get('y', {}).get('2025', 0))):
         e = em.get(x['u']); c = (e or {}).get('y', {}).get('2025', 0); pob = x['p25'] or x['p']
-        drows += (f'<tr><td><a href="../../../?u={x["u"]}">{esc(x["d"])}</a></td><td class="n">{fmt(pob or 0)}</td><td class="n">{fidh(x["i"])}</td><td class="n">{f1(x["t"])}%</td>'
+        emp = (RUC['ubigeo'].get(x['u']) or {}).get('pj', 0) if RUC else 0
+        drows += (f'<tr><td><a href="../../../?u={x["u"]}">{esc(x["d"])}</a></td><td class="n">{fmt(pob or 0)}</td><td class="n">{fidh(x["i"])}</td><td class="n">{f1(x["t"])}%</td><td class="n">{fmt(emp)}{(" <small>(" + f1(emp / pob * 1000) + "‰)</small>") if (emp and pob) else ""}</td>'
                   f'<td class="n">{fmt(c / 1e6) if c else "—"}</td><td class="n">{("S/ " + fmt(c / pob)) if (c and pob) else "—"}</td></tr>')
     known = {x['u'] for x in dists}
     for e in sorted([e for e in ents if e['u'] not in known and e['u'][4:] != '01'], key=lambda e: -e['y'].get('2025', 0)):
         ind = IND.get(e['u'], {}); pob = ind.get('p25') or ind.get('p'); c = e['y'].get('2025', 0)
         nm = e['n'].title().replace('Municipalidad Distrital De ', '').replace('Municipalidad Distrital ', '')
-        drows += (f'<tr><td>{esc(nm)} <small style="color:var(--muted2)">(distrito creado después de 2016)</small></td><td class="n">{fmt(pob) if pob else "—"}</td><td class="n">{fidh(ind.get("i"))}</td><td class="n">{f1(ind.get("t")) + "%" if ind.get("t") is not None else "—"}</td>'
+        emp = (RUC['ubigeo'].get(e['u']) or {}).get('pj', 0) if RUC else 0
+        drows += (f'<tr><td>{esc(nm)} <small style="color:var(--muted2)">(distrito creado después de 2016)</small></td><td class="n">{fmt(pob) if pob else "—"}</td><td class="n">{fidh(ind.get("i"))}</td><td class="n">{f1(ind.get("t")) + "%" if ind.get("t") is not None else "—"}</td><td class="n">{fmt(emp)}</td>'
                   f'<td class="n">{fmt(c / 1e6) if c else "—"}</td><td class="n">{("S/ " + fmt(c / pob)) if (c and pob) else "—"}</td></tr>')
     out.append(f"""<section><h2>📍 Distritos de {esc(prov.title())}</h2>
 <p class="desc">Ordenados por canon recibido en 2025. Haz clic en un distrito para abrir su diagnóstico completo en el gemelo digital.</p>
-<div class="card scroll"><table class="tbl"><thead><tr><th>Distrito</th><th>Población est. 2025</th><th>IDH 2019</th><th>Pobreza</th><th>Canon 2025 (S/ M)</th><th>Canon por habitante</th></tr></thead><tbody>{drows}</tbody></table>
+<div class="card scroll"><table class="tbl"><thead><tr><th>Distrito</th><th>Población est. 2025</th><th>IDH 2019</th><th>Pobreza</th><th>Empresas (‰ hab.)</th><th>Canon 2025 (S/ M)</th><th>Canon por habitante</th></tr></thead><tbody>{drows}</tbody></table>
 <p class="src" style="margin-top:6px">Fuentes: INEI (Censo 2017, estimación 2025, mapa de pobreza), PNUD (IDH 2019), MEF (canon por municipalidad distrital).</p></div></section>""")
     chart = {'y': ys, 'v': [round(ct[y].get('_tot', 0) / 1e6, 1) for y in ys]}
     out.append(f"""<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.14.0/dist/chartjs-chart-sankey.min.js"></script><script>
@@ -1186,6 +1409,7 @@ def main():
     global RANKS
     regiones, nac = build()
     RANKS = rankings(regiones)
+    BEST = proyecciones(regiones, nac)
     for r in regiones.values():
         r['vals'] = {k: get(r) for k, _, get, *_ in RANK_IND}
     nx = nac['x']; ne = nac['endes']
@@ -1193,7 +1417,7 @@ def main():
                    **{k: (ne.get(k) or {}).get('y2025') for k in ('anemia', 'dci', 'vacunas12m', 'cred', 'hierro', 'lactancia', 'saneamiento', 'violencia')},
                    'lectura': ((nx.get('enla') or {}).get('lectura') or {}).get('satisfactorio'), 'matematica': ((nx.get('enla') or {}).get('matematica') or {}).get('satisfactorio'),
                    'camas_10k': nx.get('camas_10k'), 'hab_medico': (nx.get('hab_medico') or [None])[-1], 'evn': (nx.get('evn') or [None])[0],
-                   'tmi': (nx.get('tmi') or [None])[0], 'canon_pc': nx.get('canon_pc'), 'tax_pc': nx.get('tax_pc'), 'gasto_pc': nx.get('gasto_pc'), 'retorno': nx.get('retorno')}
+                   'tmi': (nx.get('tmi') or [None])[0], 'empresas_1k': nx.get('empresas_1k'), 'canon_pc': nx.get('canon_pc'), 'tax_pc': nx.get('tax_pc'), 'gasto_pc': nx.get('gasto_pc'), 'retorno': nx.get('retorno')}
     for r in regiones.values():
         r['ranks'] = {k: next((i + 1 for i, (d, _) in enumerate(lst) if d == r['dep']), None) for k, lst in RANKS.items()}
     json.dump(memoria(regiones, nac), open(D('data/memoria_chat.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)

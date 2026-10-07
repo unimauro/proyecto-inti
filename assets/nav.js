@@ -7,6 +7,7 @@
     ['Salud y vida', /salud y vida|camas|nacimiento|esperanza/i],
     ['Educación', /lectura|matemática|educa/i],
     ['Territorio', /censo|vivienda|provincia|distrito|cusco a fondo|mapa|territorio/i],
+    ['Futuro y análisis', /proyec|15 y 30|años\?|adversarial|agentes|demograf/i],
     ['Comparar', /ubica|ranking|cuadro|compar|benchmark|correlaci|similares/i],
     ['Distrito', /resumen|diagn|familia|prospectiva|simulador|clima|conflict|seguridad|oportunidad|proyectos prioritarios|corredor|interconex|motor|consultas/i],
     ['Planes y ayuda', /roadmap|hoja de ruta|descarga|planes|qué es|fuentes/i],
