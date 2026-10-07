@@ -3,7 +3,7 @@
 (function () {
   const GRUPOS = [
     ['Resumen', /salud, nutrici|pobreza|anemia|carátula|las 25|preguntas/i],
-    ['Dinero público', /recauda|regresa|gasto|canon|camisea|ruta del dinero|en qué se gasta|quién recibe|presupuesto/i],
+    ['Dinero público', /recauda|regresa|gasto|canon|presupuesto|financiamiento|camisea|ruta del dinero|en qué se gasta|quién recibe|presupuesto/i],
     ['Salud y vida', /salud y vida|camas|nacimiento|esperanza/i],
     ['Educación', /lectura|matemática|educa/i],
     ['Territorio', /censo|vivienda|provincia|distrito|cusco a fondo|mapa|territorio/i],

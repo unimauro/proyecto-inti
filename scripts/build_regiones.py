@@ -444,6 +444,7 @@ def page_region(r, nac, regiones):
     lst = ''.join(f'<details style="margin:8px 0"><summary>{esc(p)} ({len(v)})</summary><div class="chips" style="margin-top:8px">'
                   + ''.join(f'<a href="../../?u={x["u"]}">{esc(x["d"])}</a>' for x in v) + '</div></details>' for p, v in by.items())
     out.append(fiscal_section(r, nac))
+    out.append(fuentes_fin_section(r, nac))
     out.append(canon_section(r, nac))
     out.append(camisea_section(r, nac, regiones))
     out.append(canon_receptores_section(r))
@@ -482,6 +483,7 @@ function skDraw(id,links){{if(!el(id)||!links||!links.length)return;const labels
 new Chart(el(id),{{type:'sankey',data:{{datasets:[{{data:links,labels,colorFrom:c=>skCol(c.raw.from),colorTo:c=>skCol(c.raw.to),colorMode:'gradient',color:'#e8edf7',size:'max',padding:10,font:{{size:11}}}}]}},
 options:{{maintainAspectRatio:false,plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:c=>' '+labels[c.raw.from]+' → '+labels[c.raw.to]+': S/ '+c.raw.flow.toLocaleString('es-PE')+' M'}}}}}}}}}});}}
 if(window.__SK&&window.Chart&&Chart.registry.controllers.get('sankey')){{skDraw('skA',__SK.L1);skDraw('skB',__SK.L2);}}
+if(el('chFF')&&window.__FF)new Chart(el('chFF'),{{type:'bar',data:{{labels:__FF.y.map(y=>y==='2026'?'2026*':y),datasets:__FF.ds.map(d=>Object.assign({{stack:'f'}},d))}},options:{{responsive:true,plugins:{{legend:{{position:'bottom',labels:{{boxWidth:10,font:{{size:10}}}}}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')}}}}}}}}}});
 if(el('chCamisea')&&window.__CAMISEA)new Chart(el('chCamisea'),{{type:'bar',data:{{labels:__CAMISEA.y.map(y=>y==='2026'?'2026*':y),datasets:[{{label:'Canon gasífero',data:__CAMISEA.gas,backgroundColor:'#ef4444',stack:'c',borderRadius:3}},{{label:'FOCAM',data:__CAMISEA.foc,backgroundColor:'#ec4899',stack:'c',borderRadius:3}}]}},options:{{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')+' M'}}}}}}}}}});
 if(el('chCam')&&D.cam.length)new Chart(el('chCam'),{{type:'bar',data:{{labels:D.camY,datasets:[{{label:'Camas hospitalarias',data:D.cam,backgroundColor:'#3b82f6',borderRadius:4}}]}},options:ax()}});
 if(el('chVit'))new Chart(el('chVit'),{{type:'line',data:{{labels:D.defY,datasets:[{{label:'Defunciones (SINADEF)',data:D.def,borderColor:'#ef4444',backgroundColor:'#ef4444',tension:.25}},{{label:'Nacimientos inscritos (RENIEC/INEI)',data:D.defY.map(y=>{{const i=D.nacY.indexOf(+y);return i>=0?D.nac[i]:null;}}),borderColor:'#22c55e',backgroundColor:'#22c55e',tension:.25}}]}},options:ax(v=>v.toLocaleString('es-PE'))}});
@@ -531,6 +533,8 @@ def memoria(regiones, nac):
         if t: parts.append(f"recaudación SUNAT tributos internos 2025 S/ {fmt(t.get('2025', 0))} millones (S/ {fmt(X.get('tax_pc') or 0)} por habitante; 2024 S/ {fmt(t.get('2024', 0))} M; 2026 ene-{TAX['corte'].split('.')[0].lower()} S/ {fmt(t.get('2026', 0))} M; registrada por domicilio fiscal)")
         g = X.get('gasto') or {}
         if g.get('2025'): parts.append(f"gasto público ejecutado en la región 2025 S/ {fmt(g['2025']['dev'] / 1e6)} millones (S/ {f1(X['retorno'])} gastados por cada S/ 1 recaudado; canon/regalías S/ {fmt((g['2025'].get('canon') or 0) / 1e6)} M)")
+        if g.get('2025') and g['2025'].get('rub_18') is not None:
+            gg = g['2025']; parts.append(f"el gasto 2025 SÍ incluye canon: {f1(gg['rub_18'] / gg['dev'] * 100)}% financiado con canon/regalías, {f1(gg.get('rub_00', 0) / gg['dev'] * 100)}% con recursos ordinarios del Tesoro")
         if g.get('2026'): parts.append(f"gasto 2026 a {MEF['corte_2026']} S/ {fmt(g['2026']['dev'] / 1e6)} M de un PIM de S/ {fmt(g['2026']['pim'] / 1e6)} M")
         cn = (X.get('canon') or {}).get('2025') or {}
         if cn.get('total_canon'):
@@ -615,6 +619,28 @@ Fuente: <a href="{TAX['url']}">BCRP — Ingresos tributarios recaudados por SUNA
 
 CANON_COL = {'minero': '#f59e0b', 'gasifero': '#ef4444', 'regalias': '#a16207', 'petrolero': '#7c3aed', 'sobrecanon': '#a855f7', 'focam': '#ec4899',
              'hidro': '#06b6d4', 'pesquero': '#3b82f6', 'forestal': '#22c55e', 'aduanas': '#64748b', 'participaciones': '#94a3b8'}
+
+RUB_LAB = [('00', 'Recursos ordinarios (Tesoro público)', '#3b82f6'), ('18', 'Canon, sobrecanon y regalías', '#f59e0b'),
+           ('07', 'Foncomun', '#22c55e'), ('08', 'Impuestos municipales', '#14b8a6'), ('09', 'Recursos directamente recaudados', '#a855f7'),
+           ('19', 'Endeudamiento (operaciones de crédito)', '#ef4444'), ('13', 'Donaciones y transferencias', '#ec4899'),
+           ('04', 'Contribuciones a fondos', '#64748b'), ('15', 'Foncor', '#94a3b8')]
+
+def fuentes_fin_section(r, nac):
+    g = r['x'].get('gasto') or {}
+    if not g.get('2025'): return ''
+    ys = [y for y in [str(v) for v in range(2019, 2027)] if y in g]
+    g25 = g['2025']; tot = g25['dev'] or 1; can = g25.get('rub_18', 0)
+    ds = [{'label': l, 'data': [round((g[y].get('rub_' + c, 0)) / 1e6, 1) for y in ys], 'backgroundColor': col} for c, l, col in RUB_LAB if any(g[y].get('rub_' + c, 0) > 1e6 for y in ys)]
+    rows = ''.join(f'<div style="margin:7px 0"><div style="display:flex;justify-content:space-between;gap:8px"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:{col};margin-right:6px"></i>{esc(l)}</span>'
+                   f'<b>S/ {fmt(g25.get("rub_" + c, 0) / 1e6)} M · {f1(g25.get("rub_" + c, 0) / tot * 100)}%</b></div></div>' for c, l, col in RUB_LAB if g25.get('rub_' + c, 0) > 1e6)
+    nt = nac['x'].get('gasto', {}).get('2025', {}); ncan = (nt.get('rub_18', 0) / nt['dev'] * 100) if nt.get('dev') else None
+    return f"""<section><h2>💼 ¿El presupuesto de {esc(r['nombre'])} incluye el canon? ¿De dónde sale el dinero?</h2>
+<p class="desc"><b>Sí.</b> El gasto público ejecutado en {esc(r['nombre'])} en 2025 fue de <b>S/ {fmt(tot / 1e6)} millones</b>, y de eso <b>S/ {fmt(can / 1e6)} M ({f1(can / tot * 100)}%) se financió con canon, sobrecanon y regalías</b>{f" (promedio nacional: {f1(ncan)}%)" if ncan else ""}.
+Sin el canon, la región habría tenido S/ {fmt((tot - can) / 1e6)} M. La mayor parte del resto viene de <b>recursos ordinarios</b>, es decir, impuestos de todo el país que el Tesoro asigna.</p>
+<div class="grid2"><div class="card"><h3 style="margin-bottom:6px">Fuentes de financiamiento 2025</h3>{rows}</div>
+<div class="card"><h3 style="margin-bottom:6px">Evolución 2019–2026* (S/ millones)</h3><canvas id="chFF" height="240"></canvas></div></div>
+<p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Gasto Devengado por rubro de financiamiento (3 niveles de gobierno, meta en el departamento, sin transferencias ni deuda). * 2026 a {MEF['corte_2026']}.</p>
+<script>window.__FF={json.dumps({'y': ys, 'ds': ds}, ensure_ascii=False)};</script></section>"""
 
 def canon_section(r, nac):
     cn = r['x'].get('canon')
