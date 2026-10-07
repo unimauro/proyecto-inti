@@ -38,6 +38,7 @@ SINADEF = load('data/fuentes/sinadef_defunciones_departamentos.json')
 ENLA = load('data/fuentes/enla2024_regiones.json')
 COMP = load('data/fuentes/compendio2025_salud_nacimientos.json')
 CANON = load('data/fuentes/mef_canon_departamentos.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos.json')) else None
+EMP = load('data/fuentes/empresas_canon.json')
 CANON_ENT = load('data/fuentes/mef_canon_departamentos_entidades.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos_entidades.json')) else None
 DET = load('data/fuentes/mef_gasto_detalle.json') if os.path.exists(D('data/fuentes/mef_gasto_detalle.json')) else None
 PROV_BY4 = {o['u'][:4]: prov for dep, pv in TER.items() for prov, arr in pv.items() for o in arr}
@@ -447,6 +448,7 @@ def page_region(r, nac, regiones):
     out.append(fuentes_fin_section(r, nac))
     out.append(canon_section(r, nac))
     out.append(camisea_section(r, nac, regiones))
+    out.append(empresas_section(r))
     out.append(canon_receptores_section(r))
     out.append(flujo_canon_section(r))
     out.append(gasto_en_que_section(r))
@@ -546,6 +548,8 @@ def memoria(regiones, nac):
             if gas_f > 1e6: parts.append(f"dinero de Camisea 2025 (canon gasífero + FOCAM) S/ {fmt(gas_f / 1e6)} M")
             c26 = (X['canon'].get('2026') or {}).get('total_canon')
             if c26: parts.append(f"canon y regalías 2026 a {CANON['corte_2026']} S/ {fmt(c26 / 1e6)} M")
+        for e in [e for e in EMP['empresas'] if norm(r['dep']) in {norm(x) for x in e['regiones']}]:
+            parts.append(f"empresa {e['nombre']}: " + '; '.join(f"{d['k']} {d['v']} ({d['f']})" for d in e['datos'][:3]))
         if X.get('camas'): parts.append(f"camas hospitalarias 2024 {fmt(X['camas'][-1])} ({f1(X.get('camas_10k'))} por 10 mil hab.)")
         if X.get('medicos'): parts.append(f"médicos colegiados 2024 {fmt(X['medicos'][-1])} ({fmt((X.get('hab_medico') or [0])[-1])} hab. por médico)")
         if X.get('evn'): parts.append(f"esperanza de vida 2020-25 {f1(X['evn'][0])} años (INEI proyección)")
@@ -636,7 +640,7 @@ def fuentes_fin_section(r, nac):
     nt = nac['x'].get('gasto', {}).get('2025', {}); ncan = (nt.get('rub_18', 0) / nt['dev'] * 100) if nt.get('dev') else None
     return f"""<section><h2>💼 ¿El presupuesto de {esc(r['nombre'])} incluye el canon? ¿De dónde sale el dinero?</h2>
 <p class="desc"><b>Sí.</b> El gasto público ejecutado en {esc(r['nombre'])} en 2025 fue de <b>S/ {fmt(tot / 1e6)} millones</b>, y de eso <b>S/ {fmt(can / 1e6)} M ({f1(can / tot * 100)}%) se financió con canon, sobrecanon y regalías</b>{f" (promedio nacional: {f1(ncan)}%)" if ncan else ""}.
-Sin el canon, la región habría tenido S/ {fmt((tot - can) / 1e6)} M. La mayor parte del resto viene de <b>recursos ordinarios</b>, es decir, impuestos de todo el país que el Tesoro asigna.</p>
+El resto, S/ {fmt((tot - can) / 1e6)} M, vino de otras fuentes. La mayor parte del resto viene de <b>recursos ordinarios</b>, es decir, impuestos de todo el país que el Tesoro asigna.</p>
 <div class="grid2"><div class="card"><h3 style="margin-bottom:6px">Fuentes de financiamiento 2025</h3>{rows}</div>
 <div class="card"><h3 style="margin-bottom:6px">Evolución 2019–2026* (S/ millones)</h3><canvas id="chFF" height="240"></canvas></div></div>
 <p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Gasto Devengado por rubro de financiamiento (3 niveles de gobierno, meta en el departamento, sin transferencias ni deuda). * 2026 a {MEF['corte_2026']}.</p>
@@ -851,6 +855,24 @@ def gasto_en_que_section(r):
 <table class="tbl"><thead><tr><th>Proyecto</th><th>PIM S/ M</th><th>Gastado</th><th>Avance</th></tr></thead><tbody>{trows}</tbody></table></div></div>
 <p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Gasto Devengado {y} (función, genérica y proyecto por fuente de financiamiento; excluye transferencias y deuda). CUI = código único de inversión: búscalo en <a href="https://ofi5.mef.gob.pe/invierte/consultapublica/consultainversiones">Consulta de Inversiones del MEF</a>.</p></section>"""
 
+def _emp_card(e):
+    filas = ''.join(f'<li style="margin:5px 0">{esc(d["k"])}: <b>{esc(d["v"])}</b> <a class="src" href="{d["u"]}" target="_blank" rel="noopener">[{esc(d["f"])}]</a></li>' for d in e['datos'])
+    nota = f'<p class="src" style="margin-top:6px">{esc(e["nota"])}</p>' if e.get('nota') else ''
+    return f'<div class="card"><h3 style="margin-bottom:4px">{esc(e["nombre"])}</h3><p class="src" style="margin-bottom:6px">{esc(e["actividad"])}</p><ul style="margin-left:18px">{filas}</ul>{nota}</div>'
+
+def empresas_section(r):
+    es = [e for e in EMP['empresas'] if norm(r['dep']) in {norm(x) for x in e['regiones']}]
+    if not es: return ''
+    c25 = ((r['x'].get('canon') or {}).get('2025')) or {}
+    ctx = []
+    if c25.get('gasifero', 0) > 1e6: ctx.append(f"canon gasífero S/ {fmt(c25['gasifero'] / 1e6)} M")
+    if c25.get('minero', 0) > 1e6: ctx.append(f"canon minero S/ {fmt(c25['minero'] / 1e6)} M")
+    if c25.get('regalias', 0) > 1e6: ctx.append(f"regalías mineras S/ {fmt(c25['regalias'] / 1e6)} M")
+    return f"""<section><h2>🏭 Las empresas detrás del canon de {esc(r['nombre'])}</h2>
+<p class="desc">{esc(EMP['_meta']['mecanismo'])} En 2025 {esc(r['nombre'])} recibió {', '.join(ctx) if ctx else 'canon'} (MEF). Estas son las ventas y ganancias públicas de las empresas que lo generan:</p>
+<div class="grid2">{''.join(_emp_card(e) for e in es)}</div>
+<p class="src" style="margin-top:8px">{esc(EMP['_meta']['nota'])} No convertimos a soles para no introducir supuestos de tipo de cambio.</p></section>"""
+
 def salud_vida_section(r, nac):
     X = r['x']; nx = nac['x']; c = r['censo2025'] or {}
     k = []
@@ -936,6 +958,9 @@ def page_index(regiones, nac):
     out.append('<p class="src">Pobreza: INEI ENAHO 2025 (Lima = Lima Metropolitana). Anemia 6-35 meses: INEI ENDES 2025 (directriz OMS 2024).</p>')
     out.append(gasto_pc_section(regiones, nac))
     out.append(canon_nacional_section(regiones, nac))
+    out.append(f"""<section id="empresas"><h2>🏭 Las empresas detrás del canon</h2><p class="desc">{esc(EMP['_meta']['mecanismo'])}</p>
+<div class="grid2">{''.join(_emp_card(e).replace('<h3 style="margin-bottom:4px">', '<h3 style="margin-bottom:4px">' + ' · '.join(f'<a href="{slug(NOMBRE.get(x, x))}/">{esc(NOMBRE.get(x, x))}</a>' for x in e['regiones']) + ' — ') for e in EMP['empresas'])}</div>
+<p class="src" style="margin-top:8px">{esc(EMP['_meta']['nota'])}</p></section>""")
     out.append(footer(depth=1))
     return '\n'.join(out)
 
@@ -944,6 +969,7 @@ FUENTES = [  # tema, fuente, corte, url
     ('Anemia, desnutrición, vacunas, CRED, hierro, lactancia, agua, saneamiento, violencia, fecundidad', 'INEI — ENDES 2025, Indicadores de Programas Presupuestales', '2025 (publicado may-2026)', 'https://proyectos.inei.gob.pe/endes/2025/ppr/Informe_Indicadores_de_Resultados_de_los_Programas_Presupuestales_ENDES_2025.pdf'),
     ('Población, viviendas y servicios', 'INEI — Censos Nacionales 2025 (notas departamentales)', '2025 (publicado may–oct 2026)', 'https://censos2025.inei.gob.pe/'),
     ('Recaudación tributaria por región', 'SUNAT vía BCRP — tributos internos según departamento', TAX['corte'], TAX['url']),
+    ('Ventas y utilidades de empresas que generan canon', 'Estados financieros y reportes anuales (Cerro Verde/SMV, Southern Copper, MMG, Hudbay, Teck, Anglo American) y Perupetro', '2024-2025', 'https://www.smv.gob.pe/'),
     ('Canon, sobrecanon, regalías, FOCAM, renta de aduanas, Foncomun', 'MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado por GR y GL)', (CANON or {}).get('corte_2026', ''), 'https://datosabiertos.mef.gob.pe/'),
     ('Gasto público ejecutado en la región', 'MEF — Datos Abiertos, Gasto Devengado (3 niveles de gobierno)', (MEF or {}).get('corte_2026', 'en carga'), 'https://datosabiertos.mef.gob.pe/'),
     ('Camas hospitalarias, médicos, nacimientos inscritos', 'INEI — Compendio Estadístico Perú 2025 (MINSA, CMP, RENIEC)', '2024 / 2023', 'https://www.gob.pe/en/institucion/inei/informes-publicaciones/7264121-peru-2025-statistical-compendium'),
@@ -960,6 +986,8 @@ FAQ = [
     ('¿Por qué Lima "recauda" casi todo?', 'SUNAT registra los impuestos según el domicilio fiscal. Muchas mineras, bancos y grandes empresas tienen domicilio en Lima aunque produzcan en regiones; por eso la recaudación regional subestima lo que cada región genera. Para comparar, mira la recaudación por habitante y el gasto que regresa.'),
     ('¿Qué significa "cuánto regresa"?', 'Es el gasto público devengado (ejecutado) en el departamento por los tres niveles de gobierno: nacional, regional y municipal, según el lugar de la meta. Excluimos las transferencias entre entidades (para no contar dos veces el mismo sol) y el servicio de la deuda. Ojo: lo que ejecutan entidades nacionales con meta en Lima (por ejemplo pensiones o compras centralizadas) se registra en Lima. Incluye lo financiado con canon, regalías y Foncomun, que mostramos aparte.'),
     ('¿Qué es el canon y por qué unas regiones reciben mucho más?', 'El canon es la parte de los impuestos que pagan las empresas que explotan recursos naturales (minería, gas, petróleo, hidroenergía, pesca, bosques) y que la ley devuelve a la región donde se extraen. Las regalías y el FOCAM (gas de Camisea) son pagos adicionales. Por eso Cusco recibe sobre todo canon gasífero, Áncash, Arequipa y Moquegua canon minero, y Piura y Loreto canon petrolero.'),
+    ('¿El presupuesto de una región incluye el canon?', 'Sí. El gasto público ejecutado en cada región incluye lo financiado con canon, sobrecanon y regalías (rubro 18), además de recursos ordinarios del Tesoro, Foncomun, impuestos municipales, endeudamiento y donaciones. En cada carátula mostramos cuánto aporta cada fuente: en Cusco, el canon financió el 28% del gasto de 2025.'),
+    ('¿Por qué mostrar ventas y ganancias de las empresas?', 'Porque el canon minero es la mitad del Impuesto a la Renta que pagan las mineras, y el canon gasífero sale de las regalías y la renta del gas: cuando las empresas ganan más, la región recibe más. Solo mostramos cifras publicadas por las propias empresas (estados financieros, reportes anuales) o por Perupetro, con enlace a la fuente.'),
     ('¿Los datos son por distrito o por región?', 'La mayoría de indicadores 2025 son departamentales (encuestas ENDES/ENAHO, Censo). A nivel distrital usamos Censo 2017, IDH 2019 y el mapa de pobreza INEI. Los índices 0-100 del simulador del distrito son ilustrativos y así se indican.'),
     ('¿Qué es la anemia "según OMS 2024"?', 'Desde 2024 el MINSA adoptó la nueva directriz de la OMS (RM 251-2024-MINSA) para el punto de corte de hemoglobina. INEI publica su cifra principal con ese criterio (34,9% nacional en 2025).'),
     ('¿Cómo funciona el chat?', 'El asistente tiene una memoria con todas las cifras oficiales de las 25 regiones y los rankings. Responde rankings, comparaciones ("Compara Cusco y Puno") y fichas. Cuando está conectado al servidor de IA, usa esa misma memoria y tiene prohibido inventar cifras.'),

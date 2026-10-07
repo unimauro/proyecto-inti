@@ -1,0 +1,227 @@
+{
+ "_meta": {
+  "nota": "Cifras de estados financieros, reportes anuales o comunicados oficiales de las empresas y de Perupetro. Las empresas reportan en dólares (US$). Algunas cifras son consolidadas de la corporación (incluyen operaciones fuera del Perú) y así se indica. Solo se incluyen datos verificados con fuente.",
+  "mecanismo": "El canon minero es el 50% del Impuesto a la Renta que pagan las empresas mineras; el canon gasífero es el 50% de las regalías y el 50% del Impuesto a la Renta de la explotación de gas (Ley 27506). Por eso el canon sube cuando suben las ganancias de las empresas y los precios de los metales y del gas."
+ },
+ "empresas": [
+  {
+   "id": "camisea",
+   "nombre": "Consorcio Camisea (operador: Pluspetrol) — lotes 88, 56 y 57 (Repsol)",
+   "regiones": [
+    "Cusco"
+   ],
+   "actividad": "Gas natural y líquidos",
+   "recurso": "gasifero",
+   "datos": [
+    {
+     "k": "Regalías de hidrocarburos pagadas al Estado (todo el Perú), 2025",
+     "v": "US$ 1 077 millones",
+     "f": "Perupetro vía Gestión",
+     "u": "https://gestion.pe/economia/estado-recaudo-us1077-millones-por-produccion-de-hidrocarburos-el-2025-noticia/"
+    },
+    {
+     "k": "Regalías ene–sep 2025: gas natural / líquidos de gas",
+     "v": "US$ 423 M / US$ 246 M",
+     "f": "Perupetro vía Infobae",
+     "u": "https://www.infobae.com/peru/2025/10/19/perupetro-regalias-por-hidrocarburos-suman-us8295-millones-hasta-septiembre-de-2025/"
+    },
+    {
+     "k": "Producción de gas natural 2025",
+     "v": "1 353 millones de pies cúbicos diarios",
+     "f": "Gestión",
+     "u": "https://gestion.pe/economia/estado-recaudo-us1077-millones-por-produccion-de-hidrocarburos-el-2025-noticia/"
+    },
+    {
+     "k": "FOCAM transferido a regiones (MEF), 2025",
+     "v": "S/ 444 millones",
+     "f": "MEF Datos Abiertos (ingresos de GR y GL)",
+     "u": "https://datosabiertos.mef.gob.pe/"
+    }
+   ],
+   "nota": "Pluspetrol y sus socios son empresas privadas no listadas: no publican ventas ni utilidades del consorcio. Lo verificable son las regalías que cobra Perupetro."
+  },
+  {
+   "id": "antapaccay",
+   "nombre": "Antapaccay (Glencore) — Espinar",
+   "regiones": [
+    "Cusco"
+   ],
+   "actividad": "Cobre",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Producción",
+     "v": "≈140 mil toneladas de cobre fino al año (≈8% de las exportaciones de cobre del Perú)",
+     "f": "Energiminas",
+     "u": "https://energiminas.com/?p=33436"
+    },
+    {
+     "k": "Canon y regalías mineras generados 2021–2024",
+     "v": "más de S/ 2 700 millones (S/ 690 M para la provincia de Espinar)",
+     "f": "Energiminas",
+     "u": "https://energiminas.com/?p=33436"
+    }
+   ],
+   "nota": "Glencore no publica estados financieros separados de Antapaccay."
+  },
+  {
+   "id": "hudbay",
+   "nombre": "Hudbay Minerals — Constancia (Chumbivilcas)",
+   "regiones": [
+    "Cusco"
+   ],
+   "actividad": "Cobre y oro",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ingresos 2025 (consolidado Hudbay: Perú + Canadá)",
+     "v": "US$ 2 200 millones (récord)",
+     "f": "Hudbay, resultados 2025",
+     "u": "https://hudbayminerals.com/investors/press-releases/press-release-details/2026/Hudbay-Delivers-Record-Fourth-Quarter-and-Full-Year-2025-Results-Achieves-2025-Consolidated-Copper-and-Gold-Production-and-Cost-Guidance/default.aspx"
+    },
+    {
+     "k": "EBITDA ajustado 2025 (consolidado)",
+     "v": "US$ 1 100 millones",
+     "f": "Hudbay",
+     "u": "https://hudbayminerals.com/investors/press-releases/press-release-details/2026/Hudbay-Delivers-Record-Fourth-Quarter-and-Full-Year-2025-Results-Achieves-2025-Consolidated-Copper-and-Gold-Production-and-Cost-Guidance/default.aspx"
+    },
+    {
+     "k": "Producción Perú 2025",
+     "v": "85 155 t de cobre y 74 480 onzas de oro",
+     "f": "Hudbay",
+     "u": "https://hudbayminerals.com/investors/press-releases/press-release-details/2026/Hudbay-Delivers-Record-Fourth-Quarter-and-Full-Year-2025-Results-Achieves-2025-Consolidated-Copper-and-Gold-Production-and-Cost-Guidance/default.aspx"
+    }
+   ]
+  },
+  {
+   "id": "cerroverde",
+   "nombre": "Sociedad Minera Cerro Verde (Freeport-McMoRan)",
+   "regiones": [
+    "Arequipa"
+   ],
+   "actividad": "Cobre y molibdeno",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ventas 2025",
+     "v": "US$ 4 728 millones (+12% vs 2024)",
+     "f": "Cerro Verde, estados financieros 2025 (SMV)",
+     "u": "https://www.cerroverde.pe/pdf/Estados-Financieros-2025.pdf"
+    },
+    {
+     "k": "Utilidad neta 2025",
+     "v": "US$ 1 367 millones (+43%)",
+     "f": "Cerro Verde, estados financieros 2025",
+     "u": "https://www.cerroverde.pe/pdf/Estados-Financieros-2025.pdf"
+    }
+   ]
+  },
+  {
+   "id": "southern",
+   "nombre": "Southern Copper — Toquepala y Cuajone",
+   "regiones": [
+    "Tacna",
+    "Moquegua"
+   ],
+   "actividad": "Cobre",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ventas netas 2025 (consolidado Perú + México)",
+     "v": "US$ 13 400 millones (+17%)",
+     "f": "Southern Copper, resultados 4T 2025",
+     "u": "https://southerncoppercorp.com/eng/wp-content/uploads/sites/2/2026/02/cc260203.pdf"
+    },
+    {
+     "k": "Utilidad neta 2025 (consolidado)",
+     "v": "US$ 4 300 millones (+28%)",
+     "f": "Southern Copper",
+     "u": "https://southerncoppercorp.com/eng/wp-content/uploads/sites/2/2026/02/cc260203.pdf"
+    },
+    {
+     "k": "EBITDA 2025 (consolidado)",
+     "v": "US$ 7 800 millones (récord)",
+     "f": "Southern Copper",
+     "u": "https://southerncoppercorp.com/eng/wp-content/uploads/sites/2/2026/02/cc260203.pdf"
+    }
+   ]
+  },
+  {
+   "id": "quellaveco",
+   "nombre": "Anglo American — Quellaveco",
+   "regiones": [
+    "Moquegua"
+   ],
+   "actividad": "Cobre",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ingresos 2024 (Cobre Perú)",
+     "v": "US$ 2 904 millones",
+     "f": "Anglo American",
+     "u": "https://www.angloamerican.com/investors/annual-reporting"
+    },
+    {
+     "k": "EBITDA subyacente 2024",
+     "v": "US$ 1 756 millones",
+     "f": "Anglo American",
+     "u": "https://www.angloamerican.com/investors/annual-reporting"
+    }
+   ],
+   "nota": "Anglo American no detalla aún en fuentes públicas accesibles el ingreso 2025 de Quellaveco por separado."
+  },
+  {
+   "id": "lasbambas",
+   "nombre": "Las Bambas (MMG)",
+   "regiones": [
+    "Apurimac"
+   ],
+   "actividad": "Cobre",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Ingresos 2025",
+     "v": "US$ 4 447 millones (+49%)",
+     "f": "MMG, resultados anuales 2025",
+     "u": "https://www.mmg.com/content/uploads/2026/03/e_2026-03-03_2025-Annual-Results.pdf"
+    },
+    {
+     "k": "EBITDA 2025",
+     "v": "US$ 2 831 millones (+78%)",
+     "f": "MMG",
+     "u": "https://www.mmg.com/content/uploads/2026/03/e_2026-03-03_2025-Annual-Results.pdf"
+    },
+    {
+     "k": "Producción 2025",
+     "v": "410 834 t de cobre en concentrado",
+     "f": "MMG",
+     "u": "https://www.mmg.com/content/uploads/2026/03/e_2026-03-03_2025-Annual-Results.pdf"
+    }
+   ]
+  },
+  {
+   "id": "antamina",
+   "nombre": "Compañía Minera Antamina (BHP, Glencore, Teck, Mitsubishi)",
+   "regiones": [
+    "Ancash"
+   ],
+   "actividad": "Cobre y zinc",
+   "recurso": "minero",
+   "datos": [
+    {
+     "k": "Utilidad bruta 2025 atribuible a Teck (22,5% de Antamina)",
+     "v": "US$ 837 millones",
+     "f": "Teck Resources, Form 40-F 2025",
+     "u": "https://www.sec.gov/Archives/edgar/data/886986/000088698626000004/teck-20251231xexx993mda.htm"
+    },
+    {
+     "k": "Producción 2025 (100%)",
+     "v": "381 800 t de cobre y 454 800 t de zinc",
+     "f": "Teck",
+     "u": "https://www.sec.gov/Archives/edgar/data/886986/000088698626000004/teck-20251231xexx993mda.htm"
+    }
+   ],
+   "nota": "Antamina no cotiza en bolsa; sus accionistas reportan solo su participación."
+  }
+ ]
+}
