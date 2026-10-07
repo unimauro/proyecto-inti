@@ -427,7 +427,7 @@ def page_region(r, nac, regiones):
         out.append(cusco_section())
 
     # Provincias
-    prow = ''.join(f'<tr><td>{esc(p["prov"])}</td><td class="n">{p["n"]}</td><td class="n">{fmt(p["p"])}</td><td class="n">{fmt(p["p25"])}</td>'
+    prow = ''.join(f'<tr><td><a href="{slug(p["prov"])}/">{esc(p["prov"])}</a></td><td class="n">{p["n"]}</td><td class="n">{fmt(p["p"])}</td><td class="n">{fmt(p["p25"])}</td>'
                    f'<td class="n">{fidh(p["i"])}</td><td class="n">{f1(p["t"])}%</td><td class="n">{f1(p["e"])}%</td></tr>' for p in r['provincias'])
     out.append(f"""<section><h2>🗺️ Provincias</h2><p class="desc">Agregado desde los datos distritales de INTI (promedios ponderados por población). Pobreza distrital = mapa de pobreza INEI (no comparable con ENAHO 2025).</p>
 <div class="card scroll"><table class="tbl"><thead><tr><th>Provincia</th><th>Distritos</th><th>Pob. 2017</th><th>Pob. 2025 est.</th><th>IDH 2019</th><th>Pobreza</th><th>Pob. extrema</th></tr></thead><tbody>{prow}</tbody></table>
@@ -1059,6 +1059,117 @@ options:{{maintainAspectRatio:false,plugins:{{legend:{{display:false}},tooltip:{
 const C={json.dumps(data, ensure_ascii=False)};new Chart(document.getElementById('chCanonNac'),{{type:'bar',data:{{labels:C.l,datasets:C.ds.map(d=>Object.assign({{stack:'c'}},d))}},
 options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom',labels:{{boxWidth:12}}}}}},scales:{{x:{{stacked:true,grid:{{color:'rgba(139,155,196,.15)'}},ticks:{{callback:v=>v.toLocaleString('es-PE')}}}},y:{{stacked:true,grid:{{display:false}},ticks:{{autoSkip:false}}}}}}}}}});}})();</script></section>"""
 
+def page_provincia(r, pv, regiones, nac):
+    """Carátula provincial: indicadores distritales agregados, canon recibido por sus municipalidades y en qué lo gastan."""
+    dep, nombre = r['dep'], r['nombre']
+    prov = pv['prov']; pslug = slug(prov)
+    dists = [x for x in r['distritos'] if x['prov'] == prov]
+    if not dists: return None
+    code4 = dists[0]['u'][:4]
+    h1, h2 = SPECIAL_HUES.get(dep, HUES.get(r['natural'], ('#f5a623', '#ff7a18')))
+    pattern = INCA if r['natural'] == 'sierra' else WAVES
+    url = f'{SITE}region/{r["slug"]}/{pslug}/'
+    ents = [e for e in (CANON_ENT['por_departamento'].get(code4[:2], []) if CANON_ENT else []) if e['v'] == 'M' and e['u'][:4] == code4]
+    ys = [str(y) for y in range(2019, 2027)]
+    ct = {y: {} for y in ys}
+    for e in ents:
+        for y in ys:
+            for k, v in ((e['d'].get(y) or {}) if y >= '2024' else {}).items(): ct[y][k] = ct[y].get(k, 0) + v
+            ct[y]['_tot'] = ct[y].get('_tot', 0) + e['y'].get(y, 0)
+    tot25 = ct['2025'].get('_tot', 0); pob25 = pv['p25'] or pv['p'] or 1
+    title = f'Provincia de {prov} ({nombre}) — indicadores, canon y gasto | Proyecto INTI'
+    desc = (f'Provincia de {prov}, {nombre}: {len(dists)} distritos, IDH {fidh(pv["i"])}, pobreza {f1(pv["t"])}%, canon recibido por sus municipalidades en 2025 S/ {fmt(tot25 / 1e6)} M. Datos INEI, PNUD y MEF.')
+    out = [head(title, desc, url, f':root{{--h1:{h1};--h2:{h2}}}'), nav(regiones, dep, depth=3)]
+    out.append(f"""<header class="cover" style="min-height:280px">{pattern}<div class="emb">{EMOJI.get(r['natural'], '🌞')}</div>
+<div class="kicker"><a href="../" style="color:#fff">Región {esc(nombre)}</a> · Carátula provincial</div><h1>{esc(prov.title() if prov.isupper() else prov)}</h1>
+<p class="lead">Provincia de la región {esc(nombre)}: {len(dists)} distritos. Indicadores sociales, canon que reciben sus municipalidades y en qué se gasta.</p>
+<div class="meta"><span>{len(dists)} distritos</span><span>👥 {fmt(pv['p25'])} hab. (est. 2025)</span><span>⬅️ <a href="../" style="color:#fff">Volver a {esc(nombre)}</a></span></div></header>""")
+    k = [_kpi('Población 2017 (Censo)', fmt(pv['p']), f'estimación 2025: {fmt(pv["p25"])}'),
+         _kpi('IDH (ponderado)', fidh(pv['i']), f'región {fidh(r["idh2019"])} · PNUD 2019'),
+         _kpi('Pobreza (mapa INEI)', f'{f1(pv["t"])}%', f'extrema {f1(pv["e"])}% · región {f1(r["pobreza_distr"])}%')]
+    if tot25:
+        k.append(_kpi('Canon y regalías 2025', f'S/ {fmt(tot25 / 1e6)} M', f'municipalidades de la provincia · S/ {fmt(tot25 / pob25)} por habitante'))
+        if ct['2026'].get('_tot'): k.append(_kpi(f'Canon 2026 (a {CANON["corte_2026"]})', f'S/ {fmt(ct["2026"]["_tot"] / 1e6)} M', 'transferido en lo que va del año'))
+    out.append(f'<div class="kpis">{"".join(k)}</div>')
+    # canon por tipo
+    if tot25 or any(ct[y].get('_tot') for y in ys):
+        tipos = [t for t in CANON['tipos'] if t['k'] in CANON_COL and any(ct[y].get(t['k'], 0) > 1e5 for y in ('2024', '2025', '2026'))]
+        rows = ''.join(f'<tr><td><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:{CANON_COL[t["k"]]};margin-right:6px"></i>{esc(t["l"])}</td>'
+                       + ''.join(f'<td class="n">{fmt(ct[y].get(t["k"], 0) / 1e6)}</td>' for y in ('2024', '2025', '2026')) + '</tr>' for t in tipos)
+        rows += '<tr><td><b>Total canon y regalías</b></td>' + ''.join(f'<td class="n"><b>{fmt(ct[y].get("_tot", 0) / 1e6)}</b></td>' for y in ('2024', '2025', '2026')) + '</tr>'
+        out.append(f"""<section><h2>⛏️ Canon que reciben las municipalidades de {esc(prov.title())}</h2>
+<p class="desc">Total de canon, sobrecanon y regalías recibido por la municipalidad provincial y las distritales (millones de soles). Serie 2019–2026; detalle por tipo 2024–2026.</p>
+<div class="grid2"><div class="card"><canvas id="chPT" height="230"></canvas></div><div class="card scroll"><table class="tbl"><thead><tr><th>Concepto</th><th>2024</th><th>2025</th><th>2026*</th></tr></thead><tbody>{rows}</tbody></table>
+<p class="src" style="margin-top:6px">* 2026 a {CANON['corte_2026']}.</p></div></div></section>""")
+    # en qué se gasta (ejecutoras municipales de la provincia)
+    acc = {}; L = []; tp = td = 0
+    if DET:
+        for key, yv in DET['ejecutoras'].items():
+            ub, niv, nom = key.split('|', 2)
+            if niv != 'M' or ub[:4] != code4: continue
+            for fn, (dv, pm) in (yv.get('2025') or {}).items():
+                a = acc.setdefault(fcorto(fn), [0, 0]); a[0] += dv; a[1] += pm
+                tp += pm; td += dv
+    fun_html = ''
+    if acc:
+        rowsf = sorted(acc.items(), key=lambda x: -x[1][1])
+        mx = rowsf[0][1][1] or 1
+        fun_html = ''.join(f'<div style="margin:7px 0"><div style="display:flex;justify-content:space-between;gap:8px"><span>{esc(fn)}</span><b>S/ {fmt(dv / 1e6)} M de S/ {fmt(pm / 1e6)} M</b></div>'
+                           f'<div class="bar"><i style="width:{pm / mx * 100:.0f}%"></i></div><div class="rk-ax"><span>gastado {f1(dv / pm * 100) if pm else "—"}%</span><span>sin gastar S/ {fmt((pm - dv) / 1e6)} M</span></div></div>' for fn, (dv, pm) in rowsf[:10])
+        # Sankey: tipo -> municipio -> función -> estado
+        tl = {t['k']: t['l'].split(' (')[0] for t in CANON['tipos']}
+        for e in ents:
+            short = e['n'].title().replace('Municipalidad Distrital De ', 'MD ').replace('Municipalidad Provincial De ', 'MP ')[:34]
+            for kk, v in (e['d'].get('2025') or {}).items():
+                if kk != 'foncomun' and v >= 2e5: L.append({'from': 'T:' + tl.get(kk, kk), 'to': 'M:' + short, 'flow': round(v / 1e6, 2)})
+        topf = [f for f, _ in sorted(acc.items(), key=lambda x: -x[1][1])[:7]]
+        for fn, (dv, pm) in acc.items():
+            f2 = fn if fn in topf else 'Otras funciones'
+            if dv > 0: L.append({'from': 'F:' + f2, 'to': 'E:Gastado', 'flow': round(dv / 1e6, 2)})
+            if pm - dv > 0: L.append({'from': 'F:' + f2, 'to': 'E:Sin gastar', 'flow': round((pm - dv) / 1e6, 2)})
+        # municipio -> función (por ejecutora)
+        for key, yv in DET['ejecutoras'].items():
+            ub, niv, nom = key.split('|', 2)
+            if niv != 'M' or ub[:4] != code4: continue
+            short = nom.title().replace('Municipalidad Distrital De ', 'MD ').replace('Municipalidad Provincial De ', 'MP ')[:34]
+            for fn, (dv, pm) in (yv.get('2025') or {}).items():
+                f2 = fcorto(fn) if fcorto(fn) in topf else 'Otras funciones'
+                if pm >= 2e5: L.append({'from': 'M:' + short, 'to': 'F:' + f2, 'flow': round(pm / 1e6, 2)})
+        out.append(f"""<section><h2>🌊 La ruta del canon en {esc(prov.title())} (2025)</h2>
+<p class="desc">Tipo de canon → municipalidad → en qué lo presupuestó → gastado o sin gastar. Presupuesto municipal con canon 2025: S/ {fmt(tp / 1e6)} M, gastado <b>{f1(td / tp * 100) if tp else "—"}%</b>, sin gastar <b>S/ {fmt((tp - td) / 1e6)} M</b>.</p>
+<div class="card"><div style="position:relative;height:{max(380, 26 * (len(ents) + 4))}px"><canvas id="skP"></canvas></div></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-bottom:6px">🧾 ¿En qué gastan el canon las municipalidades? (2025)</h3>{fun_html}</div>
+<p class="src" style="margin-top:8px">Fuentes: MEF Datos Abiertos — Presupuesto de Ingresos (canon por entidad) y Gasto Devengado 2025 (rubro 18 por función, municipalidades de la provincia). El presupuesto incluye saldos de años anteriores.</p></section>""")
+    # distritos
+    em = {e['u']: e for e in ents}
+    drows = ''
+    for x in sorted(dists, key=lambda x: -(em.get(x['u'], {}).get('y', {}).get('2025', 0))):
+        e = em.get(x['u']); c = (e or {}).get('y', {}).get('2025', 0); pob = x['p25'] or x['p']
+        drows += (f'<tr><td><a href="../../../?u={x["u"]}">{esc(x["d"])}</a></td><td class="n">{fmt(pob or 0)}</td><td class="n">{fidh(x["i"])}</td><td class="n">{f1(x["t"])}%</td>'
+                  f'<td class="n">{fmt(c / 1e6) if c else "—"}</td><td class="n">{("S/ " + fmt(c / pob)) if (c and pob) else "—"}</td></tr>')
+    known = {x['u'] for x in dists}
+    for e in sorted([e for e in ents if e['u'] not in known and e['u'][4:] != '01'], key=lambda e: -e['y'].get('2025', 0)):
+        ind = IND.get(e['u'], {}); pob = ind.get('p25') or ind.get('p'); c = e['y'].get('2025', 0)
+        nm = e['n'].title().replace('Municipalidad Distrital De ', '').replace('Municipalidad Distrital ', '')
+        drows += (f'<tr><td>{esc(nm)} <small style="color:var(--muted2)">(distrito creado después de 2016)</small></td><td class="n">{fmt(pob) if pob else "—"}</td><td class="n">{fidh(ind.get("i"))}</td><td class="n">{f1(ind.get("t")) + "%" if ind.get("t") is not None else "—"}</td>'
+                  f'<td class="n">{fmt(c / 1e6) if c else "—"}</td><td class="n">{("S/ " + fmt(c / pob)) if (c and pob) else "—"}</td></tr>')
+    out.append(f"""<section><h2>📍 Distritos de {esc(prov.title())}</h2>
+<p class="desc">Ordenados por canon recibido en 2025. Haz clic en un distrito para abrir su diagnóstico completo en el gemelo digital.</p>
+<div class="card scroll"><table class="tbl"><thead><tr><th>Distrito</th><th>Población est. 2025</th><th>IDH 2019</th><th>Pobreza</th><th>Canon 2025 (S/ M)</th><th>Canon por habitante</th></tr></thead><tbody>{drows}</tbody></table>
+<p class="src" style="margin-top:6px">Fuentes: INEI (Censo 2017, estimación 2025, mapa de pobreza), PNUD (IDH 2019), MEF (canon por municipalidad distrital).</p></div></section>""")
+    chart = {'y': ys, 'v': [round(ct[y].get('_tot', 0) / 1e6, 1) for y in ys]}
+    out.append(f"""<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.14.0/dist/chartjs-chart-sankey.min.js"></script><script>
+const P={json.dumps(chart)},L={json.dumps(L, ensure_ascii=False)},c1=getComputedStyle(document.documentElement).getPropertyValue('--h1').trim();Chart.defaults.color='#8b9bc4';Chart.defaults.font.family='Inter,system-ui,sans-serif';
+const e=id=>document.getElementById(id);
+if(e('chPT'))new Chart(e('chPT'),{{type:'bar',data:{{labels:P.y.map(y=>y==='2026'?'2026*':y),datasets:[{{label:'Canon y regalías (S/ millones)',data:P.v,backgroundColor:c1,borderRadius:5}}]}},options:{{plugins:{{legend:{{display:false}}}},scales:{{y:{{grid:{{color:'rgba(139,155,196,.15)'}}}},x:{{grid:{{display:false}}}}}}}}}});
+const SKC={{'T':'#f59e0b','M':'#3b82f6','F':'#a855f7','E':'#22c55e'}};const col=id=>id==='E:Sin gastar'?'#ef4444':(SKC[id[0]]||'#8b9bc4');
+if(e('skP')&&L.length&&Chart.registry.controllers.get('sankey')){{const lb={{}};L.forEach(l=>{{lb[l.from]=l.from.slice(2);lb[l.to]=l.to.slice(2);}});
+new Chart(e('skP'),{{type:'sankey',data:{{datasets:[{{data:L,labels:lb,colorFrom:c=>col(c.raw.from),colorTo:c=>col(c.raw.to),colorMode:'gradient',color:'#e8edf7',size:'max',padding:8,font:{{size:11}}}}]}},
+options:{{maintainAspectRatio:false,plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:c=>' '+lb[c.raw.from]+' → '+lb[c.raw.to]+': S/ '+c.raw.flow.toLocaleString('es-PE')+' M'}}}}}}}}}});}}
+</script>""")
+    out.append(footer(depth=3))
+    return '\n'.join(out)
+
 def page_fuentes():
     url = f'{SITE}fuentes/'
     out = [head('FAQ y fuentes de datos | Proyecto INTI', 'De dónde salen los datos del Proyecto INTI: INEI, MINSA, MINEDU, MEF, SUNAT/BCRP. Fechas de corte y preguntas frecuentes.', url)]
@@ -1104,6 +1215,12 @@ def main():
         html_, _ = page_region(r, nac, regiones)
         open(D('region', r['slug'], 'index.html'), 'w', encoding='utf-8').write(html_)
         urls.append(f'{SITE}region/{r["slug"]}/')
+        for pv in r['provincias']:
+            hp = page_provincia(r, pv, regiones, nac)
+            if not hp: continue
+            os.makedirs(D('region', r['slug'], slug(pv['prov'])), exist_ok=True)
+            open(D('region', r['slug'], slug(pv['prov']), 'index.html'), 'w', encoding='utf-8').write(hp)
+            urls.append(f'{SITE}region/{r["slug"]}/{slug(pv["prov"])}/')
     today = date.today().isoformat()
     sm = ''.join(f'  <url><loc>{u}</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>{"1.0" if u == SITE else ("0.9" if "cusco" in u else "0.8")}</priority></url>\n' for u in urls)
     open(D('sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{sm}</urlset>\n')
