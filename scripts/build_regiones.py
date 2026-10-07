@@ -37,6 +37,7 @@ CNV = load('data/fuentes/cnv_nacimientos_2026.json')
 SINADEF = load('data/fuentes/sinadef_defunciones_departamentos.json')
 ENLA = load('data/fuentes/enla2024_regiones.json')
 COMP = load('data/fuentes/compendio2025_salud_nacimientos.json')
+CANON = load('data/fuentes/mef_canon_departamentos.json') if os.path.exists(D('data/fuentes/mef_canon_departamentos.json')) else None
 MEF = load('data/fuentes/mef_gasto_departamentos.json') if os.path.exists(D('data/fuentes/mef_gasto_departamentos.json')) else None
 
 def pick(dct, dep, alias=None):
@@ -61,6 +62,11 @@ def extra(dep, pob):
     if MEF:
         g = pick(MEF['departamentos'], dep, al)
         if g: x['gasto'] = g
+    if CANON:
+        cn = pick(CANON['departamentos'], dep, al)
+        if cn:
+            x['canon'] = cn
+            if pob and cn.get('2025'): x['canon_pc'] = round(cn['2025']['total_canon'] / pob)
     ev = EVN['esperanza_vida']; tm = EVN['mortalidad_infantil_x1000']
     x['evn'] = pick(ev, dep, al); x['tmi'] = pick(tm, dep, al)
     x['cnv2026'] = pick(CNV['v'], dep, al)
@@ -144,6 +150,7 @@ RANK_IND = [  # clave, etiqueta corta, getter, ¿más es mejor?, unidad, fuente
     ('hab_medico', 'Habitantes por médico', lambda r: (r['x'].get('hab_medico') or [None])[-1], False, '', 'CMP/INEI 2024'),
     ('evn', 'Esperanza de vida al nacer', lambda r: (r['x'].get('evn') or [None])[0], True, 'años', 'INEI 2020-25'),
     ('tmi', 'Mortalidad infantil (x mil)', lambda r: (r['x'].get('tmi') or [None])[0], False, '', 'INEI 2020-25'),
+    ('canon_pc', 'Canon y regalías por habitante', lambda r: r['x'].get('canon_pc'), None, 'S/', 'MEF 2025'),
     ('tax_pc', 'Recaudación SUNAT por habitante', lambda r: r['x'].get('tax_pc'), None, 'S/', 'SUNAT/BCRP 2025'),
     ('gasto_pc', 'Gasto público por habitante', lambda r: r['x'].get('gasto_pc'), None, 'S/', 'MEF 2025'),
     ('retorno', 'Gasto público / recaudación', lambda r: r['x'].get('retorno'), None, 'x', 'MEF y SUNAT 2025'),
@@ -214,6 +221,8 @@ def build():
     if MEF:
         nx['gasto'] = MEF['total']; nx['gasto_pc'] = round(MEF['total']['2025']['dev'] / npob) if MEF['total'].get('2025') else None
         nx['retorno'] = round(MEF['total']['2025']['dev'] / (nx['tax']['2025'] * 1e6), 2) if MEF['total'].get('2025') else None
+    if CANON:
+        nx['canon'] = CANON['total']; nx['canon_pc'] = round(CANON['total']['2025']['total_canon'] / npob)
     nac['x'] = nx
     return regiones, nac
 
@@ -431,6 +440,7 @@ def page_region(r, nac, regiones):
     lst = ''.join(f'<details style="margin:8px 0"><summary>{esc(p)} ({len(v)})</summary><div class="chips" style="margin-top:8px">'
                   + ''.join(f'<a href="../../?u={x["u"]}">{esc(x["d"])}</a>' for x in v) + '</div></details>' for p, v in by.items())
     out.append(fiscal_section(r, nac))
+    out.append(canon_section(r, nac))
     out.append(salud_vida_section(r, nac))
     out.append(lectura_section(r, nac))
     out.append(ranking_section(r, regiones))
@@ -458,6 +468,7 @@ if(D.prov&&D.prov.length)new Chart(document.getElementById('chProv'),{{data:{{la
 const ax=(cb)=>({{responsive:true,plugins:{{legend:{{position:'bottom'}}}},scales:{{y:{{grid:{{color:grid}},beginAtZero:true,ticks:{{callback:cb||(v=>v)}}}},x:{{grid:{{display:false}}}}}},spanGaps:true}});
 const el=id=>document.getElementById(id);
 if(el('chTax'))new Chart(el('chTax'),{{data:{{labels:D.ty.map(y=>y==='2026'?'2026*':y),datasets:[{{type:'bar',label:'Recaudación SUNAT (S/ millones)',data:D.tax,backgroundColor:c1,borderRadius:5,order:2}}].concat(D.gas.length?[{{type:'line',label:'Gasto público ejecutado en la región (S/ millones)',data:D.gas,borderColor:'#22c55e',backgroundColor:'#22c55e',borderWidth:3,tension:.25,order:1}}]:[])}},options:ax(v=>v.toLocaleString('es-PE'))}});
+if(el('chCanon')&&window.__CANON)new Chart(el('chCanon'),{{type:'bar',data:{{labels:__CANON.y.map(y=>y==='2026'?'2026*':y),datasets:__CANON.ds.map(d=>Object.assign({{stack:'c',borderRadius:2}},d))}},options:{{responsive:true,plugins:{{legend:{{position:'bottom',labels:{{boxWidth:12}}}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,grid:{{color:grid}},ticks:{{callback:v=>v.toLocaleString('es-PE')}}}}}}}}}});
 if(el('chCam')&&D.cam.length)new Chart(el('chCam'),{{type:'bar',data:{{labels:D.camY,datasets:[{{label:'Camas hospitalarias',data:D.cam,backgroundColor:'#3b82f6',borderRadius:4}}]}},options:ax()}});
 if(el('chVit'))new Chart(el('chVit'),{{type:'line',data:{{labels:D.defY,datasets:[{{label:'Defunciones (SINADEF)',data:D.def,borderColor:'#ef4444',backgroundColor:'#ef4444',tension:.25}},{{label:'Nacimientos inscritos (RENIEC/INEI)',data:D.defY.map(y=>{{const i=D.nacY.indexOf(+y);return i>=0?D.nac[i]:null;}}),borderColor:'#22c55e',backgroundColor:'#22c55e',tension:.25}}]}},options:ax(v=>v.toLocaleString('es-PE'))}});
 if(el('chEnla'))new Chart(el('chEnla'),{{type:'line',data:{{labels:D.enlaY,datasets:[{{label:'Lectura',data:D.lec,borderColor:c1,backgroundColor:c1,borderWidth:3,tension:.25}},{{label:'Matemática',data:D.mat,borderColor:'#93c5fd',backgroundColor:'#93c5fd',borderWidth:3,tension:.25}}]}},options:ax(v=>v+'%')}});
@@ -507,6 +518,12 @@ def memoria(regiones, nac):
         g = X.get('gasto') or {}
         if g.get('2025'): parts.append(f"gasto público ejecutado en la región 2025 S/ {fmt(g['2025']['dev'] / 1e6)} millones (S/ {f1(X['retorno'])} gastados por cada S/ 1 recaudado; canon/regalías S/ {fmt((g['2025'].get('canon') or 0) / 1e6)} M)")
         if g.get('2026'): parts.append(f"gasto 2026 a {MEF['corte_2026']} S/ {fmt(g['2026']['dev'] / 1e6)} M de un PIM de S/ {fmt(g['2026']['pim'] / 1e6)} M")
+        cn = (X.get('canon') or {}).get('2025') or {}
+        if cn.get('total_canon'):
+            det = ', '.join(f"{t['l']} S/ {fmt(cn[t['k']] / 1e6)} M" for t in CANON['tipos'] if t['k'] not in ('foncomun',) and cn.get(t['k'], 0) > 1e6)
+            parts.append(f"canon, sobrecanon y regalías recibidos 2025 S/ {fmt(cn['total_canon'] / 1e6)} millones (S/ {fmt(X.get('canon_pc') or 0)} por habitante): {det}; Foncomun S/ {fmt((cn.get('foncomun') or 0) / 1e6)} M")
+            c26 = (X['canon'].get('2026') or {}).get('total_canon')
+            if c26: parts.append(f"canon y regalías 2026 a {CANON['corte_2026']} S/ {fmt(c26 / 1e6)} M")
         if X.get('camas'): parts.append(f"camas hospitalarias 2024 {fmt(X['camas'][-1])} ({f1(X.get('camas_10k'))} por 10 mil hab.)")
         if X.get('medicos'): parts.append(f"médicos colegiados 2024 {fmt(X['medicos'][-1])} ({fmt((X.get('hab_medico') or [0])[-1])} hab. por médico)")
         if X.get('evn'): parts.append(f"esperanza de vida 2020-25 {f1(X['evn'][0])} años (INEI proyección)")
@@ -554,6 +571,7 @@ def fiscal_section(r, nac):
          _kpi(f'Recaudación 2026 (ene–{corte.split()[0].lower()})', f'S/ {fmt(t.get("2026", 0))} M', f'{m26} meses · corte {corte}')]
     if g.get('2025'):
         k.append(_kpi('Gasto público ejecutado 2025', f'S/ {fmt(g["2025"]["dev"] / 1e6)} M', 'Gobierno nacional + regional + locales'))
+        k.append(_kpi('Gasto público por persona', f'S/ {fmt(X.get("gasto_pc") or 0)}', f'2025 · Perú S/ {fmt(nac["x"].get("gasto_pc") or 0)} · puesto {r.get("ranks", {}).get("gasto_pc", "—")} de 25'))
         k.append(_kpi('Por cada S/ 1 recaudado', f'S/ {f1(X["retorno"]).replace(",0", "")}', 'se gastó en la región (2025)'))
         if g.get('2026'):
             k.append(_kpi(f'Gasto 2026 (a {MEF["corte_2026"]})', f'S/ {fmt(g["2026"]["dev"] / 1e6)} M', f'PIM 2026: S/ {fmt(g["2026"]["pim"] / 1e6)} M'))
@@ -576,6 +594,35 @@ def fiscal_section(r, nac):
 <p class="src" style="margin-top:6px">* 2026 parcial.</p></div></div>
 <p class="src" style="margin-top:8px">⚠️ SUNAT registra la recaudación según el <b>domicilio fiscal</b>: una minera o banco con sede en Lima tributa en Lima aunque opere en {esc(r['nombre'])}, por eso la recaudación regional subestima lo que la región genera.{lima_note}
 Fuente: <a href="{TAX['url']}">BCRP — Ingresos tributarios recaudados por SUNAT según departamento</a> (corte {TAX['corte']}).{gasto_src}</p></section>"""
+
+CANON_COL = {'minero': '#f59e0b', 'gasifero': '#ef4444', 'regalias': '#a16207', 'petrolero': '#7c3aed', 'sobrecanon': '#a855f7', 'focam': '#ec4899',
+             'hidro': '#06b6d4', 'pesquero': '#3b82f6', 'forestal': '#22c55e', 'aduanas': '#64748b', 'participaciones': '#94a3b8'}
+
+def canon_section(r, nac):
+    cn = r['x'].get('canon')
+    if not CANON or not cn: return ''
+    tipos = [t for t in CANON['tipos'] if t['k'] in CANON_COL]
+    ys = [str(y) for y in range(2019, 2027)]
+    usados = [t for t in tipos if any((cn.get(y) or {}).get(t['k'], 0) > 1e5 for y in ys)]
+    c25 = cn.get('2025') or {}; tot25 = c25.get('total_canon', 0); pob = r['pob_ref']
+    rows = ''.join(f'<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:{CANON_COL[t["k"]]};margin-right:6px"></span>{esc(t["l"])}</td>'
+                   + ''.join(f'<td class="n">{fmt(((cn.get(y) or {}).get(t["k"], 0)) / 1e6)}</td>' for y in ys[-4:]) + '</tr>' for t in usados)
+    rows += '<tr><td><b>Total canon y regalías</b></td>' + ''.join(f'<td class="n"><b>{fmt(((cn.get(y) or {}).get("total_canon", 0)) / 1e6)}</b></td>' for y in ys[-4:]) + '</tr>'
+    rows += '<tr><td>Foncomun (aparte)</td>' + ''.join(f'<td class="n">{fmt(((cn.get(y) or {}).get("foncomun", 0)) / 1e6)}</td>' for y in ys[-4:]) + '</tr>'
+    principal = max(usados, key=lambda t: c25.get(t['k'], 0)) if usados and tot25 else None
+    reparto = ' · '.join(f'{lab} {f1(c25.get(k, 0) / tot25 * 100)}%' for k, lab in (('niv_regional', 'gobierno regional'), ('niv_local', 'municipalidades'), ('niv_universidades', 'universidades')) if tot25 and c25.get(k)) if tot25 else ''
+    k = [_kpi('Canon y regalías 2025', f'S/ {fmt(tot25 / 1e6)} M', f'{f1(tot25 / nac["x"]["canon"]["2025"]["total_canon"] * 100)}% del total nacional'),
+         _kpi('Por habitante', f'S/ {fmt(r["x"].get("canon_pc") or 0)}', f'Perú S/ {fmt(nac["x"].get("canon_pc") or 0)} · puesto {r.get("ranks", {}).get("canon_pc", "—")} de 25'),
+         _kpi(f'2026 (a {CANON["corte_2026"]})', f'S/ {fmt(((cn.get("2026") or {}).get("total_canon", 0)) / 1e6)} M', 'transferido en lo que va del año')]
+    if principal: k.append(_kpi('Principal fuente', esc(principal['l'].split(' (')[0]), f'{f1(c25.get(principal["k"], 0) / tot25 * 100)}% del canon 2025'))
+    data = {'y': ys, 'ds': [{'label': t['l'], 'data': [round(((cn.get(y) or {}).get(t['k'], 0)) / 1e6, 1) for y in ys], 'backgroundColor': CANON_COL[t['k']]} for t in usados]}
+    return f"""<section><h2>⛏️ Canon, sobrecanon y regalías que recibe {esc(r['nombre'])}</h2>
+<p class="desc">Lo que el gobierno regional, las municipalidades y las universidades públicas de la región reciben por la explotación de sus recursos naturales: minería, gas (Camisea), petróleo, hidroenergía, pesca y bosques. Millones de soles.</p>
+<div class="kpis" style="margin:0 0 14px;padding:0">{''.join(k)}</div>
+<div class="grid2"><div class="card"><canvas id="chCanon" height="250"></canvas><p class="src">2026 = enero a {CANON['corte_2026']}.{' Reparto 2025: ' + reparto + '.' if reparto else ''}</p></div>
+<div class="card scroll"><table class="tbl"><thead><tr><th>Concepto (S/ millones)</th>{''.join(f'<th>{y}{"*" if y == "2026" else ""}</th>' for y in ys[-4:])}</tr></thead><tbody>{rows}</tbody></table></div></div>
+<p class="src" style="margin-top:8px">Fuente: <a href="{CANON['url']}">MEF — Datos Abiertos, Presupuesto de Ingresos</a> (ingreso recaudado por gobiernos regionales, municipalidades y universidades del departamento; rubro 18 por específica de ingreso; Foncomun = rubro 07).</p>
+<script>window.__CANON={json.dumps(data, ensure_ascii=False)};</script></section>"""
 
 def salud_vida_section(r, nac):
     X = r['x']; nx = nac['x']; c = r['censo2025'] or {}
@@ -660,6 +707,8 @@ def page_index(regiones, nac):
                      f'<span>{r["n_prov"]} provincia{"s" if r["n_prov"] != 1 else ""}</span><span>{r["n_dist"]} distritos</span></div></a>')
     out.append(f'<section><div class="rgrid">{"".join(cards)}</div></section>')
     out.append('<p class="src">Pobreza: INEI ENAHO 2025 (Lima = Lima Metropolitana). Anemia 6-35 meses: INEI ENDES 2025 (directriz OMS 2024).</p>')
+    out.append(gasto_pc_section(regiones, nac))
+    out.append(canon_nacional_section(regiones, nac))
     out.append(footer(depth=1))
     return '\n'.join(out)
 
@@ -668,6 +717,7 @@ FUENTES = [  # tema, fuente, corte, url
     ('Anemia, desnutrición, vacunas, CRED, hierro, lactancia, agua, saneamiento, violencia, fecundidad', 'INEI — ENDES 2025, Indicadores de Programas Presupuestales', '2025 (publicado may-2026)', 'https://proyectos.inei.gob.pe/endes/2025/ppr/Informe_Indicadores_de_Resultados_de_los_Programas_Presupuestales_ENDES_2025.pdf'),
     ('Población, viviendas y servicios', 'INEI — Censos Nacionales 2025 (notas departamentales)', '2025 (publicado may–oct 2026)', 'https://censos2025.inei.gob.pe/'),
     ('Recaudación tributaria por región', 'SUNAT vía BCRP — tributos internos según departamento', TAX['corte'], TAX['url']),
+    ('Canon, sobrecanon, regalías, FOCAM, renta de aduanas, Foncomun', 'MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado por GR y GL)', (CANON or {}).get('corte_2026', ''), 'https://datosabiertos.mef.gob.pe/'),
     ('Gasto público ejecutado en la región', 'MEF — Datos Abiertos, Gasto Devengado (3 niveles de gobierno)', (MEF or {}).get('corte_2026', 'en carga'), 'https://datosabiertos.mef.gob.pe/'),
     ('Camas hospitalarias, médicos, nacimientos inscritos', 'INEI — Compendio Estadístico Perú 2025 (MINSA, CMP, RENIEC)', '2024 / 2023', 'https://www.gob.pe/en/institucion/inei/informes-publicaciones/7264121-peru-2025-statistical-compendium'),
     ('Nacimientos 2026', 'MINSA — Certificado de Nacido Vivo (CNV) en línea', CNV['corte'], CNV['url']),
@@ -682,12 +732,63 @@ FAQ = [
     ('¿Por qué algunos datos son de 2026 y otros de 2024?', 'Cada institución publica con un rezago distinto. Usamos siempre el último corte disponible: recaudación hasta julio 2026, gasto público y nacimientos hasta la fecha de consulta, defunciones hasta setiembre 2026; encuestas (ENAHO/ENDES) 2025; camas y médicos 2024. Los valores de 2026 son parciales y se marcan con *.'),
     ('¿Por qué Lima "recauda" casi todo?', 'SUNAT registra los impuestos según el domicilio fiscal. Muchas mineras, bancos y grandes empresas tienen domicilio en Lima aunque produzcan en regiones; por eso la recaudación regional subestima lo que cada región genera. Para comparar, mira la recaudación por habitante y el gasto que regresa.'),
     ('¿Qué significa "cuánto regresa"?', 'Es el gasto público devengado (ejecutado) en el departamento por los tres niveles de gobierno: nacional, regional y municipal, según el lugar de la meta. Excluimos las transferencias entre entidades (para no contar dos veces el mismo sol) y el servicio de la deuda. Ojo: lo que ejecutan entidades nacionales con meta en Lima (por ejemplo pensiones o compras centralizadas) se registra en Lima. Incluye lo financiado con canon, regalías y Foncomun, que mostramos aparte.'),
+    ('¿Qué es el canon y por qué unas regiones reciben mucho más?', 'El canon es la parte de los impuestos que pagan las empresas que explotan recursos naturales (minería, gas, petróleo, hidroenergía, pesca, bosques) y que la ley devuelve a la región donde se extraen. Las regalías y el FOCAM (gas de Camisea) son pagos adicionales. Por eso Cusco recibe sobre todo canon gasífero, Áncash, Arequipa y Moquegua canon minero, y Piura y Loreto canon petrolero.'),
     ('¿Los datos son por distrito o por región?', 'La mayoría de indicadores 2025 son departamentales (encuestas ENDES/ENAHO, Censo). A nivel distrital usamos Censo 2017, IDH 2019 y el mapa de pobreza INEI. Los índices 0-100 del simulador del distrito son ilustrativos y así se indican.'),
     ('¿Qué es la anemia "según OMS 2024"?', 'Desde 2024 el MINSA adoptó la nueva directriz de la OMS (RM 251-2024-MINSA) para el punto de corte de hemoglobina. INEI publica su cifra principal con ese criterio (34,9% nacional en 2025).'),
     ('¿Cómo funciona el chat?', 'El asistente tiene una memoria con todas las cifras oficiales de las 25 regiones y los rankings. Responde rankings, comparaciones ("Compara Cusco y Puno") y fichas. Cuando está conectado al servidor de IA, usa esa misma memoria y tiene prohibido inventar cifras.'),
     ('¿Puedo descargar los datos?', 'Sí: en el dashboard, el Cuadro de indicadores regionales 2025 se descarga en CSV, y todos los archivos están en el repositorio (carpeta data/fuentes).'),
     ('¿Cómo puedo apoyar?', 'Con un café, PayPal o Yape/Plin (abajo). También reportando errores o sugiriendo fuentes en GitHub.'),
 ]
+
+def gasto_pc_section(regiones, nac, link_prefix=''):
+    """Cuadro: gasto público por persona por región (ranking) + recaudación por persona y ratio."""
+    rows = []
+    for r in regiones.values():
+        X = r['x']; g = (X.get('gasto') or {}).get('2025') or {}
+        if not g.get('dev'): continue
+        pob = r['pob_ref']; t = (X.get('tax') or {}).get('2025')
+        rows.append({'n': r['nombre'], 's': r['slug'], 'pob': pob, 'pf': r['pob_ref_fuente'], 'g': g['dev'] / 1e6, 'gpc': g['dev'] / pob,
+                     'canpc': (g.get('canon') or 0) / pob, 'tpc': (t or 0) * 1e6 / pob, 'ratio': X.get('retorno'),
+                     'pobreza': (r['pobreza_serie'] or [None])[-1]})
+    if not rows: return ''
+    rows.sort(key=lambda x: -x['gpc'])
+    nx = nac['x']; npc = nx.get('gasto_pc')
+    trs = ''.join(f'<tr><td class="n">{i + 1}</td><td><a href="{link_prefix}{x["s"]}/">{"☀️ " if x["n"] == "Cusco" else ""}{esc(x["n"])}</a></td>'
+                  f'<td class="n">{fmt(x["pob"])}{"" if x["pf"] == "Censo 2025" else "*"}</td><td class="n">{fmt(x["g"])}</td>'
+                  f'<td class="n"><b>S/ {fmt(x["gpc"])}</b></td><td class="n">S/ {fmt(x["canpc"])}</td><td class="n">S/ {fmt(x["tpc"])}</td>'
+                  f'<td class="n">{f1(x["ratio"])}</td><td class="n">{f1(x["pobreza"])}%</td></tr>' for i, x in enumerate(rows))
+    data = {'l': [x['n'] for x in rows], 'v': [round(x['gpc']) for x in rows], 'c': [round(x['canpc']) for x in rows]}
+    return f"""<section id="gasto-persona"><h2>💸 Gasto público por persona, 2025</h2>
+<p class="desc">¿En qué región el Estado gasta más soles por habitante? Gasto devengado 2025 de los tres niveles de gobierno en cada región (MEF), dividido entre su población.
+Perú: <b>S/ {fmt(npc or 0)}</b> por persona. La parte verde es lo financiado con canon, sobrecanon, regalías y participaciones.</p>
+<div class="grid2"><div class="card"><div style="position:relative;height:640px"><canvas id="chGpc"></canvas></div></div>
+<div class="card scroll"><table class="tbl"><thead><tr><th>#</th><th>Región</th><th>Población</th><th>Gasto (S/ M)</th><th>Gasto por persona</th><th>de canon/regalías</th><th>Recaudación por persona</th><th>Gasto ÷ recaudado</th><th>Pobreza</th></tr></thead><tbody>{trs}</tbody></table>
+<p class="src" style="margin-top:6px">* Población estimada 2025 (INEI aún no publica el Censo 2025 de esa región); con Censo 2025 en el resto. Lima incluye Lima Metropolitana y provincias.</p></div></div>
+<p class="src" style="margin-top:8px">Fuente: MEF Datos Abiertos (gasto devengado por departamento de la meta, sin transferencias entre entidades ni servicio de la deuda); SUNAT/BCRP (recaudación); INEI (población, pobreza ENAHO 2025).
+Lo que entidades nacionales ejecutan con meta en Lima (pensiones, compras centralizadas) se registra en Lima.</p>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script>
+(function(){{const G={json.dumps(data, ensure_ascii=False)};Chart.defaults.color='#8b9bc4';Chart.defaults.font.family='Inter,system-ui,sans-serif';
+new Chart(document.getElementById('chGpc'),{{type:'bar',data:{{labels:G.l,datasets:[{{label:'Gasto por persona (S/)',data:G.v.map((v,i)=>v-G.c[i]),backgroundColor:G.l.map(n=>n==='Cusco'?'#f5a623':'rgba(59,130,246,.65)'),stack:'s',borderRadius:3}},{{label:'de canon/regalías',data:G.c,backgroundColor:'#22c55e',stack:'s',borderRadius:3}}]}},
+options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom'}},tooltip:{{callbacks:{{footer:(it)=>'Total: S/ '+G.v[it[0].dataIndex].toLocaleString('es-PE')}}}}}},scales:{{x:{{stacked:true,grid:{{color:'rgba(139,155,196,.15)'}}}},y:{{stacked:true,grid:{{display:false}},ticks:{{autoSkip:false}}}}}}}}}});}})();
+</script></section>"""
+
+def canon_nacional_section(regiones, nac):
+    if not CANON: return ''
+    rs = [(r, (r['x'].get('canon') or {}).get('2025') or {}) for r in regiones.values()]
+    rs = sorted([x for x in rs if x[1].get('total_canon')], key=lambda x: -x[1]['total_canon'])
+    tipos = [t for t in CANON['tipos'] if t['k'] in CANON_COL and any(c.get(t['k'], 0) > 1e6 for _, c in rs)]
+    data = {'l': [r['nombre'] for r, _ in rs], 'ds': [{'label': t['l'], 'data': [round(c.get(t['k'], 0) / 1e6, 1) for _, c in rs], 'backgroundColor': CANON_COL[t['k']]} for t in tipos]}
+    ct = nac['x']['canon']['2025']
+    tops = ' · '.join(f"{t['l']}: S/ {fmt(ct.get(t['k'], 0) / 1e6)} M" for t in sorted(tipos, key=lambda t: -ct.get(t['k'], 0)))
+    trs = ''.join(f'<tr><td><a href="{r["slug"]}/">{esc(r["nombre"])}</a></td><td class="n"><b>{fmt(c["total_canon"] / 1e6)}</b></td><td class="n">S/ {fmt(r["x"].get("canon_pc") or 0)}</td>'
+                  + ''.join(f'<td class="n">{fmt(c.get(t["k"], 0) / 1e6) if c.get(t["k"], 0) > 5e5 else "—"}</td>' for t in tipos) + '</tr>' for r, c in rs)
+    return f"""<section id="canon"><h2>⛏️ Canon, sobrecanon y regalías por región, 2025</h2>
+<p class="desc">Total transferido en 2025 a gobiernos regionales, municipalidades y universidades: <b>S/ {fmt(ct['total_canon'] / 1e6)} millones</b>. {tops}.</p>
+<div class="card"><div style="position:relative;height:640px"><canvas id="chCanonNac"></canvas></div></div>
+<div class="card scroll" style="margin-top:14px"><table class="tbl"><thead><tr><th>Región</th><th>Total (S/ M)</th><th>Por habitante</th>{''.join(f'<th>{esc(t["l"].split(" (")[0])}</th>' for t in tipos)}</tr></thead><tbody>{trs}</tbody></table></div>
+<p class="src" style="margin-top:8px">Fuente: MEF — Datos Abiertos, Presupuesto de Ingresos (ingreso recaudado, rubro 18). 2026 a {CANON['corte_2026']}: S/ {fmt(nac['x']['canon'].get('2026', {}).get('total_canon', 0) / 1e6)} M transferidos.</p>
+<script>(function(){{const C={json.dumps(data, ensure_ascii=False)};new Chart(document.getElementById('chCanonNac'),{{type:'bar',data:{{labels:C.l,datasets:C.ds.map(d=>Object.assign({{stack:'c'}},d))}},
+options:{{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{{legend:{{position:'bottom',labels:{{boxWidth:12}}}}}},scales:{{x:{{stacked:true,grid:{{color:'rgba(139,155,196,.15)'}},ticks:{{callback:v=>v.toLocaleString('es-PE')}}}},y:{{stacked:true,grid:{{display:false}},ticks:{{autoSkip:false}}}}}}}}}});}})();</script></section>"""
 
 def page_fuentes():
     url = f'{SITE}fuentes/'
@@ -712,7 +813,7 @@ def main():
                    **{k: (ne.get(k) or {}).get('y2025') for k in ('anemia', 'dci', 'vacunas12m', 'cred', 'hierro', 'lactancia', 'saneamiento', 'violencia')},
                    'lectura': ((nx.get('enla') or {}).get('lectura') or {}).get('satisfactorio'), 'matematica': ((nx.get('enla') or {}).get('matematica') or {}).get('satisfactorio'),
                    'camas_10k': nx.get('camas_10k'), 'hab_medico': (nx.get('hab_medico') or [None])[-1], 'evn': (nx.get('evn') or [None])[0],
-                   'tmi': (nx.get('tmi') or [None])[0], 'tax_pc': nx.get('tax_pc'), 'gasto_pc': nx.get('gasto_pc'), 'retorno': nx.get('retorno')}
+                   'tmi': (nx.get('tmi') or [None])[0], 'canon_pc': nx.get('canon_pc'), 'tax_pc': nx.get('tax_pc'), 'gasto_pc': nx.get('gasto_pc'), 'retorno': nx.get('retorno')}
     for r in regiones.values():
         r['ranks'] = {k: next((i + 1 for i, (d, _) in enumerate(lst) if d == r['dep']), None) for k, lst in RANKS.items()}
     json.dump(memoria(regiones, nac), open(D('data/memoria_chat.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)

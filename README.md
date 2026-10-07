@@ -40,6 +40,10 @@ Gasto MEF (CSV de ~2,5 GB por año, se procesa en streaming):
 `curl -s https://fs.datosabiertos.mef.gob.pe/datastorefiles/2026-Gasto-Devengado-Mensual.csv | python3 scripts/agg_gasto_mef.py 2026 /tmp/gasto_2026.json`
 y luego `python3 scripts/merge_gasto_mef.py /tmp data/fuentes/mef_gasto_departamentos.json`.
 
+Canon por tipo (minero, gasífero, petrolero, sobrecanon, regalías, FOCAM, hidroenergético, pesquero, forestal, renta de aduanas, Foncomun):
+MEF Presupuesto de Ingresos (~100 MB/año) → `scripts/agg_canon_mef.py` + `scripts/merge_canon_mef.py` → `data/fuentes/mef_canon_departamentos.json`.
+La portada `/region/` incluye los cuadros **💸 Gasto público por persona** y **⛏️ Canon por región y tipo**.
+
 **Chat:** usa el gateway propio `ai.tunky.net` si `config.js` tiene `token` (proyecto `proyecto-inti` en el servidor); sin token responde en modo memoria.
 
 Regenerar: `python3 scripts/build_regiones.py` (lee `data/fuentes/*.json`; parsers en `scripts/parse_*.py`).

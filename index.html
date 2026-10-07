@@ -307,6 +307,8 @@
       <a href="region/" style="border-color:var(--inti);color:var(--inti2);font-weight:700">🗺️ Carátulas por región</a>
       <a href="region/cusco/">☀️ Cusco</a>
       <a href="#regiones2025">📊 Cuadro 2025</a>
+      <a href="region/#gasto-persona">💸 Gasto por persona</a>
+      <a href="region/#canon">⛏️ Canon</a>
       <a href="fuentes/">❓ FAQ y fuentes</a>
       <a href="#faq">¿Qué es?</a>
       <a href="#resumen">Resumen</a>
@@ -1041,7 +1043,7 @@ function renderCorredores(){
 }
 
 /* ====================== MOTOR IA (demo heurística) ====================== */
-const PREGUNTAS=["¿Qué región recauda más impuestos por habitante?","¿Cuánto regresa a Cusco de lo que recauda?","¿Dónde hay menos camas por habitante?","Ranking de lectura","¿Cómo está mi región en 2025?","¿Qué región tiene más anemia?","Compara Cusco y Puno","Ranking de pobreza 2025","¿Qué dice el Censo 2025 de Cusco?","¿Cómo reducir la pobreza en este distrito?","¿Cómo duplicar el ingreso promedio en 15 años?","¿Cómo eliminar la anemia?","¿Cómo mejorar la seguridad?","¿Cómo fortalecer a las familias?","¿Qué inversiones son prioritarias?","¿Qué impacto tendría aumentar el presupuesto educativo?"];
+const PREGUNTAS=["¿Qué región recibe más canon?","¿Dónde se gasta más por persona?","¿Qué región recauda más impuestos por habitante?","¿Cuánto regresa a Cusco de lo que recauda?","¿Dónde hay menos camas por habitante?","Ranking de lectura","¿Cómo está mi región en 2025?","¿Qué región tiene más anemia?","Compara Cusco y Puno","Ranking de pobreza 2025","¿Qué dice el Censo 2025 de Cusco?","¿Cómo reducir la pobreza en este distrito?","¿Cómo duplicar el ingreso promedio en 15 años?","¿Cómo eliminar la anemia?","¿Cómo mejorar la seguridad?","¿Cómo fortalecer a las familias?","¿Qué inversiones son prioritarias?","¿Qué impacto tendría aumentar el presupuesto educativo?"];
 function renderIAChips(){
   document.getElementById('iaChips').innerHTML=PREGUNTAS.map(q=>`<button onclick="document.getElementById('iaInput').value=this.textContent;responderIA()">${q}</button>`).join('');
 }
@@ -1049,7 +1051,7 @@ function renderIAChips(){
 window.MEM=null;
 const MEM_KW=[['pobreza',/POBRE/],['anemia',/ANEMI/],['dci',/DESNUTRI/],['vacunas12m',/VACUN|INMUNIZ/],['cred',/CRED|CONTROL(ES)? DE CRECIMIENTO/],['hierro',/HIERRO|SUPLEMENT/],
   ['lactancia',/LACTAN/],['saneamiento',/SANEAMIENTO/],['violencia',/VIOLEN/],['ingreso',/INGRESO|SUELDO|GANA/],['c_agua',/\bAGUA\b/],['c_desague',/DESAG|ALCANTARILL/],['c_internet',/INTERNET|CONECTIVIDAD/],
-  ['tax_pc',/IMPUEST|RECAUD|TRIBUT|SUNAT/],['retorno',/REGRESA|RETORN|DEVUELV|VUELVE/],['gasto_pc',/GASTO PUBLICO|PRESUPUESTO|GASTA/],['camas_10k',/CAMA/],['hab_medico',/MEDICO/],
+  ['canon_pc',/CANON|REGALIA|CAMISEA|FOCAM|GASIFER|MINERO|PETROLER/],['tax_pc',/IMPUEST|RECAUD|TRIBUT|SUNAT/],['retorno',/REGRESA|RETORN|DEVUELV|VUELVE/],['gasto_pc',/GASTO PUBLICO|PRESUPUESTO|GASTA/],['camas_10k',/CAMA/],['hab_medico',/MEDICO/],
   ['evn',/ESPERANZA DE VIDA|CUANTO VIVE/],['tmi',/MORTALIDAD INFANTIL/],['lectura',/LECTUR|LEER|COMPRENSION/],['matematica',/MATEMAT/]];
 function memRegiones(q){ const M=window.MEM; if(!M) return []; const Q=' '+normDep(q).replace(/[^A-Z ]/g,' ')+' '; const out=[];
   for(const dep in M.regiones){ const nm=normDep(M.regiones[dep].nombre); const al=[nm,normDep(dep)]; if(nm==='CUSCO') al.push('CUZCO');
@@ -1070,7 +1072,7 @@ function responderMemoria(q){
   const M=window.MEM, R=window.REG25; if(!M||!R) return null;
   const Q=normDep(q), regs=memRegiones(q), inds=memIndicadores(q), li=a=>'<ul>'+a.map(x=>`<li>${x}</li>`).join('')+'</ul>';
   const fuente='<div class="nota">Respuesta desde la <b>memoria de datos oficiales</b> de INTI (INEI: ENAHO 2025, ENDES 2025, Censos Nacionales 2025; PNUD IDH 2019). Datos departamentales, no distritales.</div>';
-  const quiereRank=/RANKING|MAYOR|MENOR|MENOS|PEOR|MEJOR|MAS ALT|MAS BAJ|TOP|QUE REGION|CUAL REGION|CUALES|DONDE HAY|EN QUE REGION/.test(Q);
+  const quiereRank=/RANKING|MAYOR|MENOR|MENOS|PEOR|MEJOR|MAS ALT|MAS BAJ|TOP|QUE REGION|CUAL REGION|CUALES|DONDE|EN QUE REGION|MAS POR/.test(Q);
   // comparar 2+ regiones
   if(regs.length>=2&&(/COMPAR|VS|VERSUS| O /.test(Q)||regs.length>=2)){
     const rr=regs.slice(0,4).map(d=>R.regiones[d]);
